@@ -1,0 +1,80 @@
+{
+  "fixture_id": "retail-genesys-class-conversion",
+  "title": "Advisor call: converting Income Fund Class C to Class A",
+  "description": "Genesys inbound service call from a Miami advisor identified only by phone number. He asks how to convert clients' Contoso Income Fund Class C positions to Class A after the holding period and about the load, fee and tax impact. Harmless rapport (Miami Heat season tickets) should be kept in the note.",
+  "channel": "genesys",
+  "direction": "inbound",
+  "market": "US",
+  "business_line": "retail",
+  "call_type": "service",
+  "language": "en-US",
+  "started_at": "2026-11-16T14:45:00Z",
+  "duration_minutes": 7,
+  "seller": {
+    "id": "seller",
+    "display_name": "Jordan Ellis",
+    "email": "jordan.ellis@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Carlos Mendez",
+      "phone": "+1 305 555 0181",
+      "role": "customer"
+    }
+  ],
+  "internal": [],
+  "turns": [
+    {"speaker": "seller", "text": "Thanks for calling Contoso Woodgrove advisor services, this is Jordan. Who do I have the pleasure of speaking with?"},
+    {"speaker": "customer", "text": "Hi Jordan, it's Carlos Mendez. I have a question about converting share classes for some of my clients."},
+    {"speaker": "seller", "text": "Hi Carlos, nice to talk to you. Your number matches the advisor we have on file, so we're good on verification. How's your morning going?"},
+    {"speaker": "customer", "text": "Pretty good, thanks. A little tired, though, because I was at the Miami Heat game last night. I'm a season-ticket holder, so my evenings are spoken for."},
+    {"speaker": "seller", "text": "That's a great problem to have. So tell me about the share class question."},
+    {"speaker": "customer", "text": "I have several clients holding the Contoso Income Fund, Class C. They bought it more than a year ago, so they should be past the holding period, and I'd like to move them into the Contoso Income Fund, Class A."},
+    {"speaker": "seller", "text": "Understood. Moving from Class C to Class A within the same fund is a share class conversion, and since they're past the holding period there shouldn't be a CDSC on the way out. Is that for all of those clients?"},
+    {"speaker": "customer", "text": "Just the ones in taxable accounts, about a dozen. What does the fee and load impact look like? I don't want to trigger a front-end load on clients who've been with me for years."},
+    {"speaker": "seller", "text": "As a general rule, a conversion within the same fund isn't treated as a new purchase, so the front-end load shouldn't apply. You'll want to see the exact fee schedule rather than rely on my memory, though."},
+    {"speaker": "customer", "text": "That helps. And what about taxes? Are my clients going to see capital gains from the conversion?"},
+    {"speaker": "seller", "text": "Generally, a conversion between classes of the same fund isn't treated as a sale for tax purposes, so it shouldn't create a gain. Your clients should still confirm that with their tax advisors."},
+    {"speaker": "customer", "text": "Understood. How does the process work? Is there a form, or can I do it online?"},
+    {"speaker": "seller", "text": "There's a class conversion form, and you submit it with a list of the accounts and the share counts. I'll send you the conversion checklist and the form by Wednesday."},
+    {"speaker": "customer", "text": "Perfect. Could you also send the fee schedule for both classes so I can compare them for my clients?"},
+    {"speaker": "seller", "text": "Of course. I'll email you the fee schedule tomorrow."},
+    {"speaker": "customer", "text": "Great. I'll go over the timing with my assistant so the forms are ready when your checklist arrives."},
+    {"speaker": "seller", "text": "That works. Is there anything else I can help you with today?"},
+    {"speaker": "customer", "text": "That's all for now. Thanks, Jordan, and go Heat!"},
+    {"speaker": "seller", "text": "Ha, thanks, Carlos. Enjoy the next game, and thank you for calling Contoso Woodgrove."}
+  ],
+  "gold": {
+    "template_id": "retail_advisor",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000085",
+        "surface_forms": ["Contoso Income Fund, Class C"],
+        "mention_type": "existing_holding",
+        "ambiguous": false,
+        "acceptable_ids": []
+      },
+      {
+        "product_id": "SYN-000084",
+        "surface_forms": ["Contoso Income Fund, Class A"],
+        "mention_type": "interest",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["share_class_selection", "fees_expenses", "tax_efficiency"],
+    "tasks": [
+      {"keywords": ["conversion", "checklist"], "owner_role": "seller", "due_date": "2026-11-18"},
+      {"keywords": ["fee", "schedule"], "owner_role": "seller", "due_date": "2026-11-17"}
+    ],
+    "must_not_leak": [],
+    "must_keep": ["heat"],
+    "expect_crm_account": "acc-008",
+    "notes": "Account resolution is by caller phone +1 305 555 0181 only; no email and no firm name is spoken. Keepable rapport: Miami Heat season-ticket holder. The advisor's plan to go over timing with his assistant is a customer commitment and not a task. Due dates: call is Monday 2026-11-16, so 'by Wednesday' is 2026-11-18 and 'tomorrow' is 2026-11-17."
+  },
+  "tags": ["genesys", "inbound", "service", "retail", "share_class", "conversion", "rapport"]
+}

@@ -1,0 +1,95 @@
+{
+  "fixture_id": "retail-zoom-target-date-retirement",
+  "title": "Zoom discovery: Target Retirement 2045 R6 versus A for a plan default",
+  "description": "Zoom discovery meeting with two advisors from Pinecrest Advisory Group evaluating the Contoso Target Retirement 2045 Fund, Class R6 against Class A as the default option for a 401(k) plan. Two customer speakers, a rapport fact about coaching soccer, and a relative-date commitment ('next Wednesday').",
+  "channel": "zoom",
+  "direction": "meeting",
+  "market": "US",
+  "business_line": "retail",
+  "call_type": "discovery",
+  "language": "en-US",
+  "started_at": "2026-11-12T16:00:00Z",
+  "duration_minutes": 18,
+  "seller": {
+    "id": "seller",
+    "display_name": "Jordan Ellis",
+    "email": "jordan.ellis@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Tom Alvarez",
+      "email": "tom.alvarez@pinecrest-advisory.example",
+      "phone": "+1 303 555 0151",
+      "role": "customer",
+      "org": "Pinecrest Advisory Group"
+    },
+    {
+      "id": "cust2",
+      "display_name": "Rachel Stein",
+      "email": "rachel.stein@pinecrest-advisory.example",
+      "phone": "+1 303 555 0152",
+      "role": "customer",
+      "org": "Pinecrest Advisory Group"
+    }
+  ],
+  "internal": [],
+  "customer_org": "Pinecrest Advisory Group",
+  "turns": [
+    {"speaker": "seller", "text": "Hi Tom, hi Rachel, thanks for making the time. Can you both see and hear me okay?"},
+    {"speaker": "customer", "text": "Hi Jordan, we can see and hear you fine. Rachel is sitting next to me in the conference room."},
+    {"speaker": "customer", "speaker_id": "cust2", "text": "Hi Jordan, nice to meet you. Thanks for setting this up."},
+    {"speaker": "seller", "text": "Great to meet you, Rachel. Tom, last time you mentioned you coach a team. How's the season going?"},
+    {"speaker": "customer", "text": "It's going well. I coach my daughter's soccer team, and we won our last match, so the ride home was a lot more fun than usual."},
+    {"speaker": "seller", "text": "That's great to hear. Okay, let's get into it. You said you're evaluating target-date options for one of your plans?"},
+    {"speaker": "customer", "text": "Right. We advise a manufacturing company on their 401(k) plan, and the committee wants to review the default option. We're looking at the Contoso Target Retirement 2045 Fund, Class R6 for that role."},
+    {"speaker": "seller", "text": "That makes sense. Can you tell me a bit about the plan participants? Are they mostly mid-career?"},
+    {"speaker": "customer", "text": "Mostly mid-career, with a lot of them in their forties, which is why the 2045 vintage is on the table. Many of them never touch their accounts, so the default really matters."},
+    {"speaker": "customer", "speaker_id": "cust2", "text": "Our committee is also very fee sensitive. They want to see how the Class R6 compares with the Contoso Target Retirement 2045 Fund, Class A on cost, since Class A is what we've used for some of our individual clients."},
+    {"speaker": "seller", "text": "Good question. R6 is built for retirement plans, so the expense ratio is typically lower and there's no distribution fee. Class A usually carries a distribution fee on top, so participants would pay more over time."},
+    {"speaker": "customer", "text": "That's what I expected. What about the glide path? The committee wants to know how quickly the fund moves away from equities as people get closer to 2045."},
+    {"speaker": "seller", "text": "The glide path gradually shifts from equities toward more conservative holdings as the target date approaches, and it keeps adjusting into retirement. The asset allocation at each stage is rebalanced inside the fund, so participants don't have to do anything."},
+    {"speaker": "customer", "speaker_id": "cust2", "text": "How much is still allocated to equities at the target date? Some of our participants worry about being too exposed right before they retire."},
+    {"speaker": "seller", "text": "It still holds a meaningful allocation to equities at the target date, because retirees keep investing for many years. I'll send you our glide path white paper by Monday, and it lays out the allocation at every stage."},
+    {"speaker": "customer", "text": "That would be great. The committee will want something in writing before they decide."},
+    {"speaker": "customer", "speaker_id": "cust2", "text": "One more question on fees. Is there any revenue sharing built into the R6 expense ratio?"},
+    {"speaker": "seller", "text": "R6 is designed without revenue sharing, so the expense ratio is the net cost to participants. That's the main difference you'd see when you put the two classes side by side."},
+    {"speaker": "customer", "text": "That helps. We'd also like the committee to hear this directly from you. Is there a webinar they could join?"},
+    {"speaker": "seller", "text": "Yes, we run a retirement plan webinar on target-date strategies. I'll send your plan committee a webinar invite for next Wednesday."},
+    {"speaker": "customer", "speaker_id": "cust2", "text": "That works for us. I'll check the committee's calendar and let you know who can attend."},
+    {"speaker": "seller", "text": "Sounds great. Thanks for the time, both of you, and good luck to your team this season, Tom."},
+    {"speaker": "customer", "text": "Thanks, Jordan, we'll need it. Talk soon."}
+  ],
+  "gold": {
+    "template_id": "retail_advisor",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000163",
+        "surface_forms": ["Contoso Target Retirement 2045 Fund, Class R6"],
+        "mention_type": "interest",
+        "ambiguous": false,
+        "acceptable_ids": []
+      },
+      {
+        "product_id": "SYN-000161",
+        "surface_forms": ["Contoso Target Retirement 2045 Fund, Class A"],
+        "mention_type": "comparison",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["retirement_target_date", "fees_expenses", "allocation_portfolio"],
+    "tasks": [
+      {"keywords": ["glide", "paper"], "owner_role": "seller", "due_date": "2026-11-16"},
+      {"keywords": ["webinar", "invite"], "owner_role": "seller", "due_date": "2026-11-18"}
+    ],
+    "must_not_leak": [],
+    "must_keep": ["soccer"],
+    "expect_crm_account": "acc-005",
+    "notes": "Two customer speakers (Tom cust1, Rachel cust2). Keepable rapport: Tom coaches his daughter's soccer team. The committee-calendar check by Rachel is a customer commitment and not a task. Due dates: call is Thursday 2026-11-12, so 'by Monday' is 2026-11-16 and 'next Wednesday' (following Mon-Sun week) is 2026-11-18."
+  },
+  "tags": ["zoom", "retail", "discovery", "target_date", "multi_party", "rapport", "relative_date"]
+}

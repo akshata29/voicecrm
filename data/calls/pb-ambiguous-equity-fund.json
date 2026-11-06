@@ -1,0 +1,78 @@
+{
+  "fixture_id": "pb-ambiguous-equity-fund",
+  "title": "Cascade Endowment: Contoso Equity Income Fund inquiry, share class undecided",
+  "description": "Priya Nair asks about the Contoso Equity Income Fund throughout but never states a share class because her custodian decides later. The pipeline should recognise the fund, flag the share class as ambiguous and offer a top-3 pick. The seller commits to expense ratios by Monday and to a performance summary 'next week' (no weekday, so no due date).",
+  "channel": "teams",
+  "direction": "meeting",
+  "market": "US",
+  "business_line": "professional_buyer",
+  "call_type": "discovery",
+  "language": "en-US",
+  "started_at": "2026-11-12T16:00:00Z",
+  "duration_minutes": 13,
+  "seller": {
+    "id": "seller",
+    "display_name": "Sam Rivera",
+    "email": "sam.rivera@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Priya Nair",
+      "email": "priya.nair@cascade-endowment.example",
+      "phone": "+1 503 555 0121",
+      "role": "customer",
+      "org": "Cascade Endowment Partners"
+    }
+  ],
+  "internal": [],
+  "customer_org": "Cascade Endowment Partners",
+  "turns": [
+    {"speaker": "seller", "text": "Hi Priya, it's Sam. Thanks for making time, I know it's a busy stretch for you."},
+    {"speaker": "customer", "text": "Hi, Sam. Good to hear from you. It finally stopped raining here this morning, so I'm in a much better mood."},
+    {"speaker": "seller", "text": "Glad to hear it. We're overdue for some sunshine on my end too. So, you wanted to talk about the Contoso Equity Income Fund?"},
+    {"speaker": "customer", "text": "Yes. We're thinking about adding an income-oriented equity holding for the endowment, and the Contoso Equity Income Fund came up in our screen. I'd like to understand what it actually does before I take it any further."},
+    {"speaker": "seller", "text": "Sure. The Contoso Equity Income Fund focuses on large, established companies that pay dividends, with an emphasis on businesses that can grow their payout over time. The idea is a steady income stream plus some long-term growth."},
+    {"speaker": "customer", "text": "That fits what we need, since our spending policy leans on steady income. How has it done over time? I'd like to see the track record against its benchmark."},
+    {"speaker": "seller", "text": "It has outperformed its benchmark over the trailing three year and five year periods, and the dividend payout has grown in each of the last several years."},
+    {"speaker": "customer", "text": "That's encouraging. What about the cost? I know the fees can vary quite a bit depending on how we end up holding it."},
+    {"speaker": "seller", "text": "They do vary. The total expense ratio runs from about fifty basis points on the cheapest option to over a hundred and fifty on the most expensive, depending on the share class. Do you know which share class you're leaning toward?"},
+    {"speaker": "customer", "text": "Honestly, not yet. Our custodian decides the share class later, based on how our accounts are set up and what their platform offers, so I'm not choosing that today."},
+    {"speaker": "seller", "text": "That makes sense. In that case, I'll send you the expense ratios for every share class by Monday, so you and the custodian can see the full range side by side."},
+    {"speaker": "customer", "text": "That would be really useful, thank you. I'll check with our custodian on which options they support, so we know what's actually available to us."},
+    {"speaker": "seller", "text": "Good plan. Is there anything else on the Equity Income Fund you'd like to have in hand before you talk to them?"},
+    {"speaker": "customer", "text": "A one-page summary would help, ideally the trailing numbers against the benchmark, plus how the dividend payout has grown over the years."},
+    {"speaker": "seller", "text": "Of course. I'll pull together a performance summary with the dividend history and get it to you next week."},
+    {"speaker": "customer", "text": "Perfect. We're still early in the process, so there's no rush on our side."},
+    {"speaker": "seller", "text": "Understood, no pressure at all. Any plans for the weekend?"},
+    {"speaker": "customer", "text": "A trip to the coast, fingers crossed that the rain stays away. How about you?"},
+    {"speaker": "seller", "text": "A long run and some yard work, weather permitting. Sounds like we both need a bit of fresh air."},
+    {"speaker": "customer", "text": "We do. Thanks again, Sam, I appreciate the help."},
+    {"speaker": "seller", "text": "Anytime, Priya. Talk soon, and enjoy the weekend."}
+  ],
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000009",
+        "surface_forms": ["Contoso Equity Income Fund", "Equity Income Fund"],
+        "mention_type": "interest",
+        "ambiguous": true,
+        "acceptable_ids": ["SYN-000006", "SYN-000007", "SYN-000008", "SYN-000009"]
+      }
+    ],
+    "topics": ["share_class_selection", "fees_expenses", "performance_returns"],
+    "tasks": [
+      {"keywords": ["expense", "ratios"], "owner_role": "seller", "due_date": "2026-11-16"},
+      {"keywords": ["performance", "summary"], "owner_role": "seller", "due_date": null}
+    ],
+    "must_not_leak": [],
+    "must_keep": [],
+    "expect_crm_account": "acc-002",
+    "notes": "The fund is named many times but no share class is ever stated; the custodian decides later. Gold is ambiguous with all four Equity Income share classes acceptable, SYN-000009 (R6) being the most plausible for an endowment. 'By Monday' on a Thursday call resolves to 2026-11-16; 'next week' without a weekday has no due date. Priya checking with her custodian is a customer commitment, not a task."
+  },
+  "tags": ["teams", "pb", "ambiguous_product", "custodian_decides", "endowment"]
+}

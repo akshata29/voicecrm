@@ -1,0 +1,43 @@
+# Build context for the single-container image (Dockerfile at the repo root). Keep the remote ACR build upload small
+# and keep host-specific artefacts (Windows venv, node_modules, local state, secrets) out of the image.
+
+# VCS and editor
+.git
+.gitignore
+.vscode
+.idea
+
+# Python
+.venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.ruff_cache
+**/.mypy_cache
+**/*.egg-info
+backend/tests
+
+# Node
+**/node_modules
+frontend/dist
+
+# Local state and secrets - never ship these (patterns are rooted at the context unless they start with **/)
+.state
+.env
+.env.*
+**/.env
+**/.env.local
+**/.env.*.local
+**/*.sqlite
+**/*.db
+
+# Generated/large demo media (git-ignored; regenerate or mount if a demo needs it)
+data/audio
+
+# Not needed at runtime
+.azure
+azure.yaml
+infra
+scripts
+docs
+tools

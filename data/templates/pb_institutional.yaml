@@ -1,0 +1,46 @@
+template_id: pb_institutional
+name: Professional Buyer - Institutional call note
+description: >-
+  Concise institutional-investor call note for the Professional Buyer group. Structured so the Distribution
+  Intelligence team can mine it: every section maps to a CRM field.
+business_lines: [professional_buyer, international]
+call_types: [discovery, product_recommendation, follow_up, service]
+language_out: en
+include_relationship_context: false
+tone: concise, factual, third person; no speculation; no personal details
+max_words: 220
+sections:
+  - key: overview
+    title: Overview
+    kind: text
+    instruction: 2-3 sentences - who was on the call, the purpose, and the outcome.
+    crm_field: vcrm_overview
+  - key: client_context
+    title: Client objectives and context
+    kind: list
+    instruction: >-
+      Mandate, objectives, constraints, timeline and decision process the client stated. Business context only -
+      no personal or sensitive information.
+    max_items: 5
+    crm_field: vcrm_clientcontext
+  - key: products_strategies
+    title: Products and strategies discussed
+    kind: list
+    instruction: >-
+      One line per resolved product (exact fund and share class) plus strategy themes, with the client's stance
+      (interest, existing holding, comparison, objection).
+    max_items: 6
+    crm_field: vcrm_productsdiscussed
+  - key: concerns
+    title: Concerns and objections
+    kind: list
+    instruction: Questions, concerns, objections or competitor mentions raised by the client.
+    max_items: 4
+    required: false
+    crm_field: vcrm_concerns
+  - key: decisions_next_steps
+    title: Decisions and next steps
+    kind: list
+    instruction: Decisions made and agreed next steps with owner and date; must mirror the CRM tasks.
+    max_items: 6
+    crm_field: vcrm_nextsteps

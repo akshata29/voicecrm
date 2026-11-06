@@ -1,0 +1,79 @@
+{
+  "fixture_id": "intl-eu-zoom-euro-bond-ucits",
+  "title": "Lukas Brandt (Rheinland) - Contoso Euro Bond UCITS Fund, W class",
+  "description": "EU Zoom call: a head of fund selection reviews the Contoso Euro Bond UCITS Fund, W class for his approval process. The greeting includes a brief GDPR recording-consent exchange; the seller commits to DDQ answers 'next Tuesday' and to arranging a portfolio manager call by the end of the week.",
+  "channel": "zoom",
+  "direction": "meeting",
+  "market": "EU",
+  "business_line": "international",
+  "call_type": "product_recommendation",
+  "language": "en-US",
+  "started_at": "2026-11-18T09:00:00Z",
+  "duration_minutes": 14,
+  "seller": {
+    "id": "seller",
+    "display_name": "Casey Morgan",
+    "email": "casey.morgan@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Lukas Brandt",
+      "email": "lukas.brandt@rheinland-vv.example",
+      "phone": "+49 30 5550 0201",
+      "role": "customer",
+      "org": "Rheinland Vermögensverwaltung"
+    }
+  ],
+  "internal": [],
+  "customer_org": "Rheinland Vermögensverwaltung",
+  "turns": [
+    {"speaker": "seller", "text": "Good morning, Lukas, thanks for joining. Before we start, I would like to record this call for our internal notes, in line with GDPR. Are you comfortable with that?"},
+    {"speaker": "customer", "text": "Good morning, Casey. Yes, that is fine, you have my consent for the recording."},
+    {"speaker": "seller", "text": "Thank you. How is the weather with you?"},
+    {"speaker": "customer", "text": "Cold and grey, but nothing unusual for November. The Christmas markets are about to open, so at least that is something to look forward to."},
+    {"speaker": "seller", "text": "Lovely. Shall we get into it? You mentioned in your email that you are looking at euro bond funds."},
+    {"speaker": "customer", "text": "Yes. We are reviewing our euro fixed income exposure, and the Contoso Euro Bond UCITS Fund, W class, is on our shortlist. The W class is the one our custodian platform carries."},
+    {"speaker": "seller", "text": "Good to hear. What would you like to understand first?"},
+    {"speaker": "customer", "text": "Duration, mainly. With so much uncertainty around the ECB, I want to understand how the fund is positioned on duration and the yield curve."},
+    {"speaker": "seller", "text": "Understood. The team manages duration actively around the benchmark, so it can move away from the index when their view on euro rates changes. I would rather not quote the current positioning from memory, though."},
+    {"speaker": "customer", "text": "Of course. And on the credit side, how does the team think about spreads and credit quality? I would like to know how much of the fund sits in investment grade corporates and how much in government bonds."},
+    {"speaker": "seller", "text": "It's an investment grade strategy, so the credit exposure comes mostly from corporate bonds alongside euro government bonds. The exact split moves over time, so I wouldn't want to give you a number off the top of my head."},
+    {"speaker": "customer", "text": "That makes sense. For our approval process, we will need to run the fund through our due diligence questionnaire, the DDQ. Our research committee meets again in December, so I would like to submit everything before that."},
+    {"speaker": "seller", "text": "That should be fine. Do you send the DDQ over, or do you use a standard template?"},
+    {"speaker": "customer", "text": "We have our own template, and I will send it to you right after this call."},
+    {"speaker": "seller", "text": "Great, thank you. I'll send you the completed DDQ answers next Tuesday."},
+    {"speaker": "customer", "text": "Perfect. It would also help to speak with the portfolio manager before the committee meets, to hear how they see euro rates and credit at the moment."},
+    {"speaker": "seller", "text": "Of course. I'll arrange a call with the portfolio manager and send you a few time slots by the end of the week."},
+    {"speaker": "customer", "text": "Excellent. Then I think I have what I need for now."},
+    {"speaker": "seller", "text": "Anything else I can help with today?"},
+    {"speaker": "customer", "text": "No, that is everything. Thank you, Casey, this was very helpful."},
+    {"speaker": "seller", "text": "My pleasure, Lukas. Enjoy the Christmas markets, and speak soon."},
+    {"speaker": "customer", "text": "Thank you, you too. Goodbye."}
+  ],
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000186",
+        "surface_forms": ["Contoso Euro Bond UCITS Fund, W class"],
+        "mention_type": "interest",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["fixed_income_credit", "rates_duration", "due_diligence_approval"],
+    "tasks": [
+      {"keywords": ["ddq"], "owner_role": "seller", "due_date": "2026-11-24"},
+      {"keywords": ["call", "manager"], "owner_role": "seller", "due_date": "2026-11-20"}
+    ],
+    "must_not_leak": [],
+    "must_keep": [],
+    "expect_crm_account": "acc-010",
+    "notes": "EU market, W class of the UCITS euro bond fund (SYN-000186). The GDPR recording-consent exchange in the greeting is small talk, not a task. Lukas sending his own DDQ template after the call is a customer-side distractor. For a call on Wednesday 2026-11-18, 'next Tuesday' = 2026-11-24 (Tuesday of the following Mon-Sun week) and 'by the end of the week' = Friday 2026-11-20."
+  },
+  "tags": ["eu", "ucits", "zoom", "international", "gdpr", "due_diligence", "ddq", "euro_bond"]
+}

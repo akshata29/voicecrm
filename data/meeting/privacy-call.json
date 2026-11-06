@@ -1,0 +1,50 @@
+{
+  "scenario": "privacy",
+  "order": 4,
+  "title": "Harborview Pension Fund: mid-cap value sleeve, forum registration and a personal aside (live Teams demo call)",
+  "shows": "Privacy by design: a card number, a personal cell number and a medical detail never reach the note, and the small talk is left out of it.",
+  "call_type": "relationship",
+  "notes": "Played into ONE microphone, so every line is attributed to the host: customer lines make no first-person commitments and nothing says today, tonight or tomorrow. All personal data is fake: 4111 1111 1111 1111 is the standard card test number and 206 555 0188 is a reserved fictional number. Each sensitive item sits in its own line, so dropping it loses no business content: the card (payment_card), the personal cell (personal_contact) and the knee surgery (medical). Alex Kim covering in December is business context and stays. The Seahawks and Seattle chat is small talk: the policy only keeps rapport that the customer says, and a one-microphone recording attributes no line to the customer, so it is left out of the note.",
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {"product_id": "SYN-000044", "surface_forms": ["Contoso Mid Cap Value Fund, Class R6"], "mention_type": "interest"}
+    ],
+    "topics": ["allocation_portfolio", "fees_expenses"],
+    "tasks": [
+      {"keywords": ["fee", "comparison"], "owner_role": "seller", "due_date": "2026-11-09"},
+      {"keywords": ["forum", "confirmation"], "owner_role": "seller", "due_date": "2026-11-11"}
+    ],
+    "must_not_leak": ["4111 1111 1111 1111", "206 555 0188", "surgery", "surgeon", "knee"],
+    "must_keep": [],
+    "expect_crm_account": "acc-001",
+    "notes": "Privacy hero for the Teams demo. The card, the personal cell and the medical aside must not appear in any CRM field. On a Friday call 'on Monday' is 2026-11-09 and 'by Wednesday' is 2026-11-11."
+  },
+  "seller": {"name": "Aisha West", "voice": "en-US-AriaNeural"},
+  "customer": {"name": "Dana Whitfield", "voice": "en-US-JennyNeural"},
+  "turns": [
+    {"speaker": "seller", "text": "Hi Dana, it's Aisha from Contoso Woodgrove. Can you hear me okay?"},
+    {"speaker": "customer", "text": "Loud and clear, Aisha. Good to see you, even if it's through a screen."},
+    {"speaker": "seller", "text": "Likewise. I have to say, I love the Seahawks banner on the wall behind you. Is that new?"},
+    {"speaker": "customer", "text": "Ha, that's been up for years. I grew up in Seattle, so I'm a huge Seahawks fan, and the banner is basically required."},
+    {"speaker": "seller", "text": "Did you catch the game this past weekend?"},
+    {"speaker": "customer", "text": "I did, and my nerves did not thank me. The defense held on in the fourth quarter, but those last few minutes were a lot."},
+    {"speaker": "seller", "text": "Those are the wins you remember. Before we dig in, you mentioned you'd be out for a stretch in December?"},
+    {"speaker": "customer", "text": "Yes, for about three weeks from the first of December. My analyst, Alex Kim, will be your day-to-day contact while I'm out."},
+    {"speaker": "seller", "text": "Thanks for letting me know. I hope everything is okay."},
+    {"speaker": "customer", "text": "It's a planned knee surgery, nothing serious, but my surgeon wants me off my feet for a while."},
+    {"speaker": "seller", "text": "I'm glad it's planned. Take all the time you need. Let's talk shop, then. You mentioned wanting to add a mid-cap value sleeve to the plan."},
+    {"speaker": "customer", "text": "Yes. We're thinking about the Contoso Mid Cap Value Fund, Class R6, to diversify the large-cap core allocation. I'd like to understand how it would sit alongside what we already own."},
+    {"speaker": "seller", "text": "That's a natural fit. Class R6 is the lowest-cost way to own it, built for institutional plans like yours. Mid-cap value tends to behave differently from large-cap core, which is where the diversification comes from."},
+    {"speaker": "customer", "text": "Good. And I need to see the fees side by side before I bring anything to the trustees."},
+    {"speaker": "seller", "text": "Understood. I'll put together a fee comparison for the Mid Cap Value Fund, Class R6 and send it to you on Monday."},
+    {"speaker": "customer", "text": "Perfect. Oh, and I want to register our two trustees for your institutional forum in Chicago next month. Can we do that now?"},
+    {"speaker": "seller", "text": "Absolutely, I have the registration form open on my side. Do you have a card handy for the attendance fee?"},
+    {"speaker": "customer", "text": "Yes, it's my corporate card. The number is 4111 1111 1111 1111."},
+    {"speaker": "seller", "text": "Got it, thank you. I'll send you the forum confirmation by Wednesday."},
+    {"speaker": "customer", "text": "Great. And if anything urgent comes up while I'm out, text me on my personal cell, 206 555 0188."},
+    {"speaker": "seller", "text": "Will do. Take care of yourself, Dana, and enjoy the time off."},
+    {"speaker": "customer", "text": "Thanks, Aisha. Talk soon, and go Hawks."}
+  ]
+}

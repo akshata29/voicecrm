@@ -1,0 +1,75 @@
+{
+  "fixture_id": "pb-genesys-inbound-service",
+  "title": "Inbound service call: duplicate distribution on Total Return Class I",
+  "description": "Genesys inbound service call identified only by the caller's phone number. Two contacts named Alex Kim exist in the CRM, so the phone number must resolve the caller to Redwood Trust Company. The service desk agent promises a ticket escalation and a callback.",
+  "channel": "genesys",
+  "direction": "inbound",
+  "market": "US",
+  "business_line": "professional_buyer",
+  "call_type": "service",
+  "language": "en-US",
+  "started_at": "2026-11-10T15:30:00Z",
+  "duration_minutes": 8,
+  "seller": {
+    "id": "seller",
+    "display_name": "Casey Morgan",
+    "email": "casey.morgan@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Alex Kim",
+      "phone": "+1 212 555 0171",
+      "role": "customer"
+    }
+  ],
+  "internal": [],
+  "turns": [
+    {"speaker": "seller", "text": "Thank you for calling Contoso Woodgrove client services. This call may be recorded for quality and training purposes. My name is Casey Morgan, how can I help you today?"},
+    {"speaker": "customer", "text": "Hi Casey, I'm calling because a distribution on one of our holdings looks like it was posted twice. It's a statement error that's throwing off our reconciliation."},
+    {"speaker": "seller", "text": "I'm sorry about that, and I want to help you resolve it. First I need to verify who I'm speaking with, so could you give me your full name?"},
+    {"speaker": "customer", "text": "Of course, it's Alex Kim. That's K-I-M."},
+    {"speaker": "seller", "text": "Thank you, Alex Kim. The number you're calling from matches the contact we have on file, so you're verified. How is your week going so far?"},
+    {"speaker": "customer", "text": "Busy, as always, with month-end coming up. That's partly why this one caught my eye."},
+    {"speaker": "seller", "text": "I hear you, month-end is always a sprint. Which fund is this about?"},
+    {"speaker": "customer", "text": "It's the Contoso Total Return Fund, Class I. We hold it across several of our trust accounts, and this month's dividend distribution shows up twice on the statement."},
+    {"speaker": "seller", "text": "Just so I have it right, that's Class I shares of the Contoso Total Return Fund, and the same distribution was posted two times?"},
+    {"speaker": "customer", "text": "Exactly. The same amount shows on two consecutive lines on the same day, so our cash balance is overstated."},
+    {"speaker": "seller", "text": "Okay, I can see the duplicate posting on my screen as well. That isn't right."},
+    {"speaker": "customer", "text": "That's what I was afraid of. How long does a correction usually take? Our trust committee is reviewing these balances soon, and I don't want to present a wrong number."},
+    {"speaker": "seller", "text": "Typically a few business days once it's picked up. Let me open a ticket and escalate it to operations tomorrow, flagged as a priority because of your committee review."},
+    {"speaker": "customer", "text": "Thank you. Will the correction also fix the tax side? Those distributions feed into our year-end tax reporting for the trusts."},
+    {"speaker": "seller", "text": "Good question. Once the duplicate is reversed, the distribution total and the tax reporting will reflect a single payment, so the corrected statement is the one you'll want for your records."},
+    {"speaker": "customer", "text": "Great. Is there anything I should do on my side in the meantime?"},
+    {"speaker": "seller", "text": "Nothing at the moment, other than keeping that statement handy. I'll call you back by Thursday with an update on the reversal."},
+    {"speaker": "customer", "text": "Thursday works for me. I'll let our trust committee know the statement is being corrected."},
+    {"speaker": "seller", "text": "Sounds good. Is there anything else I can help you with today?"},
+    {"speaker": "customer", "text": "No, that's everything. Thanks, Casey, and have a good rest of your week."},
+    {"speaker": "seller", "text": "You too, Alex. Thank you for calling Contoso Woodgrove, and have a great day."}
+  ],
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000098",
+        "surface_forms": ["Contoso Total Return Fund, Class I"],
+        "mention_type": "info_only",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["service_issue", "tax_efficiency"],
+    "tasks": [
+      {"keywords": ["ticket", "operations"], "owner_role": "seller", "due_date": "2026-11-11"},
+      {"keywords": ["call", "back"], "owner_role": "seller", "due_date": "2026-11-12"}
+    ],
+    "must_not_leak": [],
+    "must_keep": [],
+    "expect_crm_account": "acc-007",
+    "notes": "Account resolution is by caller phone +1 212 555 0171 only, because the seed has two Alex Kim contacts (con-002 Harborview acc-001, con-013 Redwood acc-007). No organization name is spoken. The fund appears only as the subject of a servicing issue, so it is labelled info_only. Identity verification is by name only and no account numbers are read out. The caller's promise to inform his trust committee is a customer commitment and not a task. Due dates: call is Tuesday 2026-11-10, so 'tomorrow' is 2026-11-11 and 'by Thursday' is 2026-11-12."
+  },
+  "tags": ["genesys", "inbound", "service", "pb", "phone_match", "disambiguation"]
+}

@@ -1,0 +1,45 @@
+{
+  "scenario": "etf-vs-fund",
+  "order": 6,
+  "title": "Harborview Pension Fund: Contoso U.S. Core Equity ETF against the Contoso Equity Fund Class I (live Teams demo call)",
+  "shows": "Similar names, different products: the ETF is the interest and the mutual fund is only a comparison, so the CRM tags the right one.",
+  "call_type": "product_recommendation",
+  "notes": "Played into ONE microphone, so every line is attributed to the host: customer lines make no first-person commitments and nothing says today, tonight or tomorrow. The names are the trap: the Contoso U.S. Core Equity ETF is what Dana is evaluating, the Contoso Equity Fund, Class I is only something she has been tracking. A pension fund is tax-exempt, so the script talks about rebalancing, cash and liquidity rather than taxes.",
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {"product_id": "SYN-000054", "surface_forms": ["Contoso U.S. Core Equity ETF"], "mention_type": "interest"},
+      {"product_id": "SYN-000005", "surface_forms": ["Contoso Equity Fund, Class I"], "mention_type": "comparison"}
+    ],
+    "topics": ["etf_vs_mutual_fund", "fees_expenses", "allocation_portfolio", "flows_liquidity"],
+    "tasks": [
+      {"keywords": ["fee", "cost", "comparison"], "owner_role": "seller", "due_date": "2026-11-12"},
+      {"keywords": ["holdings"], "owner_role": "seller", "due_date": "2026-11-11"}
+    ],
+    "expect_crm_account": "acc-001",
+    "notes": "Similar-names trap: the ETF (SYN-000054) is the interest, the Class I mutual fund (SYN-000005) a comparison mention only. On a Friday call 'by Thursday' is 2026-11-12 and 'by Wednesday' is 2026-11-11."
+  },
+  "seller": {"name": "Aisha West", "voice": "en-US-AriaNeural"},
+  "customer": {"name": "Dana Whitfield", "voice": "en-US-JennyNeural"},
+  "turns": [
+    {"speaker": "seller", "text": "Hi Dana, good to see you. Can you hear me okay?"},
+    {"speaker": "customer", "text": "Hi Aisha, loud and clear. It finally feels like fall here, I had to dig out my rain jacket this morning."},
+    {"speaker": "seller", "text": "Same here. I'm still not ready for the dark evenings."},
+    {"speaker": "customer", "text": "Don't remind me. Anyway, thanks for making time. The plan has been looking at the Contoso U.S. Core Equity ETF for rebalancing and cash management, and I want to weigh it against the Contoso Equity Fund, Class I, which we've been tracking for a while."},
+    {"speaker": "seller", "text": "Happy to help. The names are close, so let me keep them straight: the ETF is the Contoso U.S. Core Equity ETF, and the mutual fund is the Contoso Equity Fund, Class I. They're two separate products, so it's worth keeping them apart in your notes."},
+    {"speaker": "customer", "text": "That's exactly what I want to avoid. A colleague mixed them up in our research notes last week."},
+    {"speaker": "seller", "text": "It happens a lot with the Contoso names. What's driving the ETF question, is it the intraday trading?"},
+    {"speaker": "customer", "text": "Partly the intraday trading. When we rebalance, we often have cash sitting idle for days, and an ETF would let us put it to work right away. We also need liquidity for benefit payments, and our inflows arrive at uneven times."},
+    {"speaker": "seller", "text": "That's a common reason to look at the ETF structure. It trades all day, so you can invest or raise cash in a single trade, while the mutual fund prices once a day at the close."},
+    {"speaker": "customer", "text": "Good. The other piece is cost. What's the fee difference between the ETF and the I class once you include trading costs?"},
+    {"speaker": "seller", "text": "On the mutual fund side, the I class is priced for institutions, and on the ETF you pay a brokerage commission when you trade on exchange. I don't want to quote expense ratios from memory, so I'd rather put both on one page."},
+    {"speaker": "customer", "text": "That works. Could you send me a fee and cost comparison of the ETF and the mutual fund? I'd like to see the all-in cost for a typical rebalance, not just the expense ratios."},
+    {"speaker": "seller", "text": "Absolutely. I'll send you the fee and cost comparison by Thursday, with the expense ratios and the trading costs side by side."},
+    {"speaker": "customer", "text": "Perfect. I'd also like to see exactly what the ETF holds, since our investment officers like to review the underlying positions."},
+    {"speaker": "seller", "text": "Of course. I'll email you the ETF's portfolio holdings file by Wednesday."},
+    {"speaker": "customer", "text": "Great. That covers what I need for now. This was really clear, thanks."},
+    {"speaker": "seller", "text": "My pleasure, Dana. Enjoy the rest of your week, and bundle up out there."},
+    {"speaker": "customer", "text": "You too, Aisha. Talk soon."}
+  ]
+}

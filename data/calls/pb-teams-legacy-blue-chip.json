@@ -1,0 +1,77 @@
+{
+  "fixture_id": "pb-teams-legacy-blue-chip",
+  "title": "Harborview Pension Fund: year-end rebalance review",
+  "description": "Legacy-name call for the 'improves over time' demo. Dana Whitfield refers to a holding by its former name, 'Contoso Blue Chip Fund', and states class C every time she names it. The name shares no vocabulary with the current catalogue, so the system cannot resolve it until a reviewer teaches the alias. Existing holding at a year-end rebalance; the seller commits to trailing returns by the end of the week and to confirming the redemption process next Monday.",
+  "channel": "teams",
+  "direction": "meeting",
+  "market": "US",
+  "business_line": "professional_buyer",
+  "call_type": "follow_up",
+  "language": "en-US",
+  "started_at": "2026-11-18T16:00:00Z",
+  "duration_minutes": 14,
+  "seller": {
+    "id": "seller",
+    "display_name": "Sam Rivera",
+    "email": "sam.rivera@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Dana Whitfield",
+      "email": "dana.whitfield@harborview-pension.example",
+      "phone": "+1 206 555 0111",
+      "role": "customer",
+      "org": "Harborview Pension Fund"
+    }
+  ],
+  "internal": [],
+  "customer_org": "Harborview Pension Fund",
+  "turns": [
+    {"speaker": "seller", "text": "Morning, Dana. Thanks for making time on such a busy week."},
+    {"speaker": "customer", "text": "Morning, Sam. Of course. It's a crisp, clear day here for once, so I'm in a good mood."},
+    {"speaker": "seller", "text": "Nice, we finally got some sun on my end too. You mentioned you wanted to go over a few things before your year-end rebalance."},
+    {"speaker": "customer", "text": "Yes. We've been holding the Contoso Blue Chip Fund, class C, for a couple of years now, and we're deciding whether to trim it or leave it where it is."},
+    {"speaker": "seller", "text": "Got it. I know that name well, a lot of plans still call it that. What's driving the rebalance this time?"},
+    {"speaker": "customer", "text": "Two things. The Blue Chip Fund, class C has grown into a bigger slice of the plan than our policy target, so we're overweight. And we need to raise cash for benefit payments early in the new year."},
+    {"speaker": "seller", "text": "That makes sense. Before you decide anything, do you want to go through how it has done this year?"},
+    {"speaker": "customer", "text": "Please. How is the Contoso Blue Chip Fund, class C tracking against its benchmark year to date? I'd also like the three year picture."},
+    {"speaker": "seller", "text": "It has outperformed its benchmark year to date, and the three year numbers look solid too. The class C shares have kept pace in most quarters, even the choppy ones."},
+    {"speaker": "customer", "text": "Good to hear. The bigger question is liquidity. If we trim the Blue Chip Fund, class C by a meaningful amount, how does a redemption of that size work, and would it cause any problems?"},
+    {"speaker": "seller", "text": "It shouldn't. The Blue Chip Fund is large and very liquid, and redemption proceeds arrive the next business day. For a very large trade we just like a heads-up so we can plan the timing."},
+    {"speaker": "customer", "text": "That's reassuring. I'd like to understand the process in more detail so I can plan around our benefit payments."},
+    {"speaker": "seller", "text": "Of course. I'll confirm the redemption process for a trade your size with our trading desk and get back to you next Monday."},
+    {"speaker": "customer", "text": "Perfect. Could you also put the latest numbers in writing? Our trustees like to see everything on paper before we change a position."},
+    {"speaker": "seller", "text": "Absolutely. I'll send you the trailing returns and the latest holdings for the Blue Chip Fund by the end of the week."},
+    {"speaker": "customer", "text": "Thank you. I'll go through it when it arrives and talk it over with our trustees before we pull the trigger."},
+    {"speaker": "seller", "text": "Sounds like a good plan. Is there anything else on your mind?"},
+    {"speaker": "customer", "text": "No, I think that covers it. Do you have any time off coming up around the holidays?"},
+    {"speaker": "seller", "text": "A few days with family after Thanksgiving, and then hopefully a quiet end to the year. How about you?"},
+    {"speaker": "customer", "text": "We're heading to the coast for a few days. Thanks again, Sam, and enjoy the rest of your week."}
+  ],
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000002",
+        "surface_forms": ["Contoso Blue Chip Fund, class C"],
+        "mention_type": "existing_holding",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["allocation_portfolio", "performance_returns", "flows_liquidity"],
+    "tasks": [
+      {"keywords": ["trailing", "returns"], "owner_role": "seller", "due_date": "2026-11-20"},
+      {"keywords": ["confirm", "redemption"], "owner_role": "seller", "due_date": "2026-11-23"}
+    ],
+    "must_not_leak": [],
+    "must_keep": [],
+    "expect_crm_account": "acc-001",
+    "notes": "Legacy name of SYN-000002 (Contoso Equity Fund Class C). 'Blue Chip' appears nowhere in the catalogue, so the system cannot resolve it until a reviewer teaches the alias; the class (C) is stated every time Dana names it. By design the script never uses equity, income, growth, bond, value, opportunities or dividend. For a Wednesday call 'by the end of the week' is 2026-11-20 and 'next Monday' is Monday of the following week, 2026-11-23. Dana taking the numbers to her trustees is a customer commitment, not a task."
+  },
+  "tags": ["teams", "pb", "legacy_name", "alias_learning", "existing_holding"]
+}

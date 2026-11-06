@@ -1,0 +1,94 @@
+{
+  "fixture_id": "pb-teams-bilingual-code-switch",
+  "title": "Sierra Valle - global bond vs. income fund, English with Spanish code-switching",
+  "description": "Teams call with two bilingual customers who switch between English and Spanish mid-call. The CRM note must stay in English, capture both fund mentions with the correct share classes (one interest, one comparison) and pick up a commitment made in code-switched Spanish.",
+  "channel": "teams",
+  "direction": "meeting",
+  "market": "US",
+  "business_line": "professional_buyer",
+  "call_type": "product_recommendation",
+  "language": "en-US",
+  "started_at": "2026-11-12T18:00:00Z",
+  "duration_minutes": 15,
+  "seller": {
+    "id": "seller",
+    "display_name": "Sam Rivera",
+    "email": "sam.rivera@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Diego Fuentes",
+      "email": "diego.fuentes@sierravalle-gp.example",
+      "phone": "+1 786 555 0232",
+      "role": "customer",
+      "org": "Sierra Valle Gestión de Patrimonios"
+    },
+    {
+      "id": "cust2",
+      "display_name": "Lucía Ortega",
+      "email": "lucia.ortega@sierravalle-gp.example",
+      "phone": "+1 786 555 0231",
+      "role": "customer",
+      "org": "Sierra Valle Gestión de Patrimonios"
+    }
+  ],
+  "internal": [],
+  "customer_org": "Sierra Valle Gestión de Patrimonios",
+  "turns": [
+    {"speaker": "seller", "text": "Good afternoon, Diego, and hola, Lucía. Can you both hear me okay?"},
+    {"speaker": "customer", "speaker_id": "cust2", "text": "Hola, Sam. Yes, loud and clear. Diego is dialing in from the other office, so give him a second."},
+    {"speaker": "customer", "text": "I'm here, Sam. Sorry, my camera is still loading. How's your week going?"},
+    {"speaker": "seller", "text": "Busy but good, thanks. It finally cooled down here, so I can't complain. How's the weather in Miami?"},
+    {"speaker": "customer", "speaker_id": "cust2", "text": "Still in the eighties, so no complaints from us either. Okay, shall we get into it?"},
+    {"speaker": "customer", "text": "Yes. Our clients are asking for some non-US bond exposure, and we've been looking at the Woodgrove Global Bond Fund, Class I. I wanted Lucía to hear the story directly from you."},
+    {"speaker": "seller", "text": "Happy to. What's drawing you to it?"},
+    {"speaker": "customer", "text": "Mainly the duration profile. We're cautious about adding too much US rate sensitivity right now, so we like that this one can run with a lower duration."},
+    {"speaker": "seller", "text": "That's the idea. Duration is managed actively across countries, so US rates are only part of the story. It also holds emerging markets government debt and local currency exposure, so the currency side matters as much as the rates side."},
+    {"speaker": "customer", "speaker_id": "cust2", "locale": "es-US", "text": "Sam, una pregunta en español porque me sale más natural: ¿la exposición a divisas del fondo está cubierta, o es parte activa de la estrategia?"},
+    {"speaker": "seller", "locale": "es-US", "text": "Es parte activa de la estrategia, Lucía. El equipo toma posiciones en divisas y en algunos casos las cubre, así que el efecto cambiario puede sumar o restar."},
+    {"speaker": "customer", "text": "Got it, thanks. We're also weighing it against the Contoso Income Fund, Class R6, since that one is a more blended income strategy. We'd like to see the two side by side."},
+    {"speaker": "seller", "text": "That makes sense, they play different roles. The Contoso Income Fund, Class R6 leans on credit and some equity income, while the Woodgrove Global Bond Fund, Class I is mostly about global rates and currency."},
+    {"speaker": "customer", "text": "Exactly. Can you put the duration and yield for both funds in one comparison? Our clients will ask about yield first and then how much rate sensitivity they're taking."},
+    {"speaker": "seller", "text": "Sure. I'll send you a duration and yield comparison for both funds by Monday."},
+    {"speaker": "customer", "speaker_id": "cust2", "locale": "es-US", "text": "Perfecto. También sería bueno hablar con el equipo que lleva el fondo antes de decidir, para entender cómo ven las tasas de interés hacia adelante."},
+    {"speaker": "seller", "locale": "es-US", "text": "Claro. Yo organizo la call con el investment team del fondo la próxima semana y les mando la invitación."},
+    {"speaker": "customer", "text": "Great. On our side, I'll double-check our policy limit on non-US bonds and let you know if there's a cap."},
+    {"speaker": "seller", "text": "Perfect, that'll help us frame it properly. Anything else you need for today?"},
+    {"speaker": "customer", "speaker_id": "cust2", "text": "No, that covers it. Thanks, Sam, this was really useful."},
+    {"speaker": "seller", "text": "My pleasure. Have a great rest of the week, both of you. Hasta pronto."},
+    {"speaker": "customer", "text": "You too, Sam. Talk soon."}
+  ],
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000132",
+        "surface_forms": ["Woodgrove Global Bond Fund, Class I"],
+        "mention_type": "interest",
+        "ambiguous": false,
+        "acceptable_ids": []
+      },
+      {
+        "product_id": "SYN-000087",
+        "surface_forms": ["Contoso Income Fund, Class R6"],
+        "mention_type": "comparison",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["international_emerging", "rates_duration", "fixed_income_credit"],
+    "tasks": [
+      {"keywords": ["duration", "yield", "comparison"], "owner_role": "seller", "due_date": "2026-11-16"},
+      {"keywords": ["call", "team"], "owner_role": "seller", "due_date": null}
+    ],
+    "must_not_leak": [],
+    "must_keep": [],
+    "expect_crm_account": "acc-012",
+    "notes": "Mostly English with Spanish turns by Lucia and Sam (es-US). Diego is cust1, Lucia is cust2. The call-setup commitment is made in code-switched Spanish ('la call con el investment team ... la proxima semana') so its due date is vague (null). Diego's policy-limit check is a customer-side distractor, not a seller task."
+  },
+  "tags": ["bilingual", "code_switch", "teams", "pb", "multi_customer", "comparison_mention"]
+}

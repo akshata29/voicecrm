@@ -1,0 +1,77 @@
+{
+  "fixture_id": "pb-teams-competitor-objection",
+  "title": "Northstar Insurance: Short Duration Income Fund R6 against a Vanguard ultra-short alternative",
+  "description": "Hannah Brooks evaluates the Contoso Short Duration Income Fund, Class R6 against Vanguard's ultra-short bond fund (a competitor product that is not in the catalogue) and objects that Contoso's fees are higher. The seller handles the objection with the contractual waiver and commits to send the fee waiver terms by Monday and to set up a portfolio manager call next Tuesday.",
+  "channel": "teams",
+  "direction": "meeting",
+  "market": "US",
+  "business_line": "professional_buyer",
+  "call_type": "product_recommendation",
+  "language": "en-US",
+  "started_at": "2026-11-13T15:00:00Z",
+  "duration_minutes": 15,
+  "seller": {
+    "id": "seller",
+    "display_name": "Sam Rivera",
+    "email": "sam.rivera@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Hannah Brooks",
+      "email": "hannah.brooks@northstar-ins.example",
+      "phone": "+1 617 555 0161",
+      "role": "customer",
+      "org": "Northstar Insurance Investments"
+    }
+  ],
+  "internal": [],
+  "customer_org": "Northstar Insurance Investments",
+  "turns": [
+    {"speaker": "seller", "text": "Morning, Hannah. Thanks for joining. Is it cold out in Boston yet?"},
+    {"speaker": "customer", "text": "Morning, Sam. We had our first frost today, so I'm officially in winter-coat mode. How are things on your end?"},
+    {"speaker": "seller", "text": "Mild, thankfully, though everyone keeps telling me that won't last. Shall we jump in? You said you wanted to go through the Contoso Short Duration Income Fund."},
+    {"speaker": "customer", "text": "Yes. We're reviewing the short-duration credit bucket in our general account, and I've been looking at the Contoso Short Duration Income Fund, Class R6."},
+    {"speaker": "seller", "text": "Great. The fund focuses on short-maturity investment grade credit, with a smaller slice of securitized assets for extra income, and it aims for low sensitivity to interest rates."},
+    {"speaker": "customer", "text": "That's what I need. But I'll be upfront, I'm also looking at Vanguard's ultra-short bond fund, and honestly the fees on yours are higher. That's a hard sell internally."},
+    {"speaker": "seller", "text": "I appreciate you being direct. On the headline number you're right, the Vanguard fund is cheaper. R6 is the lowest-cost way to own ours, and after a contractual waiver the net expense ratio is about thirty-five basis points."},
+    {"speaker": "customer", "text": "Thirty-five is still a good deal more than I'd pay at Vanguard. And the waiver worries me, because how long does it actually last?"},
+    {"speaker": "seller", "text": "The waiver is renewed annually, and it has been extended every year since the fund launched. What you're paying for is active credit selection, which has added income in most years."},
+    {"speaker": "customer", "text": "I get the argument, but I need to show net numbers side by side. Can you send me the details on the waiver and the net expense figures?"},
+    {"speaker": "seller", "text": "Of course. I'll send you the fee waiver terms and the net expense figures by Monday."},
+    {"speaker": "customer", "text": "Thank you. The other piece is rates. With more rate cuts expected, I want to understand how much duration the fund really carries and what happens to the income if short rates keep falling."},
+    {"speaker": "seller", "text": "Duration is typically around one year, so it isn't very sensitive to rate moves. If short rates keep falling the yield will drift lower over time, but the credit spreads help cushion that."},
+    {"speaker": "customer", "text": "That's the trade-off I'm weighing against the ultra-short Vanguard option, which reprices faster. I'd like to hear from your portfolio manager on how the team is positioned on spreads and duration right now."},
+    {"speaker": "seller", "text": "Let me set up a call with our portfolio manager next Tuesday so you can hear directly how the team is positioned."},
+    {"speaker": "customer", "text": "Perfect. I'll pull the fee comparison together on my side and run it past my CFO before then."},
+    {"speaker": "seller", "text": "Sounds good. Is there anything else you want to cover before we wrap up?"},
+    {"speaker": "customer", "text": "No, that's everything for now. I appreciate you taking the pushback so well."},
+    {"speaker": "seller", "text": "That's what I'm here for. Stay warm out there, and have a great weekend."},
+    {"speaker": "customer", "text": "You too, Sam. Talk soon."}
+  ],
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000106",
+        "surface_forms": ["Contoso Short Duration Income Fund, Class R6", "Class R6"],
+        "mention_type": "interest",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["competitor_comparison", "fees_expenses", "fixed_income_credit", "rates_duration"],
+    "tasks": [
+      {"keywords": ["fee", "waiver"], "owner_role": "seller", "due_date": "2026-11-16"},
+      {"keywords": ["call", "portfolio", "manager"], "owner_role": "seller", "due_date": "2026-11-17"}
+    ],
+    "must_not_leak": [],
+    "must_keep": [],
+    "expect_crm_account": "acc-006",
+    "notes": "Vanguard's ultra-short bond fund is a competitor mention, not a catalogue product, so it must not be mapped to a catalogue id. For a Friday call 'by Monday' is 2026-11-16 and 'next Tuesday' is Tuesday of the following week, 2026-11-17. Hannah pulling the fee comparison together and running it past her CFO is a customer commitment, not a task."
+  },
+  "tags": ["teams", "pb", "competitor", "objection", "fixed_income"]
+}

@@ -1,0 +1,86 @@
+{
+  "fixture_id": "pb-zoom-equity-income-advisor",
+  "title": "Lakeshore Family Office: Equity Income Fund Advisor class as an income sleeve",
+  "description": "Marcus Hale already holds the Contoso Equity Fund, Class I and is exploring the similarly named Contoso Equity Income Fund, Advisor class as a separate income sleeve. Tests separating an existing holding from a new interest when two fund names are nearly identical, plus two seller tasks with different due-date phrasings (by Friday, next Thursday).",
+  "channel": "zoom",
+  "direction": "meeting",
+  "market": "US",
+  "business_line": "professional_buyer",
+  "call_type": "product_recommendation",
+  "language": "en-US",
+  "started_at": "2026-11-11T17:00:00Z",
+  "duration_minutes": 14,
+  "seller": {
+    "id": "seller",
+    "display_name": "Sam Rivera",
+    "email": "sam.rivera@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Marcus Hale",
+      "email": "marcus.hale@lakeshore-fo.example",
+      "phone": "+1 312 555 0141",
+      "role": "customer",
+      "org": "Lakeshore Family Office"
+    }
+  ],
+  "internal": [],
+  "customer_org": "Lakeshore Family Office",
+  "turns": [
+    {"speaker": "seller", "text": "Morning, Marcus. Can you hear me okay?"},
+    {"speaker": "customer", "text": "Loud and clear, Sam. Give me a second, my camera is being stubborn."},
+    {"speaker": "seller", "text": "No rush. How was your weekend? Did you get any time out of the office?"},
+    {"speaker": "customer", "text": "I did, actually. We took the kids up to Wisconsin for some fall color before the leaves are gone, and it was a nice reset."},
+    {"speaker": "seller", "text": "That sounds great. All right, I know you wanted to talk about the income side of the portfolio, so go ahead and set the stage."},
+    {"speaker": "customer", "text": "Sure. Just to set the stage, we hold the Contoso Equity Fund, Class I today, and it's been a solid core holding for us for a few years. What I'm exploring now is a separate income sleeve."},
+    {"speaker": "seller", "text": "Got it. So you're not looking to replace the Contoso Equity Fund, you want to add something alongside it?"},
+    {"speaker": "customer", "text": "Exactly. I've been looking at the Contoso Equity Income Fund, Advisor class. I know the names are close, which is why I wanted to be precise about which one I mean."},
+    {"speaker": "seller", "text": "Good call, they do sound alike. The Equity Fund is the broad core strategy you already own, while the Equity Income Fund is built around dividend payers, so the two behave quite differently."},
+    {"speaker": "customer", "text": "That's the idea. Before I take this to the family, I want to see how the income fund has done against its benchmark, especially over the trailing three year and five year periods."},
+    {"speaker": "seller", "text": "It has outperformed its benchmark over both of those windows, though it lags the core fund when growth stocks rally hard, which is typical for a dividend strategy."},
+    {"speaker": "customer", "text": "That's what I'd expect. What I care about most is volatility, because I want this sleeve to dampen the swings in our equity book. How has the downside held up in the rough quarters?"},
+    {"speaker": "seller", "text": "Its downside capture has been meaningfully lower than the broad market, and the drawdowns have been shallower than the core fund's. That's the main reason clients use it as ballast next to a growth-oriented holding."},
+    {"speaker": "customer", "text": "Good. Then it comes down to sizing. I'm thinking about ten percent of the equity book, and I'd trim our current Class I position to fund it."},
+    {"speaker": "seller", "text": "That's a sensible way to do it, and it keeps the overall diversification intact. The overlap between the two funds is fairly modest, since the income fund leans toward higher-payout names."},
+    {"speaker": "customer", "text": "Good to know. I'd like to see the actual numbers in writing for both funds, and I'd also like to hear from the portfolio manager on how they think about the payout."},
+    {"speaker": "seller", "text": "Both are easy. I'll send you the trailing performance data for both funds by Friday."},
+    {"speaker": "customer", "text": "Great, thank you. That will help me get the family comfortable."},
+    {"speaker": "seller", "text": "And I will set up a call with the portfolio manager next Thursday."},
+    {"speaker": "customer", "text": "Perfect. I'll talk it through with the family and see where we land, and I'll come back to you after that conversation."},
+    {"speaker": "seller", "text": "Sounds like a plan. Enjoy the rest of your day, Marcus."},
+    {"speaker": "customer", "text": "You too, Sam. Talk soon."}
+  ],
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000005",
+        "surface_forms": ["Contoso Equity Fund, Class I", "Class I"],
+        "mention_type": "existing_holding",
+        "ambiguous": false,
+        "acceptable_ids": []
+      },
+      {
+        "product_id": "SYN-000008",
+        "surface_forms": ["Contoso Equity Income Fund, Advisor class", "Advisor class"],
+        "mention_type": "interest",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["performance_returns", "risk_volatility", "allocation_portfolio", "meeting_followup"],
+    "tasks": [
+      {"keywords": ["performance", "data"], "owner_role": "seller", "due_date": "2026-11-13"},
+      {"keywords": ["call", "portfolio", "manager"], "owner_role": "seller", "due_date": "2026-11-19"}
+    ],
+    "must_not_leak": [],
+    "must_keep": [],
+    "expect_crm_account": "acc-004",
+    "notes": "Trap: Contoso Equity Fund (existing holding, Class I, SYN-000005) versus Contoso Equity Income Fund (interest, Advisor class, SYN-000008). For a Wednesday call 'by Friday' is 2026-11-13 and 'next Thursday' is Thursday of the following week, 2026-11-19. Marcus talking it through with his family is a customer commitment, not a task."
+  },
+  "tags": ["zoom", "pb", "multi_product", "similar_names", "family_office"]
+}

@@ -1,0 +1,51 @@
+# EXAMPLE policies for the demo. These are NOT any real firm's actual retention or compliance policies.
+# Note: "on"/"off" are quoted because YAML 1.1 would otherwise parse them as booleans.
+markets:
+  US:
+    display_name: United States
+    transcript_retention: "off"            # summary + structured fields only; transcript discarded after processing
+    store_redacted_only: true
+    audio_retention_days: 0
+    summary_retention_days:                # null = keep as long as the CRM record exists
+    notes: Example - summary-only market.
+  UK:
+    display_name: United Kingdom
+    transcript_retention: "on"
+    transcript_retention_days: 365
+    store_redacted_only: true
+    audio_retention_days: 0
+    summary_retention_days:
+    notes: Example - redacted transcript retained for one year in the vault (never in Dataverse).
+  EU:
+    display_name: European Union
+    transcript_retention: "on"
+    transcript_retention_days: 1825        # five years, the historic compliance norm the customer mentioned
+    store_redacted_only: true
+    audio_retention_days: 0
+    summary_retention_days:
+    notes: Example - redacted transcript retained for five years in the vault (never in Dataverse).
+
+notes:
+  omit_categories: [payment_card, bank_account, government_id, credentials, medical, family_health, personal_contact]
+  keep_relationship_context: true
+  drop_small_talk: true
+
+processing:
+  engine: rules                            # rules | llm | hybrid (VOICECRM_LLM_MODE overrides when a live model is configured)
+  auto_approve_enabled: false              # demo dial: show the path from one-click to zero-touch
+  auto_approve_min_confidence: 0.9
+  auto_approve_requires_crm_match: true
+  product_review_threshold: 0.75
+  top_k_products: 3
+  # Ordered transcript sources per channel. "platform" = the source system's own transcript when provided and
+  # free/entitled; "azure_speech" = central transcription of the audio (one Microsoft-controlled processor).
+  transcription_source_preference:
+    teams: [platform, azure_speech]
+    zoom: [azure_speech, platform]
+    genesys: [platform, azure_speech]
+    mobile: [azure_speech]
+    upload: [platform, azure_speech]
+  default_template_by_business_line:
+    professional_buyer: pb_institutional
+    international: pb_institutional
+    retail: retail_advisor

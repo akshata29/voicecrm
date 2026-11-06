@@ -1,0 +1,43 @@
+{
+  "scenario": "no-actions",
+  "order": 7,
+  "title": "Harborview Pension Fund: relationship check-in dominated by market chat (live Teams demo call)",
+  "shows": "Restraint: market chat and no commitments, so no tasks are invented, the small talk is dropped and a fund mentioned for information stays information.",
+  "call_type": "relationship",
+  "notes": "Played into ONE microphone, so every line is attributed to the host: customer lines make no first-person commitments and nothing says today, tonight or tomorrow. By design nobody commits to anything: 'no rush at all' and 'reach out whenever you're ready' are not tasks, and the seller says outright that she is not pitching the Contoso Dividend Growth Fund, Class R6, so it is an information-only mention. The kitchen, Thanksgiving and in-laws chat is small talk to drop. The expected task list is empty.",
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {"product_id": "SYN-000049", "surface_forms": ["Contoso Dividend Growth Fund, Class R6", "Dividend Growth Fund"], "mention_type": "info_only"}
+    ],
+    "topics": ["market_outlook", "allocation_portfolio"],
+    "tasks": [],
+    "expect_crm_account": "acc-001",
+    "notes": "No seller commitments by design, so there must be no tasks. The fund is mentioned for information only. The kitchen, Thanksgiving and family chatter is small talk."
+  },
+  "seller": {"name": "Aisha West", "voice": "en-US-AriaNeural"},
+  "customer": {"name": "Dana Whitfield", "voice": "en-US-JennyNeural"},
+  "turns": [
+    {"speaker": "seller", "text": "Hey Dana, good to see you. How have you been?"},
+    {"speaker": "customer", "text": "Hi, Aisha. Good, thanks, busy but good. We finally got our kitchen finished after what felt like a year of dust, so I'm in a great mood."},
+    {"speaker": "seller", "text": "Ha, that's a real milestone. Any Thanksgiving plans coming up?"},
+    {"speaker": "customer", "text": "We're hosting this year, so the new kitchen gets a real test. My in-laws are driving up from Portland, and my mother-in-law has strong opinions about stuffing."},
+    {"speaker": "seller", "text": "Good luck with that. Switching gears, how are you feeling about the market? Every conversation I have lately comes back to inflation and tariffs."},
+    {"speaker": "customer", "text": "Same here. Our investment staff keeps going back and forth on whether inflation is really coming down, and the tariff headlines don't help. Some days it feels like a soft landing, and other days it feels like a recession is right around the corner."},
+    {"speaker": "seller", "text": "I hear the same debate from almost everyone. Earnings season has been decent, but valuations in the large caps are stretched, and the market seems to be pricing in a lot of good news."},
+    {"speaker": "customer", "text": "Right, and that's partly why we've been revisiting our asset allocation. We're overweight US large-cap growth after the last two years, so I think we're due to rebalance."},
+    {"speaker": "seller", "text": "That makes sense. A lot of the plans I talk to are doing the same thing, trimming growth and adding some diversification in more defensive, dividend-paying areas."},
+    {"speaker": "customer", "text": "That's where my head is too. We've been kicking around the idea of a dividend growth strategy, but nothing is decided and it's early days."},
+    {"speaker": "seller", "text": "Totally fair. For what it's worth, the Contoso Dividend Growth Fund, Class R6 has been a popular topic with institutions lately, but I'm not pitching anything on this call. I just wanted you to know it's out there."},
+    {"speaker": "customer", "text": "Appreciate that. The allocation question goes to our committee when it meets in January, so there is no decision before then."},
+    {"speaker": "seller", "text": "No rush at all. Reach out whenever you're ready."},
+    {"speaker": "customer", "text": "How's the mood on your side of the desk, by the way? Is anyone actually panicking?"},
+    {"speaker": "seller", "text": "Not panicking, but definitely cautious. Most people are staying invested and just being more selective, and a few are building up cash so they're ready for a pullback."},
+    {"speaker": "customer", "text": "That matches what we're seeing. Nobody wants to be the one who sold the bottom, and nobody wants to be the one who bought the top either."},
+    {"speaker": "seller", "text": "Ha, exactly. That's why these check-ins are useful, it's good to hear what other people are thinking."},
+    {"speaker": "customer", "text": "Agreed. Okay, I should run, I have a call with our custodian in a few minutes. Great talking, Aisha."},
+    {"speaker": "seller", "text": "You too, Dana. Good luck with the stuffing negotiations, and say hi to the family."},
+    {"speaker": "customer", "text": "Ha, I'll need it. Take care, Aisha."}
+  ]
+}

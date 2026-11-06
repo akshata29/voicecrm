@@ -1,0 +1,81 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": {
+      "value": "${AZURE_ENV_NAME}"
+    },
+    "location": {
+      "value": "${AZURE_LOCATION}"
+    },
+    "resourceGroupName": {
+      "value": "${AZURE_RESOURCE_GROUP}"
+    },
+    "appExists": {
+      "value": "${SERVICE_APP_RESOURCE_EXISTS=false}"
+    },
+    "modelName": {
+      "value": "${VOICECRM_MODEL_NAME}"
+    },
+    "modelVersion": {
+      "value": "${VOICECRM_MODEL_VERSION}"
+    },
+    "modelSkuName": {
+      "value": "${VOICECRM_MODEL_SKU}"
+    },
+    "modelCapacity": {
+      "value": "${VOICECRM_MODEL_CAPACITY}"
+    },
+    "modelDeploymentName": {
+      "value": "${VOICECRM_MODEL_DEPLOYMENT_NAME}"
+    },
+    "blobRetentionBackstopDays": {
+      "value": "${VOICECRM_BLOB_RETENTION_BACKSTOP_DAYS}"
+    },
+    "blobSoftDeleteDays": {
+      "value": "${VOICECRM_BLOB_SOFT_DELETE_DAYS}"
+    },
+    "searchSkuName": {
+      "value": "${VOICECRM_SEARCH_SKU}"
+    },
+    "deployCosmosDb": {
+      "value": "${VOICECRM_DEPLOY_COSMOS}"
+    },
+    "piiMode": {
+      "value": "${VOICECRM_PII_MODE}"
+    },
+    "dataverseUrl": {
+      "value": "${VOICECRM_DATAVERSE_URL}"
+    },
+    "dataverseFieldProfile": {
+      "value": "${VOICECRM_DATAVERSE_FIELD_PROFILE}"
+    },
+    "defaultMarket": {
+      "value": "${VOICECRM_DEFAULT_MARKET}"
+    },
+    "defaultBusinessLine": {
+      "value": "${VOICECRM_DEFAULT_BUSINESS_LINE}"
+    },
+    "demoMode": {
+      "value": "${VOICECRM_DEMO_MODE}"
+    },
+    "appCpu": {
+      "value": "${VOICECRM_APP_CPU}"
+    },
+    "minReplicas": {
+      "value": "${VOICECRM_APP_MIN_REPLICAS}"
+    },
+    "maxReplicas": {
+      "value": "${VOICECRM_APP_MAX_REPLICAS}"
+    },
+    "allowedIpRanges": {
+      "value": "${VOICECRM_ALLOWED_IP_RANGES}"
+    },
+    "developerPrincipalId": {
+      "value": "${VOICECRM_DEVELOPER_PRINCIPAL_ID}"
+    },
+    "developerPrincipalType": {
+      "value": "${VOICECRM_DEVELOPER_PRINCIPAL_TYPE}"
+    }
+  }
+}

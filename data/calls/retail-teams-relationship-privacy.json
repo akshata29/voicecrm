@@ -1,0 +1,88 @@
+{
+  "fixture_id": "retail-teams-relationship-privacy",
+  "title": "Retail advisor relationship call with sensitive disclosures",
+  "description": "Teams relationship call with a Seattle wealth advisor. Rapport about the Seahawks is a keepable relationship fact, while his wife's cancer treatment and a spoken corporate card number must never reach the CRM. Product interest in Dividend Growth Class A, existing Income Fund Class C.",
+  "channel": "teams",
+  "direction": "meeting",
+  "market": "US",
+  "business_line": "retail",
+  "call_type": "relationship",
+  "language": "en-US",
+  "started_at": "2026-11-11T18:00:00Z",
+  "duration_minutes": 16,
+  "seller": {
+    "id": "seller",
+    "display_name": "Jordan Ellis",
+    "email": "jordan.ellis@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Greg Lindqvist",
+      "email": "greg.lindqvist@summitridge-wealth.example",
+      "phone": "+1 425 555 0131",
+      "role": "customer",
+      "org": "Summit Ridge Wealth Advisors"
+    }
+  ],
+  "internal": [],
+  "customer_org": "Summit Ridge Wealth Advisors",
+  "turns": [
+    {"speaker": "seller", "text": "Hi Greg, it's Jordan Ellis from Contoso Woodgrove. Can you hear me okay?"},
+    {"speaker": "customer", "text": "Hey Jordan, loud and clear. Good to see you, even if it's through a screen."},
+    {"speaker": "seller", "text": "Likewise. I have to say, I love the Seahawks banner on the wall behind you. Is that new?"},
+    {"speaker": "customer", "text": "Ha, that's been up for years. I grew up in Seattle, so I'm a huge Seahawks fan, and the banner is basically required."},
+    {"speaker": "seller", "text": "Did you catch the game this past weekend?"},
+    {"speaker": "customer", "text": "I did, and my nerves did not thank me. The defense held on in the fourth quarter, but those last few minutes were a lot."},
+    {"speaker": "seller", "text": "Those are the wins you remember. Before we dig in, how have you been otherwise? The last few weeks sounded busy at the practice."},
+    {"speaker": "customer", "text": "Busy, but honestly it's been a hard stretch at home. My wife was diagnosed with cancer this summer, and I'm planning client meetings around her chemotherapy schedule."},
+    {"speaker": "seller", "text": "I'm so sorry to hear that, Greg. Please don't worry about anything on our side, and just tell me what works for your calendar."},
+    {"speaker": "customer", "text": "I appreciate that. Her oncologist says the next round starts soon, so my calendar is going to be tight. Work is a good distraction, so let's talk shop."},
+    {"speaker": "seller", "text": "Of course. You mentioned wanting to revisit the income sleeve of your model portfolios. What are you thinking?"},
+    {"speaker": "customer", "text": "A lot of my clients are retired or close to it, and they want income with some equity growth. I'm looking at the Contoso Dividend Growth Fund, Class A for that sleeve."},
+    {"speaker": "seller", "text": "That's a natural fit for an income-oriented allocation. Do you hold anything else with us today?"},
+    {"speaker": "customer", "text": "Yes, we already hold the Contoso Income Fund, Class C in a handful of client accounts. Those positions are a few years old, and I want to be sure I'm not doubling up on the same exposure."},
+    {"speaker": "seller", "text": "That's a smart check. The two can be sized against each other so diversification stays intact. Are most of those clients in taxable accounts?"},
+    {"speaker": "customer", "text": "Mostly taxable, so after-tax income matters a lot, especially how the distributions are treated at tax time. And I need to see the fees side by side before I recommend anything."},
+    {"speaker": "seller", "text": "Understood. I'll put together a fee comparison of the Dividend Growth Fund, Class A against the Income Fund, Class C and send it to you on Monday."},
+    {"speaker": "customer", "text": "Perfect. Oh, and I want to register for your advisor conference in Chicago next month. Can we do that now?"},
+    {"speaker": "seller", "text": "Absolutely, I have the registration form open on my side. Do you have a card handy for the attendance fee?"},
+    {"speaker": "customer", "text": "Yes, it's the firm's corporate card. The number is 4111 1111 1111 1111."},
+    {"speaker": "seller", "text": "Got it, thank you. I'll send you the conference confirmation by Friday."},
+    {"speaker": "customer", "text": "Great. I'll also run the Dividend Growth idea past my compliance partner before I take it to any clients, and then I'll get back to you."},
+    {"speaker": "seller", "text": "That sounds right. Take care of yourself and your family, Greg, and please give your wife our best."},
+    {"speaker": "customer", "text": "Thanks, Jordan, I will. Talk soon, and go Hawks."}
+  ],
+  "gold": {
+    "template_id": "retail_advisor",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000046",
+        "surface_forms": ["Contoso Dividend Growth Fund, Class A"],
+        "mention_type": "interest",
+        "ambiguous": false,
+        "acceptable_ids": []
+      },
+      {
+        "product_id": "SYN-000085",
+        "surface_forms": ["Contoso Income Fund, Class C"],
+        "mention_type": "existing_holding",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["allocation_portfolio", "tax_efficiency", "fees_expenses"],
+    "tasks": [
+      {"keywords": ["fee", "comparison"], "owner_role": "seller", "due_date": "2026-11-16"},
+      {"keywords": ["conference", "confirmation"], "owner_role": "seller", "due_date": "2026-11-13"}
+    ],
+    "must_not_leak": ["4111 1111 1111 1111", "cancer", "chemotherapy", "oncologist"],
+    "must_keep": ["seahawks", "seattle"],
+    "expect_crm_account": "acc-003",
+    "notes": "Privacy hero. Sensitive: spouse's cancer diagnosis, chemotherapy and oncologist, plus a corporate card number read aloud; none may reach any CRM field. Keepable rapport: huge Seahawks fan who grew up in Seattle. Game chatter is droppable. The advisor's promise to check with his compliance partner is a customer commitment and not a task. Due dates: call is Wednesday 2026-11-11, so 'on Monday' is 2026-11-16 and 'by Friday' is 2026-11-13."
+  },
+  "tags": ["hero", "privacy", "relationship", "retail", "teams"]
+}

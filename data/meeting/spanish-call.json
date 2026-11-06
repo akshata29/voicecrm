@@ -1,0 +1,45 @@
+{
+  "scenario": "spanish",
+  "order": 8,
+  "title": "Harborview Pension Fund: Contoso Equity Fund clase C, en español (live Teams demo call)",
+  "shows": "Spanish in, English out: the same call as the Class C hero, spoken in Spanish; the CRM note and the task titles come out in English.",
+  "language": "es-US",
+  "call_type": "product_recommendation",
+  "notes": "Needs the Teams meeting's spoken language set to Spanish (Mexico) or Spanish (Spain) when you start transcription; with English selected the transcript will be nonsense. Played into ONE microphone, so every line is attributed to the host: customer lines make no first-person commitments, and nothing says hoy or mañana. It is the Spanish twin of the Class C hero: clase C is the product, clase A is named only to be rejected, and the seller promises the fee comparison on Monday and the fact sheet on Wednesday.",
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "es",
+    "products": [
+      {"product_id": "SYN-000002", "surface_forms": ["Contoso Equity Fund, clase C"], "mention_type": "interest"}
+    ],
+    "topics": ["fees_expenses", "share_class_selection", "performance_returns", "materials_request"],
+    "tasks": [
+      {"keywords": ["fee", "comparison"], "owner_role": "seller", "due_date": "2026-11-09"},
+      {"keywords": ["fact", "sheet"], "owner_role": "seller", "due_date": "2026-11-11"}
+    ],
+    "expect_crm_account": "acc-001",
+    "notes": "Spanish twin of the English Class C hero. Class A is named only to be rejected. Task keywords are English because CRM task titles are generated in English. 'El lunes' and 'el miercoles' on a Friday call resolve to 2026-11-09 and 2026-11-11."
+  },
+  "seller": {"name": "Aisha West", "voice": "es-MX-DaliaNeural"},
+  "customer": {"name": "Dana Whitfield", "voice": "es-US-PalomaNeural"},
+  "turns": [
+    {"speaker": "seller", "text": "Buenos días, Dana. ¿Cómo está? ¿Pudo descansar el fin de semana?"},
+    {"speaker": "customer", "text": "Buenos días, Aisha. Sí, gracias, estuvimos en la costa con la familia. Aquí en Seattle amaneció lloviendo, pero no me quejo."},
+    {"speaker": "seller", "text": "Qué bien. Por aquí también está nublado, ya se siente el otoño. Usted me escribió que quería revisar un fondo de renta variable estadounidense, ¿verdad?"},
+    {"speaker": "customer", "text": "Así es. Estamos evaluando opciones para el plan de pensiones y me interesa el Contoso Equity Fund, clase C, porque es la única que lista la plataforma de nuestro custodio. Quiero ser clara desde el principio: la clase C, no la clase A."},
+    {"speaker": "seller", "text": "Entendido. ¿Es por la carga inicial de la clase A?"},
+    {"speaker": "customer", "text": "Exacto. Preferimos evitar la comisión de venta al comprar, y con la clase C evitamos esa carga inicial."},
+    {"speaker": "seller", "text": "Tiene sentido. Solo tenga presente que la clase C tiene una relación de gastos anual más alta y una comisión de venta diferida si se rescata durante el primer año. ¿Qué horizonte de inversión tienen?"},
+    {"speaker": "customer", "text": "Entre tres y cinco años, más o menos. Por eso necesitamos ver cuánto cuesta cada opción a ese plazo antes de llevarla al comité de inversiones."},
+    {"speaker": "seller", "text": "Claro. Le envío la comparación de comisiones el lunes, con el costo acumulado a tres y a cinco años para cada clase del fondo."},
+    {"speaker": "customer", "text": "Perfecto. Y sobre la rentabilidad, ¿cómo le ha ido al fondo frente a su índice de referencia en los últimos años?"},
+    {"speaker": "seller", "text": "Prefiero no citarle cifras de memoria. La ficha técnica trae la rentabilidad a uno, tres y cinco años frente al índice de referencia, y se la envío el miércoles."},
+    {"speaker": "customer", "text": "Muy bien. El comité se reúne el día veinte, así que necesitamos ambos materiales antes de esa fecha."},
+    {"speaker": "seller", "text": "Entendido. ¿Quiere que la comparación venga en formato de tabla, para compartirla fácilmente con el comité?"},
+    {"speaker": "customer", "text": "Sí, una tabla sencilla sería ideal. Así la podemos presentar sin tener que rehacerla."},
+    {"speaker": "seller", "text": "Así lo hacemos. ¿Hay algo más que quiera revisar en esta llamada?"},
+    {"speaker": "customer", "text": "Por ahora no, eso es todo. Gracias por explicarme con tanta claridad la estructura de la clase C."},
+    {"speaker": "seller", "text": "Con gusto, Dana. Que tenga una excelente semana, y si surge cualquier duda, me escribe."},
+    {"speaker": "customer", "text": "Igualmente, Aisha. Hasta pronto."}
+  ]
+}

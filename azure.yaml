@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+# VoiceCRM demo: one container (FastAPI API + built React SPA) on Azure Container Apps.
+#   azd up      provision infra\main.bicep, build the image remotely in ACR, deploy it. Creates BILLABLE resources:
+#               prefer scripts\deploy_azure.bat, which asks for an explicit go-ahead first.
+#   azd down    delete everything (see docs\infrastructure.md for --purge).
+name: voicecrm
+metadata:
+  template: voicecrm-poc@0.1.0
+
+requiredVersions:
+  azd: ">= 1.20.0"
+
+services:
+  app:
+    project: .
+    language: docker
+    host: containerapp
+    # Keep in step with Microsoft.App/containerApps in infra\modules\container-app.bicep (azd updates the image through this API version).
+    apiVersion: "2025-01-01"
+    docker:
+      path: ./Dockerfile
+      context: .
+      platform: amd64
+      remoteBuild: true

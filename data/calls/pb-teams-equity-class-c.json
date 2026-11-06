@@ -1,0 +1,87 @@
+{
+  "fixture_id": "pb-teams-equity-class-c",
+  "title": "Harborview Pension Fund: Contoso Equity Fund Class C fees and committee review",
+  "description": "Hero call. Two Harborview colleagues evaluate a large-cap core mandate. The analyst assumes Class A, the CIO corrects it to Class C (their platform only lists C). The seller commits to a fee comparison and an updated fact sheet with two different due-date phrasings; the CIO's committee hand-off is a customer commitment and must not become a seller task.",
+  "channel": "teams",
+  "direction": "meeting",
+  "market": "US",
+  "business_line": "professional_buyer",
+  "call_type": "product_recommendation",
+  "language": "en-US",
+  "started_at": "2026-11-10T15:00:00Z",
+  "duration_minutes": 17,
+  "seller": {
+    "id": "seller",
+    "display_name": "Sam Rivera",
+    "email": "sam.rivera@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Dana Whitfield",
+      "email": "dana.whitfield@harborview-pension.example",
+      "phone": "+1 206 555 0111",
+      "role": "customer",
+      "org": "Harborview Pension Fund"
+    },
+    {
+      "id": "cust2",
+      "display_name": "Alex Kim",
+      "email": "alex.kim@harborview-pension.example",
+      "phone": "+1 206 555 0112",
+      "role": "customer",
+      "org": "Harborview Pension Fund"
+    }
+  ],
+  "internal": [],
+  "customer_org": "Harborview Pension Fund",
+  "turns": [
+    {"speaker": "seller", "text": "Good morning, Dana, and good morning, Alex. Thanks for making the time."},
+    {"speaker": "customer", "text": "Morning, Sam. Happy to. It has been pouring since the weekend here, so I'm glad to be inside with a coffee."},
+    {"speaker": "seller", "text": "Ha, I know that feeling. We had a gray, wet weekend on my end too, so I'm hoping it clears up soon. Shall we get started?"},
+    {"speaker": "customer", "text": "Please. We're pulling together our large-cap core mandate, and Alex has been doing most of the screening work."},
+    {"speaker": "customer", "speaker_id": "cust2", "text": "Thanks, Dana. Hi, Sam. I had the Class A shares of the Contoso Equity Fund in my notes, so my main question is how the front-end sales charge would work on a position our size."},
+    {"speaker": "customer", "text": "Hold on, Alex, it's not the Class A shares. We're looking at the Contoso Equity Fund, Class C, because that's the only one our custodian's platform lists."},
+    {"speaker": "seller", "text": "Thanks for the catch, Dana. So that's Class C, which means no front-end load, but there's an ongoing distribution fee and a deferred sales charge if you redeem in the first year."},
+    {"speaker": "customer", "speaker_id": "cust2", "text": "Got it. What's the total expense ratio on Class C, and how does it stack up against what we'd pay on Class A?"},
+    {"speaker": "seller", "text": "Class C runs about one point six percent all in, and Class A is closer to ninety-five basis points before any sales charge. On a large position that gap matters, so the breakpoints are worth a look as well."},
+    {"speaker": "customer", "text": "That's helpful. Could you put the numbers in writing, class by class? Our investment committee will want to see them before they approve anything."},
+    {"speaker": "seller", "text": "Absolutely. I'll send you the fee comparison by Friday, with the expense ratios and the sales charge schedule side by side."},
+    {"speaker": "customer", "speaker_id": "cust2", "text": "Thanks. The other thing is that our file still has an old one-pager from last quarter, so I'm not sure the holdings and expense figures are current."},
+    {"speaker": "seller", "text": "Good catch. Let me get the updated fact sheet over to you tomorrow."},
+    {"speaker": "customer", "text": "Perfect. Once I have both, I'll take them to our investment committee when it meets, and I'll let you know how it goes."},
+    {"speaker": "seller", "text": "That sounds great. And if the committee ever wants a lower-cost share class down the road, a conversion is straightforward once you're past the breakpoints."},
+    {"speaker": "customer", "speaker_id": "cust2", "text": "Good to know. Is there a due diligence questionnaire we should expect to fill out on our side?"},
+    {"speaker": "seller", "text": "Not for a fund your platform already lists, but your committee may have its own checklist. Dana, you would know better than I would."},
+    {"speaker": "customer", "text": "We do have a short internal form, but my team handles that on our end, so there's nothing for you to complete."},
+    {"speaker": "seller", "text": "Perfect, that keeps it simple. Anything else on your mind before we wrap up?"},
+    {"speaker": "customer", "speaker_id": "cust2", "text": "No, I think that covers it. Thanks, Sam."},
+    {"speaker": "customer", "text": "Same here. Enjoy the rest of your week."},
+    {"speaker": "seller", "text": "You too, both of you. Stay dry out there."}
+  ],
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000002",
+        "surface_forms": ["Contoso Equity Fund, Class C", "Class C"],
+        "mention_type": "interest",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["fees_expenses", "share_class_selection", "due_diligence_approval", "materials_request"],
+    "tasks": [
+      {"keywords": ["fee", "comparison"], "owner_role": "seller", "due_date": "2026-11-13"},
+      {"keywords": ["fact", "sheet"], "owner_role": "seller", "due_date": "2026-11-11"}
+    ],
+    "must_not_leak": [],
+    "must_keep": [],
+    "expect_crm_account": "acc-001",
+    "notes": "Class A is mentioned by Alex and rejected by Dana, so only Class C (SYN-000002) is a gold product. Dana taking the material to the investment committee is a customer commitment, not a seller task. 'By Friday' resolves to 2026-11-13 and 'tomorrow' to 2026-11-11 for a Tuesday call."
+  },
+  "tags": ["hero", "teams", "pb", "correction", "two_customers", "share_class"]
+}

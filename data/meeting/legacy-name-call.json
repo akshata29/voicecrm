@@ -1,0 +1,50 @@
+{
+  "scenario": "legacy-name",
+  "order": 3,
+  "title": "Harborview Pension Fund: year-end rebalance review, a holding called by its former name (live Teams demo call)",
+  "shows": "It learns: the customer uses a fund's former name, so the first run needs one pick and every run after that resolves the name by itself.",
+  "call_type": "follow_up",
+  "notes": "Played into ONE microphone, so every line is attributed to the host: customer lines make no first-person commitments and nothing says today, tonight or tomorrow. The holding is called the 'Contoso Blue Chip Fund, class C' every time, a former name that shares no vocabulary with the catalogue. By design the script never says equity, income, growth, bond, value, opportunities or dividend, so the baseline cannot resolve it by accident; the demo is: pick Contoso Equity Fund Class C once, approve, then play (or upload) the call again.",
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000002",
+        "surface_forms": ["Contoso Blue Chip Fund, class C"],
+        "mention_type": "existing_holding"
+      }
+    ],
+    "topics": ["allocation_portfolio", "performance_returns", "flows_liquidity"],
+    "tasks": [
+      {"keywords": ["trailing", "returns"], "owner_role": "seller", "due_date": "2026-11-12"},
+      {"keywords": ["confirm", "redemption"], "owner_role": "seller", "due_date": "2026-11-09"}
+    ],
+    "expect_crm_account": "acc-001",
+    "notes": "Former name of SYN-000002 (Contoso Equity Fund Class C); the class is stated every time. At baseline the product needs a pick (never a wrong tag); after the alias is learned it resolves automatically. On a Friday call 'by Thursday' is 2026-11-12 and 'next Monday' is 2026-11-09."
+  },
+  "seller": {"name": "Aisha West", "voice": "en-US-AriaNeural"},
+  "customer": {"name": "Dana Whitfield", "voice": "en-US-JennyNeural"},
+  "turns": [
+    {"speaker": "seller", "text": "Morning, Dana. Thanks for making time on such a busy week."},
+    {"speaker": "customer", "text": "Morning, Aisha. Of course. It's a crisp, clear day here for once, so I'm in a good mood."},
+    {"speaker": "seller", "text": "Nice, we finally got some sun on my end too. You mentioned you wanted to go over a few things before your year-end rebalance."},
+    {"speaker": "customer", "text": "Yes. We've been holding the Contoso Blue Chip Fund, class C, for a couple of years now, and we're deciding whether to trim it or leave it where it is."},
+    {"speaker": "seller", "text": "Got it. I know that name well, a lot of plans still call it that. What's driving the rebalance this time?"},
+    {"speaker": "customer", "text": "Two things. The Blue Chip Fund, class C has grown into a bigger slice of the plan than our policy target, so we're overweight. And we need to raise cash for benefit payments early in the new year."},
+    {"speaker": "seller", "text": "That makes sense. Before you decide anything, do you want to go through how it has done this year?"},
+    {"speaker": "customer", "text": "Please. How is the Contoso Blue Chip Fund, class C tracking against its benchmark year to date? I'd also like the three year picture."},
+    {"speaker": "seller", "text": "It has outperformed its benchmark year to date, and the three year numbers look solid too. The class C shares have kept pace in most quarters, even the choppy ones."},
+    {"speaker": "customer", "text": "Good to hear. The bigger question is liquidity. If we trim the Blue Chip Fund, class C by a meaningful amount, how does a redemption of that size work, and would it cause any problems?"},
+    {"speaker": "seller", "text": "It shouldn't. The Blue Chip Fund is large and very liquid, and redemption proceeds arrive the next business day. For a very large trade we just like a heads-up so we can plan the timing."},
+    {"speaker": "customer", "text": "That's reassuring. I'd like to understand the process in more detail so I can plan around our benefit payments."},
+    {"speaker": "seller", "text": "Of course. I'll confirm the redemption process for a trade your size with our trading desk and get back to you next Monday."},
+    {"speaker": "customer", "text": "Perfect. Could you also put the latest numbers in writing? Our trustees like to see everything on paper before we change a position."},
+    {"speaker": "seller", "text": "Absolutely. I'll send you the trailing returns and the latest holdings for the Blue Chip Fund by Thursday."},
+    {"speaker": "customer", "text": "Thank you. That gives the trustees what they need ahead of our December meeting."},
+    {"speaker": "seller", "text": "Sounds like a good plan. Is there anything else on your mind?"},
+    {"speaker": "customer", "text": "No, I think that covers it. Do you have any time off coming up around the holidays?"},
+    {"speaker": "seller", "text": "A few days with family after Thanksgiving, and then hopefully a quiet end to the year. How about you?"},
+    {"speaker": "customer", "text": "We're heading to the coast for a few days. Thanks again, Aisha, and enjoy the rest of your week."}
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "fixture_id": "pb-mobile-in-person-multi-product",
+  "title": "Lakeshore Family Office: lunch discussion on Strategic Income, Floating Rate and Global Bond",
+  "description": "Lunch meeting recorded on Sam's phone. Elena Petrova holds the Woodgrove Global Bond Fund, Class R6, is considering the Contoso Strategic Income Fund, Class I as a core-plus bond holding and compares it with the Contoso Floating Rate Fund, Advisor class. Restaurant chatter must be dropped, and the three seller tasks use different due-date phrasings (tomorrow, by Thursday, end of next week).",
+  "channel": "mobile",
+  "direction": "in_person",
+  "market": "US",
+  "business_line": "professional_buyer",
+  "call_type": "follow_up",
+  "language": "en-US",
+  "started_at": "2026-11-09T18:00:00Z",
+  "duration_minutes": 38,
+  "seller": {
+    "id": "seller",
+    "display_name": "Sam Rivera",
+    "email": "sam.rivera@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Elena Petrova",
+      "email": "elena.petrova@lakeshore-fo.example",
+      "phone": "+1 312 555 0142",
+      "role": "customer",
+      "org": "Lakeshore Family Office"
+    }
+  ],
+  "internal": [],
+  "customer_org": "Lakeshore Family Office",
+  "turns": [
+    {"speaker": "seller", "text": "Elena, great to finally do this in person. Thanks for picking such a nice spot."},
+    {"speaker": "customer", "text": "Of course, Sam. It's right around the corner from our office, and the lunch menu is always good."},
+    {"speaker": "seller", "text": "I can tell. Let me see what's on here. I think I'm going for the club sandwich."},
+    {"speaker": "customer", "text": "I'm tempted by the salmon salad. Oh, here comes the waiter. Hi, could I have the salmon salad, please, and a sparkling water?"},
+    {"speaker": "seller", "text": "And could I get the club sandwich with a side salad, and a sparkling water as well? Thank you."},
+    {"speaker": "seller", "text": "So, you mentioned on the phone that you wanted to revisit the fixed income side of the book."},
+    {"speaker": "customer", "text": "Yes. Right now our main bond holding is the Woodgrove Global Bond Fund, Class R6. It has done its job, but I'm wondering whether it carries too much currency exposure for what we want."},
+    {"speaker": "seller", "text": "That's a fair question. It's a go-anywhere global portfolio, so a good part of what it earns comes from currency and non-US rates, which can make the ride bumpier next to your dollar-based spending needs."},
+    {"speaker": "customer", "text": "Exactly. So I've been looking at the Contoso Strategic Income Fund, Class I, as a core-plus holding that spreads across more credit sectors."},
+    {"speaker": "seller", "text": "It's a natural fit. It spreads across US high yield, investment grade, securitized assets and some emerging markets exposure, and the team can adjust duration fairly actively as rates move."},
+    {"speaker": "customer", "text": "That active duration piece is what interests me. With rates still uncertain, I don't want to be locked into a big duration bet. How does it compare with the Contoso Floating Rate Fund, Advisor class?"},
+    {"speaker": "seller", "text": "Good question. The Floating Rate Fund holds senior bank loans that reset with short-term rates, so it has almost no duration, but it's concentrated in below-investment-grade credit and it won't help you if rates fall."},
+    {"speaker": "customer", "text": "Right, that's the trade-off I'm weighing. The Strategic Income Fund gives me flexibility and diversification, while the floating rate fund gives me more protection if rates stay high."},
+    {"speaker": "seller", "text": "Exactly. I'll send you a side-by-side comparison of the Strategic Income Fund and the Floating Rate Fund tomorrow."},
+    {"speaker": "customer", "text": "That would be great. I'd also like to see what a shift would look like in our actual portfolio, maybe ten percent coming out of the global bond fund."},
+    {"speaker": "seller", "text": "Happy to. I'll run a pro forma on moving ten percent out of the Woodgrove Global Bond Fund and send it to you by the end of next week."},
+    {"speaker": "customer", "text": "Perfect. One more practical thing, is there a minimum for the Class I shares? I don't want to build a case around it and then find out we can't access it."},
+    {"speaker": "seller", "text": "Fair point. I'll confirm the minimum with our sales desk and let you know by Thursday."},
+    {"speaker": "customer", "text": "Thanks. I'll walk Marcus through all of this before we decide anything, since he'll want to see how it fits into the overall allocation."},
+    {"speaker": "seller", "text": "Makes sense. Oh, it looks like the food is here."},
+    {"speaker": "customer", "text": "That was quick. The salmon looks great."},
+    {"speaker": "seller", "text": "Mine too. Let's eat, and thanks again for making the time."}
+  ],
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000093",
+        "surface_forms": ["Contoso Strategic Income Fund, Class I", "Strategic Income Fund"],
+        "mention_type": "interest",
+        "ambiguous": false,
+        "acceptable_ids": []
+      },
+      {
+        "product_id": "SYN-000114",
+        "surface_forms": ["Contoso Floating Rate Fund, Advisor class", "Floating Rate Fund"],
+        "mention_type": "comparison",
+        "ambiguous": false,
+        "acceptable_ids": []
+      },
+      {
+        "product_id": "SYN-000131",
+        "surface_forms": ["Woodgrove Global Bond Fund, Class R6", "Woodgrove Global Bond Fund"],
+        "mention_type": "existing_holding",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["rates_duration", "fixed_income_credit", "allocation_portfolio", "international_emerging"],
+    "tasks": [
+      {"keywords": ["comparison", "floating"], "owner_role": "seller", "due_date": "2026-11-10"},
+      {"keywords": ["pro", "forma"], "owner_role": "seller", "due_date": "2026-11-20"},
+      {"keywords": ["confirm", "minimum"], "owner_role": "seller", "due_date": "2026-11-12"}
+    ],
+    "must_not_leak": [],
+    "must_keep": [],
+    "expect_crm_account": "acc-004",
+    "notes": "Ordering food and the waiter are noise to drop. For a Monday call 'tomorrow' is 2026-11-10, 'by Thursday' is 2026-11-12 and 'end of next week' is Friday of the following week, 2026-11-20. Elena walking Marcus (her colleague, con-007) through the options is a customer commitment, not a task."
+  },
+  "tags": ["mobile", "in_person", "pb", "multi_product", "fixed_income", "family_office", "restaurant_smalltalk"]
+}

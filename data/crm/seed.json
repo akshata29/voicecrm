@@ -1,0 +1,63 @@
+{
+  "synthetic": true,
+  "users": [
+    {"id": "usr-001", "name": "Sam Rivera", "email": "sam.rivera@contoso.example"},
+    {"id": "usr-002", "name": "Jordan Ellis", "email": "jordan.ellis@contoso.example"},
+    {"id": "usr-003", "name": "Casey Morgan", "email": "casey.morgan@contoso.example"},
+    {"id": "usr-004", "name": "Riley Brooks", "email": "riley.brooks@contoso.example"}
+  ],
+  "accounts": [
+    {"id": "acc-001", "name": "Harborview Pension Fund", "domain": "harborview-pension.example", "segment": "professional_buyer"},
+    {"id": "acc-002", "name": "Cascade Endowment Partners", "domain": "cascade-endowment.example", "segment": "professional_buyer"},
+    {"id": "acc-003", "name": "Summit Ridge Wealth Advisors", "domain": "summitridge-wealth.example", "segment": "retail"},
+    {"id": "acc-004", "name": "Lakeshore Family Office", "domain": "lakeshore-fo.example", "segment": "professional_buyer"},
+    {"id": "acc-005", "name": "Pinecrest Advisory Group", "domain": "pinecrest-advisory.example", "segment": "retail"},
+    {"id": "acc-006", "name": "Northstar Insurance Investments", "domain": "northstar-ins.example", "segment": "professional_buyer"},
+    {"id": "acc-007", "name": "Redwood Trust Company", "domain": "redwood-trust.example", "segment": "professional_buyer"},
+    {"id": "acc-008", "name": "Brightwater Financial Planning", "domain": "brightwater-fp.example", "segment": "retail"},
+    {"id": "acc-009", "name": "Thames & Clyde Asset Management", "domain": "thamesclyde-am.example", "segment": "international"},
+    {"id": "acc-010", "name": "Rheinland Vermögensverwaltung", "domain": "rheinland-vv.example", "segment": "international"},
+    {"id": "acc-011", "name": "Evergreen Pension Trust", "domain": "evergreen-pension.example", "segment": "professional_buyer"},
+    {"id": "acc-012", "name": "Sierra Valle Gestión de Patrimonios", "domain": "sierravalle-gp.example", "segment": "professional_buyer"}
+  ],
+  "contacts": [
+    {"id": "con-001", "name": "Dana Whitfield", "email": "dana.whitfield@harborview-pension.example", "phone": "+1 206 555 0111", "account_id": "acc-001", "title": "Chief Investment Officer"},
+    {"id": "con-002", "name": "Alex Kim", "email": "alex.kim@harborview-pension.example", "phone": "+1 206 555 0112", "account_id": "acc-001", "title": "Senior Investment Analyst"},
+    {"id": "con-003", "name": "Priya Nair", "email": "priya.nair@cascade-endowment.example", "phone": "+1 503 555 0121", "account_id": "acc-002", "title": "Director of Investments"},
+    {"id": "con-004", "name": "Ben Okafor", "email": "ben.okafor@cascade-endowment.example", "phone": "+1 503 555 0122", "account_id": "acc-002", "title": "Investment Associate"},
+    {"id": "con-005", "name": "Greg Lindqvist", "email": "greg.lindqvist@summitridge-wealth.example", "phone": "+1 425 555 0131", "account_id": "acc-003", "title": "Managing Partner"},
+    {"id": "con-006", "name": "Mia Tanaka", "email": "mia.tanaka@summitridge-wealth.example", "phone": "+1 425 555 0132", "account_id": "acc-003", "title": "Financial Advisor"},
+    {"id": "con-007", "name": "Marcus Hale", "email": "marcus.hale@lakeshore-fo.example", "phone": "+1 312 555 0141", "account_id": "acc-004", "title": "Head of Investments"},
+    {"id": "con-008", "name": "Elena Petrova", "email": "elena.petrova@lakeshore-fo.example", "phone": "+1 312 555 0142", "account_id": "acc-004", "title": "Portfolio Analyst"},
+    {"id": "con-009", "name": "Tom Alvarez", "email": "tom.alvarez@pinecrest-advisory.example", "phone": "+1 303 555 0151", "account_id": "acc-005", "title": "Principal Advisor"},
+    {"id": "con-010", "name": "Rachel Stein", "email": "rachel.stein@pinecrest-advisory.example", "phone": "+1 303 555 0152", "account_id": "acc-005", "title": "Associate Advisor"},
+    {"id": "con-011", "name": "Hannah Brooks", "email": "hannah.brooks@northstar-ins.example", "phone": "+1 617 555 0161", "account_id": "acc-006", "title": "Head of Fixed Income"},
+    {"id": "con-012", "name": "Victor Osei", "email": "victor.osei@northstar-ins.example", "phone": "+1 617 555 0162", "account_id": "acc-006", "title": "Credit Analyst"},
+    {"id": "con-013", "name": "Alex Kim", "email": "alex.kim@redwood-trust.example", "phone": "+1 212 555 0171", "account_id": "acc-007", "title": "Trust Investment Officer"},
+    {"id": "con-014", "name": "Nora Fitzgerald", "email": "nora.fitzgerald@redwood-trust.example", "phone": "+1 212 555 0172", "account_id": "acc-007", "title": "Head of Manager Research"},
+    {"id": "con-015", "name": "Carlos Mendez", "email": "carlos.mendez@brightwater-fp.example", "phone": "+1 305 555 0181", "account_id": "acc-008", "title": "Founder and Advisor"},
+    {"id": "con-016", "name": "Olivia Grant", "email": "olivia.grant@brightwater-fp.example", "phone": "+1 305 555 0182", "account_id": "acc-008", "title": "Advisor"},
+    {"id": "con-017", "name": "James Whitaker", "email": "james.whitaker@thamesclyde-am.example", "phone": "+44 20 7946 0191", "account_id": "acc-009", "title": "Head of Product Selection"},
+    {"id": "con-018", "name": "Fiona MacLeod", "email": "fiona.macleod@thamesclyde-am.example", "phone": "+44 20 7946 0192", "account_id": "acc-009", "title": "Fund Selector"},
+    {"id": "con-019", "name": "Lukas Brandt", "email": "lukas.brandt@rheinland-vv.example", "phone": "+49 30 5550 0201", "account_id": "acc-010", "title": "Head of Fund Selection"},
+    {"id": "con-020", "name": "Sabine Keller", "email": "sabine.keller@rheinland-vv.example", "phone": "+49 30 5550 0202", "account_id": "acc-010", "title": "Portfolio Manager"},
+    {"id": "con-021", "name": "Owen Parker", "email": "owen.parker@evergreen-pension.example", "phone": "+1 425 555 0211", "account_id": "acc-011", "title": "Investment Director"},
+    {"id": "con-022", "name": "Lena Hayes", "email": "lena.hayes@evergreen-pension.example", "phone": "+1 425 555 0212", "account_id": "acc-011", "title": "Senior Portfolio Analyst"},
+    {"id": "con-023", "name": "Lucía Ortega", "email": "lucia.ortega@sierravalle-gp.example", "phone": "+1 786 555 0231", "account_id": "acc-012", "title": "Directora de Inversiones"},
+    {"id": "con-024", "name": "Diego Fuentes", "email": "diego.fuentes@sierravalle-gp.example", "phone": "+1 786 555 0232", "account_id": "acc-012", "title": "Analista de Inversiones"}
+  ],
+  "opportunities": [
+    {"id": "opp-001", "name": "Harborview - large-cap core mandate", "account_id": "acc-001", "contact_id": "con-001", "stage": "Propose"},
+    {"id": "opp-002", "name": "Cascade - fixed income diversifier", "account_id": "acc-002", "contact_id": "con-003", "stage": "Develop"},
+    {"id": "opp-003", "name": "Summit Ridge - model portfolio platform adds", "account_id": "acc-003", "contact_id": "con-005", "stage": "Qualify"},
+    {"id": "opp-004", "name": "Lakeshore - income sleeve", "account_id": "acc-004", "contact_id": "con-007", "stage": "Develop"},
+    {"id": "opp-005", "name": "Pinecrest - target-date evaluation", "account_id": "acc-005", "contact_id": "con-009", "stage": "Qualify"},
+    {"id": "opp-006", "name": "Northstar - short duration credit", "account_id": "acc-006", "contact_id": "con-011", "stage": "Propose"},
+    {"id": "opp-007", "name": "Redwood Trust - manager research approval", "account_id": "acc-007", "contact_id": "con-014", "stage": "Develop"},
+    {"id": "opp-008", "name": "Brightwater - share class conversion programme", "account_id": "acc-008", "contact_id": "con-015", "stage": "Develop"},
+    {"id": "opp-009", "name": "Thames & Clyde - UCITS equity selection", "account_id": "acc-009", "contact_id": "con-017", "stage": "Propose"},
+    {"id": "opp-010", "name": "Rheinland - euro bond UCITS", "account_id": "acc-010", "contact_id": "con-019", "stage": "Qualify"},
+    {"id": "opp-011", "name": "Evergreen - equity income mandate", "account_id": "acc-011", "contact_id": "con-021", "stage": "Qualify"},
+    {"id": "opp-012", "name": "Sierra Valle - global equity allocation", "account_id": "acc-012", "contact_id": "con-023", "stage": "Develop"}
+  ]
+}

@@ -1,0 +1,39 @@
+# ILLUSTRATIVE cost-per-call model. The figures are Azure retail LIST prices (East US 2, USD, read from prices.azure.com
+# on 2026-11-03; the gpt-5.4 family on 2026-11-05). They exclude discounts, commitments, Data Zone premiums and everything
+# that is not metered per call (hosting, storage, Dataverse, Search). Validate against the customer's own agreement before
+# quoting any number.
+illustrative: true
+currency: USD
+note: Illustrative - Azure retail list prices (East US 2, USD, 2026-11-03 and 2026-11-05); not a quote. Excludes discounts and commitments.
+speech_per_audio_hour: 0.36          # fast transcription (real-time standard is 1.00, batch 0.18)
+llm:
+  # Keys are model deployment names (VOICECRM_FOUNDRY_DEPLOYMENT); "default" prices any other name. Add your deployments.
+  default:                           # gpt-4.1, Global Standard
+    input_per_1m_tokens: 2.00
+    output_per_1m_tokens: 8.00
+  gpt-4.1:
+    input_per_1m_tokens: 2.00
+    output_per_1m_tokens: 8.00
+  gpt-4.1-mini:                      # gpt-4.1-mini, Global Standard: the best value for a bulk run
+    input_per_1m_tokens: 0.40
+    output_per_1m_tokens: 1.60
+  gpt-5.4-mini:                      # Global Standard; reasoning tokens bill as output. The demo tenant's model (gpt-4.1 is Legacy there)
+    input_per_1m_tokens: 0.75
+    output_per_1m_tokens: 4.50
+  gpt-6-astra:                       # Global Standard, short context
+    input_per_1m_tokens: 10.00
+    output_per_1m_tokens: 50.00
+  chat41:                            # the earlier demo account's deployment names (see docs/live-demo.md)
+    input_per_1m_tokens: 2.00
+    output_per_1m_tokens: 8.00
+  chat41mini:
+    input_per_1m_tokens: 0.40
+    output_per_1m_tokens: 1.60
+  chat54mini:                        # the demo tenant's deployment of gpt-5.4-mini
+    input_per_1m_tokens: 0.75
+    output_per_1m_tokens: 4.50
+  chat6astra:
+    input_per_1m_tokens: 10.00
+    output_per_1m_tokens: 50.00
+language_pii_per_1k_records: 0.75    # Azure AI Language, standard text records
+search_per_1k_queries: 0.00

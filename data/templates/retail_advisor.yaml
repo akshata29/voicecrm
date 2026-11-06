@@ -1,0 +1,53 @@
+template_id: retail_advisor
+name: Retail - Advisor relationship call note
+description: >-
+  Relationship-oriented note for retail advisor calls. Keeps non-sensitive rapport facts (interests, preferences)
+  that help the next person covering the advisor; never health, financial-hardship or other sensitive disclosures.
+business_lines: [retail]
+call_types: [relationship, service, discovery, product_recommendation, follow_up]
+language_out: en
+include_relationship_context: true
+tone: warm but factual, third person; no speculation
+max_words: 240
+sections:
+  - key: overview
+    title: Overview
+    kind: text
+    instruction: 2-3 sentences - who was on the call, the purpose, and the outcome.
+    crm_field: vcrm_overview
+  - key: advisor_situation
+    title: Advisor and client situation
+    kind: list
+    instruction: >-
+      Business-relevant situation: practice focus, client segments, upcoming events or deadlines. Exclude anything
+      sensitive about the advisor or their clients.
+    max_items: 4
+    crm_field: vcrm_clientcontext
+  - key: products_discussed
+    title: Products discussed
+    kind: list
+    instruction: One line per resolved product (exact fund and share class) with the advisor's stance.
+    max_items: 6
+    crm_field: vcrm_productsdiscussed
+  - key: questions_raised
+    title: Questions and concerns
+    kind: list
+    instruction: Questions or concerns the advisor raised that need an answer.
+    max_items: 4
+    required: false
+    crm_field: vcrm_concerns
+  - key: relationship_notes
+    title: Relationship notes
+    kind: list
+    instruction: >-
+      Non-sensitive rapport facts worth remembering (sports teams, hobbies, preferred contact style). Never health,
+      family health, finances or other sensitive personal information.
+    max_items: 3
+    required: false
+    crm_field: vcrm_relationshipnotes
+  - key: follow_ups
+    title: Follow-ups
+    kind: list
+    instruction: Agreed follow-ups with owner and date; must mirror the CRM tasks.
+    max_items: 6
+    crm_field: vcrm_nextsteps

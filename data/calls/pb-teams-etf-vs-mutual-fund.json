@@ -1,0 +1,84 @@
+{
+  "fixture_id": "pb-teams-etf-vs-mutual-fund",
+  "title": "Nora Fitzgerald (Redwood Trust) - Contoso U.S. Core Equity ETF vs. Contoso Equity Fund, Class I",
+  "description": "Teams call where a head of manager research weighs the Contoso U.S. Core Equity ETF against the Contoso Equity Fund, Class I for taxable trust accounts. The similar fund names are the trap: the ETF is the interest, the mutual fund (Class I) is only a comparison.",
+  "channel": "teams",
+  "direction": "meeting",
+  "market": "US",
+  "business_line": "professional_buyer",
+  "call_type": "product_recommendation",
+  "language": "en-US",
+  "started_at": "2026-11-17T15:00:00Z",
+  "duration_minutes": 13,
+  "seller": {
+    "id": "seller",
+    "display_name": "Sam Rivera",
+    "email": "sam.rivera@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Nora Fitzgerald",
+      "email": "nora.fitzgerald@redwood-trust.example",
+      "phone": "+1 212 555 0172",
+      "role": "customer",
+      "org": "Redwood Trust Company"
+    }
+  ],
+  "internal": [],
+  "customer_org": "Redwood Trust Company",
+  "turns": [
+    {"speaker": "seller", "text": "Hi Nora, good to see you. Can you hear me okay?"},
+    {"speaker": "customer", "text": "Hi Sam, loud and clear. It finally feels like fall in New York, I had to dig out my winter coat this morning."},
+    {"speaker": "seller", "text": "Same here, we had our first frost over the weekend. I'm still not ready for the dark evenings."},
+    {"speaker": "customer", "text": "Don't remind me. Anyway, thanks for making time. I've been asked to look at the Contoso U.S. Core Equity ETF for some of our trust accounts, and I want to weigh it up against the Contoso Equity Fund, Class I, which we've been tracking for a while."},
+    {"speaker": "seller", "text": "Happy to help. The names are close, so let me keep them straight: the ETF is the Contoso U.S. Core Equity ETF, and the mutual fund is the Contoso Equity Fund, Class I. They're two separate products, so it's worth keeping them apart in your notes."},
+    {"speaker": "customer", "text": "That's exactly what I want to avoid. A colleague mixed them up in our research notes last week."},
+    {"speaker": "seller", "text": "It happens a lot with the Contoso names. What's driving the ETF question, is it the trading flexibility?"},
+    {"speaker": "customer", "text": "Partly the intraday trading, but mostly taxes. A number of our trust accounts are taxable, and capital gains distributions from mutual funds have been a headache for our clients at year end."},
+    {"speaker": "seller", "text": "That's a common reason to look at the ETF structure. Because of the in-kind creation and redemption process, ETFs have generally distributed fewer capital gains, although it depends on the strategy, so I'd want to show you the actual distribution history for both."},
+    {"speaker": "customer", "text": "Good. The other piece is cost. What's the fee difference between the ETF and the I class once you include trading costs?"},
+    {"speaker": "seller", "text": "On the mutual fund side, the I class is priced for institutions, and on the ETF you pay a brokerage commission when you trade on exchange. I don't want to quote expense ratios from memory, so I'd rather put both on one page."},
+    {"speaker": "customer", "text": "That works. Could you send me a fee and tax comparison of the ETF and the mutual fund? I'd like to see after-tax outcomes, not just the expense ratios."},
+    {"speaker": "seller", "text": "Absolutely. I'll send you the fee and tax comparison by Thursday, with the expense ratios and the distribution history side by side."},
+    {"speaker": "customer", "text": "Perfect. I'd also like to see exactly what the ETF holds, since our investment officers like to review the underlying positions."},
+    {"speaker": "seller", "text": "Of course. I'll email you the ETF's portfolio holdings file tomorrow."},
+    {"speaker": "customer", "text": "Great. In the meantime, I'll run the tax angle past our trust operations team and let you know if they have any questions."},
+    {"speaker": "seller", "text": "Sounds good. Is there anything else on the ETF or the I class that I can clarify today?"},
+    {"speaker": "customer", "text": "No, I think that covers it. This was really clear, thanks."},
+    {"speaker": "seller", "text": "My pleasure, Nora. Enjoy the rest of your week, and bundle up out there."},
+    {"speaker": "customer", "text": "You too, Sam. Talk soon."}
+  ],
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000054",
+        "surface_forms": ["Contoso U.S. Core Equity ETF"],
+        "mention_type": "interest",
+        "ambiguous": false,
+        "acceptable_ids": []
+      },
+      {
+        "product_id": "SYN-000005",
+        "surface_forms": ["Contoso Equity Fund, Class I"],
+        "mention_type": "comparison",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["etf_vs_mutual_fund", "fees_expenses", "tax_efficiency"],
+    "tasks": [
+      {"keywords": ["fee", "tax", "comparison"], "owner_role": "seller", "due_date": "2026-11-19"},
+      {"keywords": ["holdings"], "owner_role": "seller", "due_date": "2026-11-18"}
+    ],
+    "must_not_leak": [],
+    "must_keep": [],
+    "expect_crm_account": "acc-007",
+    "notes": "Similar-names trap: Contoso U.S. Core Equity ETF (SYN-000054, the interest) vs Contoso Equity Fund, Class I (SYN-000005, a comparison mention only; Nora says it has been tracked, not held). Nora running the tax angle past her trust operations team is a customer-side distractor. For a call on Tuesday 2026-11-17, 'by Thursday' = 2026-11-19 and 'tomorrow' = 2026-11-18."
+  },
+  "tags": ["etf", "mutual_fund", "teams", "pb", "similar_names", "tax", "comparison_mention"]
+}

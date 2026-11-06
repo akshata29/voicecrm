@@ -1,0 +1,79 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+.coverage
+.coverage.*
+htmlcov/
+.hypothesis/
+build/
+dist/
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.scratch/
+
+# Local state, secrets, generated media
+.env
+.env.*
+*.env
+.deny-terms.local
+!.env.example
+!frontend/.env.mock
+.state*/
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+data/audio/
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+desktop.ini
+$RECYCLE.BIN/
+
+# Credentials and cloud config: never commit (use .env, which is ignored; .env.example is the template)
+*.pem
+*.key
+*.pfx
+*.p12
+*.jks
+*.kdbx
+*.secret
+secrets/
+client_secret*.json
+local.settings.json
+.azure/
+*.publishsettings
+*.tfstate
+*.tfstate.*
+.terraform/
+msal_token_cache*
+*.tokencache
+
+# Logs, temp files and test output
+*.log
+logs/
+*.tmp
+*.bak
+*.orig
+*.swp
+npm-debug.log*
+yarn-error.log*
+playwright-report/
+test-results/
+.vite/
+
+# Customer-specific working documents: kept locally, never published
+docs/requirements-analysis.md
+
+.state/

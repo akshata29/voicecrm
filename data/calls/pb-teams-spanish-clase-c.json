@@ -1,0 +1,75 @@
+{
+  "fixture_id": "pb-teams-spanish-clase-c",
+  "title": "Lucía Ortega (Sierra Valle) - Contoso Equity Fund clase C, en español",
+  "description": "Spanish-language Teams call and twin of the English class C hero call: the customer asks for the Contoso Equity Fund, clase C and explicitly rejects clase A; the seller promises a fee comparison and a fact sheet. The CRM note and task titles must come out in English.",
+  "channel": "teams",
+  "direction": "meeting",
+  "market": "US",
+  "business_line": "professional_buyer",
+  "call_type": "product_recommendation",
+  "language": "es-US",
+  "started_at": "2026-11-11T16:00:00Z",
+  "duration_minutes": 12,
+  "seller": {
+    "id": "seller",
+    "display_name": "Sam Rivera",
+    "email": "sam.rivera@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Lucía Ortega",
+      "email": "lucia.ortega@sierravalle-gp.example",
+      "phone": "+1 786 555 0231",
+      "role": "customer",
+      "org": "Sierra Valle Gestión de Patrimonios"
+    }
+  ],
+  "internal": [],
+  "customer_org": "Sierra Valle Gestión de Patrimonios",
+  "turns": [
+    {"speaker": "seller", "locale": "es-US", "text": "Buenos días, Lucía. ¿Cómo está? ¿Pudo descansar el fin de semana?"},
+    {"speaker": "customer", "locale": "es-US", "text": "Buenos días, Sam. Sí, gracias, estuvimos en los Cayos con la familia. Hoy amaneció lloviendo en Miami, pero no me quejo."},
+    {"speaker": "seller", "locale": "es-US", "text": "Qué bien. Por aquí también está nublado, ya se siente el otoño. Usted me escribió que quería revisar un fondo de renta variable estadounidense, ¿verdad?"},
+    {"speaker": "customer", "locale": "es-US", "text": "Así es. Estamos evaluando opciones para varios clientes y me interesa el Contoso Equity Fund, clase C. Quiero ser clara desde el principio: la clase C, no la clase A."},
+    {"speaker": "seller", "locale": "es-US", "text": "Entendido. ¿Es por la carga inicial de la clase A?"},
+    {"speaker": "customer", "locale": "es-US", "text": "Exacto. Varios clientes no quieren pagar una comisión de venta al comprar, y con la clase C evitamos esa carga inicial."},
+    {"speaker": "seller", "locale": "es-US", "text": "Tiene sentido. Solo tenga presente que la clase C tiene una relación de gastos anual más alta y una comisión de venta diferida si el cliente rescata durante el primer año. ¿Qué horizonte de inversión tienen esos clientes?"},
+    {"speaker": "customer", "locale": "es-US", "text": "Entre tres y cinco años, más o menos. Por eso necesito ver cuánto cuesta cada opción a ese plazo antes de proponérsela a los clientes."},
+    {"speaker": "seller", "locale": "es-US", "text": "Claro. Le envío la comparación de comisiones el viernes, con el costo acumulado a tres y a cinco años para cada clase del fondo."},
+    {"speaker": "customer", "locale": "es-US", "text": "Perfecto. Y sobre la rentabilidad, ¿cómo le ha ido al fondo frente a su índice de referencia en los últimos años?"},
+    {"speaker": "seller", "locale": "es-US", "text": "Prefiero no citarle cifras de memoria. La ficha técnica trae la rentabilidad a uno, tres y cinco años frente al índice de referencia, y se la envío mañana."},
+    {"speaker": "customer", "locale": "es-US", "text": "Muy bien. Mientras tanto, yo hablo con Diego, nuestro analista, para confirmar el monto que vamos a invertir, y le aviso el lunes."},
+    {"speaker": "seller", "locale": "es-US", "text": "Perfecto, quedo pendiente de su aviso. ¿Quiere que la comparación venga en formato de tabla, para compartirla fácilmente con su equipo?"},
+    {"speaker": "customer", "locale": "es-US", "text": "Sí, una tabla sencilla sería ideal. Así se la puedo mostrar a los clientes sin tener que rehacerla."},
+    {"speaker": "seller", "locale": "es-US", "text": "Así lo hacemos. ¿Hay algo más que quiera revisar hoy?"},
+    {"speaker": "customer", "locale": "es-US", "text": "Por ahora no, eso es todo. Gracias por explicarme con tanta claridad la estructura de la clase C."},
+    {"speaker": "seller", "locale": "es-US", "text": "Con gusto, Lucía. Que tenga una excelente semana, y si surge cualquier duda, me escribe."},
+    {"speaker": "customer", "locale": "es-US", "text": "Igualmente, Sam. Hasta pronto."}
+  ],
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "es",
+    "products": [
+      {
+        "product_id": "SYN-000002",
+        "surface_forms": ["Contoso Equity Fund, clase C"],
+        "mention_type": "interest",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["fees_expenses", "share_class_selection", "performance_returns"],
+    "tasks": [
+      {"keywords": ["fee", "comparison"], "owner_role": "seller", "due_date": "2026-11-13"},
+      {"keywords": ["fact", "sheet"], "owner_role": "seller", "due_date": "2026-11-12"}
+    ],
+    "must_not_leak": [],
+    "must_keep": [],
+    "expect_crm_account": "acc-012",
+    "notes": "Spanish twin of the English class C hero call. Class A is named only to be rejected (not a gold product). Lucia's own commitment to confirm the amount on Monday is a customer-side distractor, not a seller task. Task keywords are English because CRM task titles are generated in English."
+  },
+  "tags": ["spanish", "teams", "pb", "class_c", "negated_class", "es_twin"]
+}

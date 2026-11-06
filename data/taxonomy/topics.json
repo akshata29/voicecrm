@@ -1,0 +1,147 @@
+{
+  "version": "2026.11-synthetic",
+  "synthetic": true,
+  "topics": [
+    {
+      "topic_id": "fees_expenses", "label": "Fees and expenses",
+      "description": "Management fees, expense ratios, breakpoints and fee comparisons.",
+      "labels_i18n": {"es": "Comisiones y gastos"},
+      "synonyms": ["fee", "fees", "expense ratio", "expenses", "management fee", "cost", "costs", "pricing", "basis points", "bps", "fee comparison", "fee schedule", "breakpoint", "breakpoints", "net expense", "fee waiver", "12b-1"],
+      "synonyms_i18n": {"es": ["comision", "comisiones", "gastos", "costos", "costes", "tarifa", "tarifas", "relacion de gastos", "puntos basicos", "comparacion de comisiones"]}
+    },
+    {
+      "topic_id": "performance_returns", "label": "Performance and returns",
+      "description": "Track record, relative returns and benchmark comparisons.",
+      "labels_i18n": {"es": "Rentabilidad y rendimiento"},
+      "synonyms": ["performance", "returns", "track record", "outperform", "outperformed", "underperform", "underperformed", "alpha", "benchmark", "trailing", "year to date", "ytd", "one year", "three year", "five year", "ten year", "excess return"],
+      "synonyms_i18n": {"es": ["rendimiento", "rentabilidad", "retornos", "desempeno", "historial", "superar", "indice de referencia", "referencia"]}
+    },
+    {
+      "topic_id": "risk_volatility", "label": "Risk and volatility",
+      "description": "Drawdowns, volatility, downside protection and risk metrics.",
+      "labels_i18n": {"es": "Riesgo y volatilidad"},
+      "synonyms": ["risk", "risks", "volatility", "drawdown", "drawdowns", "downside", "standard deviation", "beta", "tracking error", "sharpe", "risk adjusted", "downside capture", "tail risk"],
+      "synonyms_i18n": {"es": ["riesgo", "riesgos", "volatilidad", "caida maxima", "desviacion estandar", "proteccion a la baja"]}
+    },
+    {
+      "topic_id": "esg_sustainability", "label": "ESG and sustainability",
+      "description": "Sustainable investing, exclusions, stewardship and climate.",
+      "labels_i18n": {"es": "ESG y sostenibilidad"},
+      "synonyms": ["esg", "sustainable", "sustainability", "responsible investing", "climate", "stewardship", "net zero", "exclusions", "exclusion list", "impact investing", "carbon"],
+      "synonyms_i18n": {"es": ["sostenible", "sostenibilidad", "inversion responsable", "clima", "criterios esg", "exclusiones", "carbono"]}
+    },
+    {
+      "topic_id": "rates_duration", "label": "Interest rates and duration",
+      "description": "Rate outlook, duration positioning and yield curve views.",
+      "labels_i18n": {"es": "Tasas de interés y duración"},
+      "synonyms": ["interest rate", "interest rates", "rate cut", "rate cuts", "rate hike", "rate hikes", "duration", "yield curve", "the fed", "central bank", "rate sensitivity", "curve"],
+      "synonyms_i18n": {"es": ["tasas de interes", "duracion", "curva de rendimiento", "recorte de tasas", "banco central", "sensibilidad a tasas"]}
+    },
+    {
+      "topic_id": "allocation_portfolio", "label": "Portfolio construction and allocation",
+      "description": "Asset allocation, rebalancing, model portfolios and diversification.",
+      "labels_i18n": {"es": "Construcción de cartera y asignación"},
+      "synonyms": ["allocation", "asset mix", "rebalance", "rebalancing", "model portfolio", "model portfolios", "sleeve", "diversification", "diversify", "core satellite", "weighting", "overweight", "underweight", "asset allocation"],
+      "synonyms_i18n": {"es": ["asignacion", "rebalanceo", "cartera modelo", "diversificacion", "ponderacion", "sobreponderar"]}
+    },
+    {
+      "topic_id": "manager_team", "label": "Portfolio manager and team",
+      "description": "Portfolio manager tenure, team changes and succession.",
+      "labels_i18n": {"es": "Gestor y equipo"},
+      "synonyms": ["manager change", "portfolio manager change", "manager departure", "team change", "team changes", "key person", "succession", "co-manager", "new portfolio manager", "manager transition", "analyst team", "manager retires", "manager is leaving"],
+      "synonyms_i18n": {"es": ["cambio de gestor", "cambio de administrador", "salida del gestor", "cambio de equipo", "sucesion", "nuevo gestor de cartera"]}
+    },
+    {
+      "topic_id": "flows_liquidity", "label": "Flows and liquidity",
+      "description": "Redemptions, inflows, fund capacity and liquidity.",
+      "labels_i18n": {"es": "Flujos y liquidez"},
+      "synonyms": ["redemption", "redemptions", "inflows", "outflows", "liquidity", "fund flows", "capacity", "soft close", "hard close", "bid ask"],
+      "synonyms_i18n": {"es": ["reembolsos", "rescates", "entradas", "salidas", "liquidez", "flujos", "capacidad del fondo"]}
+    },
+    {
+      "topic_id": "tax_efficiency", "label": "Tax considerations",
+      "description": "Capital gains, tax-loss harvesting, after-tax returns and distributions.",
+      "labels_i18n": {"es": "Consideraciones fiscales"},
+      "synonyms": ["tax", "taxes", "taxable", "capital gains", "tax loss", "tax-loss harvesting", "after-tax", "after tax", "tax exempt", "tax-exempt", "distributions", "tax efficient", "tax-aware", "tax time", "tax treatment", "tax consequences", "tax impact", "tax bill"],
+      "synonyms_i18n": {"es": ["impuestos", "ganancias de capital", "despues de impuestos", "exento de impuestos", "distribuciones", "fiscal"]}
+    },
+    {
+      "topic_id": "retirement_target_date", "label": "Retirement and target-date",
+      "description": "Retirement plans, target-date glide paths and decumulation.",
+      "labels_i18n": {"es": "Jubilación y fecha objetivo"},
+      "synonyms": ["retirement", "target date", "target-date", "glide path", "401k", "401(k)", "decumulation", "in retirement", "plan participants", "retirees", "default option", "qdia"],
+      "synonyms_i18n": {"es": ["jubilacion", "retiro", "fecha objetivo", "plan 401k", "trayectoria de inversion", "participantes del plan"]}
+    },
+    {
+      "topic_id": "share_class_selection", "label": "Share class selection and conversion",
+      "description": "Which share class fits the client's fee model; conversions between classes.",
+      "labels_i18n": {"es": "Selección y conversión de clase de acciones"},
+      "synonyms": ["share class", "share classes", "convert", "conversion", "switch to class", "fee-based", "fee based", "load", "front-end load", "front end load", "sales charge", "cdsc", "class conversion", "which class", "class selection", "holding period"],
+      "synonyms_i18n": {"es": ["clase de acciones", "clases de acciones", "conversion", "cambiar a clase", "comision de venta", "carga inicial", "que clase", "periodo de tenencia"]}
+    },
+    {
+      "topic_id": "due_diligence_approval", "label": "Due diligence and approval",
+      "description": "Platform or committee approval, DDQs and RFPs.",
+      "labels_i18n": {"es": "Debida diligencia y aprobación"},
+      "synonyms": ["due diligence", "ddq", "rfp", "questionnaire", "approved list", "platform approval", "research committee", "investment committee", "onboarding the fund", "manager search", "approval process", "buy list", "focus list"],
+      "synonyms_i18n": {"es": ["debida diligencia", "cuestionario", "lista aprobada", "comite de investigacion", "comite de inversion", "aprobacion", "busqueda de gestores"]},
+      "business_lines": ["professional_buyer", "international"]
+    },
+    {
+      "topic_id": "competitor_comparison", "label": "Competitor comparison",
+      "description": "Comparisons with other managers or products the client already uses or is evaluating.",
+      "labels_i18n": {"es": "Comparación con la competencia"},
+      "synonyms": ["competitor", "competitors", "versus", "compared to", "compared with", "alternative", "alternatives", "other managers", "peer group", "peers", "vanguard", "blackrock", "fidelity", "t. rowe", "pimco", "american funds", "capital group", "jpmorgan", "schwab"],
+      "synonyms_i18n": {"es": ["competencia", "competidor", "comparado con", "frente a", "alternativa", "otros gestores", "pares"]}
+    },
+    {
+      "topic_id": "market_outlook", "label": "Market outlook",
+      "description": "Macro views, inflation, geopolitics and market positioning.",
+      "labels_i18n": {"es": "Perspectivas de mercado"},
+      "synonyms": ["market outlook", "macro", "inflation", "recession", "geopolitical", "tariffs", "outlook", "soft landing", "earnings season", "valuations", "market view"],
+      "synonyms_i18n": {"es": ["perspectivas del mercado", "inflacion", "recesion", "panorama macro", "aranceles", "valoraciones", "vision del mercado"]}
+    },
+    {
+      "topic_id": "materials_request", "label": "Materials and collateral request",
+      "description": "Fact sheets, decks, commentary and other sales materials requested.",
+      "labels_i18n": {"es": "Solicitud de materiales"},
+      "synonyms": ["fact sheet", "factsheet", "deck", "presentation", "whitepaper", "white paper", "commentary", "materials", "one-pager", "one pager", "brochure", "prospectus", "pitch book", "pitchbook", "slides"],
+      "synonyms_i18n": {"es": ["ficha tecnica", "presentacion", "documento", "material", "materiales", "folleto", "prospecto", "comentario"]}
+    },
+    {
+      "topic_id": "meeting_followup", "label": "Meeting scheduling and follow-up",
+      "description": "Next meetings, introductions and scheduling.",
+      "labels_i18n": {"es": "Programación y seguimiento de reuniones"},
+      "synonyms": ["schedule", "follow-up meeting", "follow up meeting", "catch up", "set up a call", "calendar", "reconnect", "intro call", "book a time", "find a time", "next meeting", "invite"],
+      "synonyms_i18n": {"es": ["programar", "reunion de seguimiento", "ponernos al dia", "agendar", "agenda", "proxima reunion", "invitacion"]}
+    },
+    {
+      "topic_id": "service_issue", "label": "Service issue",
+      "description": "Account access, statements, trade or settlement problems.",
+      "labels_i18n": {"es": "Problema de servicio"},
+      "synonyms": ["statement error", "account access", "trade error", "wrong amount", "issue with", "problem with", "ticket", "escalate", "escalation", "not received", "delay", "delayed", "settlement", "login", "password reset", "cancelled trade"],
+      "synonyms_i18n": {"es": ["error en el estado de cuenta", "acceso a la cuenta", "problema con", "escalar", "retraso", "liquidacion", "no he recibido"]}
+    },
+    {
+      "topic_id": "etf_vs_mutual_fund", "label": "Vehicle choice: ETF, mutual fund, UCITS, SMA",
+      "description": "Choice of vehicle for the same strategy.",
+      "labels_i18n": {"es": "Elección de vehículo: ETF, fondo mutuo"},
+      "synonyms": ["etf", "exchange traded", "mutual fund", "vehicle", "intraday", "ucits", "sma", "separate account", "separately managed", "wrapper"],
+      "synonyms_i18n": {"es": ["etf", "fondo cotizado", "fondo mutuo", "vehiculo", "cuenta separada"]}
+    },
+    {
+      "topic_id": "international_emerging", "label": "International and emerging markets",
+      "description": "Non-US exposure, emerging markets and currency.",
+      "labels_i18n": {"es": "Mercados internacionales y emergentes"},
+      "synonyms": ["emerging markets", "international", "frontier", "currency", "fx", "hedged", "non-us", "developed markets", "em debt", "local currency"],
+      "synonyms_i18n": {"es": ["mercados emergentes", "internacional", "divisas", "cobertura cambiaria", "fuera de ee.uu.", "moneda local"]}
+    },
+    {
+      "topic_id": "fixed_income_credit", "label": "Fixed income and credit",
+      "description": "Credit quality, spreads, yield and bond positioning.",
+      "labels_i18n": {"es": "Renta fija y crédito"},
+      "synonyms": ["credit", "spreads", "high yield", "investment grade", "municipal", "muni", "munis", "bond", "bonds", "yield", "default", "defaults", "fixed income", "coupon", "floating rate"],
+      "synonyms_i18n": {"es": ["credito", "diferenciales", "alto rendimiento", "grado de inversion", "municipales", "bonos", "rendimiento", "incumplimiento", "renta fija"]}
+    }
+  ]
+}

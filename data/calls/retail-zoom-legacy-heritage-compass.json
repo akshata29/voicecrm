@@ -1,0 +1,77 @@
+{
+  "fixture_id": "retail-zoom-legacy-heritage-compass",
+  "title": "Pinecrest Advisory: annual model portfolio review",
+  "description": "Legacy-name call for the 'improves over time' demo. Tom Alvarez, a principal advisor, refers to a fund by its former name, 'Contoso Heritage Compass Fund, Advisor class', which shares no vocabulary with the current catalogue, so it stays unresolved until a reviewer teaches the alias. Covers performance, taxes, model portfolios and materials, includes a harmless rapport fact (fly fishing) that should be kept, and has two dated seller tasks.",
+  "channel": "zoom",
+  "direction": "meeting",
+  "market": "US",
+  "business_line": "retail",
+  "call_type": "follow_up",
+  "language": "en-US",
+  "started_at": "2026-11-19T17:00:00Z",
+  "duration_minutes": 16,
+  "seller": {
+    "id": "seller",
+    "display_name": "Jordan Ellis",
+    "email": "jordan.ellis@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Tom Alvarez",
+      "email": "tom.alvarez@pinecrest-advisory.example",
+      "phone": "+1 303 555 0151",
+      "role": "customer",
+      "org": "Pinecrest Advisory Group"
+    }
+  ],
+  "internal": [],
+  "customer_org": "Pinecrest Advisory Group",
+  "turns": [
+    {"speaker": "seller", "text": "Hi Tom, it's Jordan. Can you see and hear me okay?"},
+    {"speaker": "customer", "text": "Hi, Jordan. Yes, loud and clear. Good to see you."},
+    {"speaker": "seller", "text": "Likewise. Did you get out fishing at all before the cold set in?"},
+    {"speaker": "customer", "text": "Only a little, honestly. Mostly I've been tying flies at the kitchen table to get ready for my fly fishing trip to Montana in the spring."},
+    {"speaker": "seller", "text": "That sounds like the right way to spend a cold evening. All right, I know you wanted to go over your model review, so let's dig in."},
+    {"speaker": "customer", "text": "Sure. As part of our annual review we're looking at everything in the models, and a number of our clients still hold the Contoso Heritage Compass Fund, Advisor class. I wanted to understand where it stands before we decide whether to keep it."},
+    {"speaker": "seller", "text": "Makes sense. The Heritage Compass Fund is one of our longer-standing strategies, and a lot of advisors still call it by that name. Where would you like to start?"},
+    {"speaker": "customer", "text": "Performance first. How has the Heritage Compass Fund, Advisor class done against its benchmark over the last few years? A couple of my clients have been asking."},
+    {"speaker": "seller", "text": "It has outperformed its benchmark over the trailing three year and five year periods, though it did lag last quarter when the market was led by a narrow group of stocks."},
+    {"speaker": "customer", "text": "That's about what I expected. The other thing that comes up is taxes. Most of these clients hold it in taxable accounts, and last December some of them got hit with a big capital gains distribution."},
+    {"speaker": "seller", "text": "That's a fair concern. Distributions depend on realized gains and on how much money moves in and out during the year, and the numbers for this year are being finalized now."},
+    {"speaker": "customer", "text": "Understood. Could you get me the figure as soon as it's available, so I can plan around it for the taxable clients?"},
+    {"speaker": "seller", "text": "Absolutely. I'll email you the year-end distribution estimate by Tuesday."},
+    {"speaker": "customer", "text": "Great. I'd also like to look at it against our models. We run a few model portfolios, and I'm thinking of keeping it as a satellite in the moderate and aggressive ones but dropping it from the conservative one."},
+    {"speaker": "seller", "text": "That's a reasonable approach. Keeping it as a satellite alongside your core holdings gives you diversification without letting it dominate the portfolio."},
+    {"speaker": "customer", "text": "Right. Is there something current I can share with my team, like a one-pager for the Advisor class?"},
+    {"speaker": "seller", "text": "Of course. I'll send you the current fact sheet and the trailing returns for the Advisor class tomorrow."},
+    {"speaker": "customer", "text": "Perfect. I'll go through everything with my team on our side, and I'll let you know what we decide for the models."},
+    {"speaker": "seller", "text": "Sounds great. Thanks for the time today, Tom, and good luck with the fly tying."},
+    {"speaker": "customer", "text": "Thanks, Jordan. Talk soon."}
+  ],
+  "gold": {
+    "template_id": "retail_advisor",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000021",
+        "surface_forms": ["Contoso Heritage Compass Fund, Advisor class"],
+        "mention_type": "existing_holding",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["performance_returns", "tax_efficiency", "allocation_portfolio", "materials_request"],
+    "tasks": [
+      {"keywords": ["distribution", "estimate"], "owner_role": "seller", "due_date": "2026-11-24"},
+      {"keywords": ["fact", "sheet"], "owner_role": "seller", "due_date": "2026-11-20"}
+    ],
+    "must_not_leak": [],
+    "must_keep": ["fishing"],
+    "expect_crm_account": "acc-005",
+    "notes": "Legacy name of SYN-000021 (Contoso Growth Opportunities Fund Advisor Class). 'Heritage Compass' appears nowhere in the catalogue, so the system cannot resolve it until a reviewer teaches the alias; Tom states the Advisor class each time he names it. By design the script never uses equity, income, growth, bond, value, opportunities, dividend, global or international. Rapport fact to keep: Tom fly fishes (must_keep 'fishing'). For a Thursday call 'tomorrow' is 2026-11-20 and 'by Tuesday' is 2026-11-24. Tom going through everything with his team is a customer commitment, not a task."
+  },
+  "tags": ["zoom", "retail", "legacy_name", "alias_learning", "rapport"]
+}

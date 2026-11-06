@@ -1,0 +1,213 @@
+# VoiceCRM -> Dataverse field profile (SYNTHETIC / ILLUSTRATIVE; nothing here is any real firm's schema).
+#
+# Selected with VOICECRM_DATAVERSE_FIELD_PROFILE:
+#   standard  no custom columns. The structured insight is appended to the phone call description as a compact,
+#             machine-readable footer ("[voicecrm-insight v1] {...}"); the adapter reports those fields as
+#             degraded_fields. Works in any environment, nothing to deploy.
+#   custom    a `vcrm_conversationinsight` table with typed columns (below). Create it once with
+#             `python tools/dataverse_bootstrap.py --apply` (dry-run by default; untested against a live environment).
+#
+# Publisher prefix `vcrm_` - replace it with your real publisher prefix before deploying; column logical names are the
+# lower-cased schema names. Transcripts are NEVER stored here: only the summary, structured fields and an optional
+# vault pointer (`vcrm_transcriptpointer`, a URI).
+version: 1
+publisher_prefix: vcrm
+solution_unique_name: voicecrm_poc          # sent as MSCRM.SolutionUniqueName by the bootstrap tool; null = no solution
+
+standard:
+  footer_marker: voicecrm-insight
+  footer_version: 1
+  description_max_chars: 2000               # phonecall.description MaxLength in Dataverse
+  subject_max_chars: 200                    # phonecall.subject / task.subject MaxLength
+  task_description_max_chars: 2000          # task.description MaxLength
+
+custom:
+  table:
+    schema_name: vcrm_ConversationInsight
+    logical_name: vcrm_conversationinsight
+    entity_set: vcrm_conversationinsights
+    display_name: Conversation Insight
+    display_collection_name: Conversation Insights
+    description: "Governed, minable record of a customer conversation (summary and structured fields; never the transcript)."
+    ownership: UserOwned
+
+  # key = the adapter's vocabulary; schema_name = Dataverse. Remove a column here and the adapter simply stops writing it.
+  columns:
+    - key: name
+      schema_name: vcrm_Name
+      type: string
+      max_length: 200
+      display_name: Name
+      description: Call subject.
+      primary_name: true
+    - key: summary
+      schema_name: vcrm_Summary
+      type: memo
+      max_length: 20000
+      display_name: Summary
+      description: Rendered note (markdown). No transcript text.
+    - key: sections
+      schema_name: vcrm_SectionsJson
+      type: memo
+      max_length: 100000
+      display_name: Sections (JSON)
+      description: "Template sections as JSON, one entry per template field, for the downstream analytics team."
+    - key: relationship_facts
+      schema_name: vcrm_RelationshipFacts
+      type: memo
+      max_length: 10000
+      display_name: Relationship facts
+      description: Non-sensitive rapport facts kept by the notes policy (JSON list).
+    - key: product_ids
+      schema_name: vcrm_ProductIds
+      type: string
+      max_length: 4000
+      display_name: Product ids
+      description: "Exact catalogue product ids discussed (share class included), comma separated."
+    - key: topic_ids
+      schema_name: vcrm_Topics
+      type: multiselect
+      option_source: taxonomy
+      display_name: Topics
+      description: Controlled-list topics discussed (choice values are generated from data/taxonomy/topics.json).
+    - key: template_id
+      schema_name: vcrm_TemplateId
+      type: string
+      max_length: 100
+      display_name: Template id
+    - key: engine
+      schema_name: vcrm_Engine
+      type: string
+      max_length: 20
+      display_name: Engine
+      description: rules, llm or hybrid.
+    - key: model
+      schema_name: vcrm_Model
+      type: string
+      max_length: 100
+      display_name: Model
+    - key: confidence
+      schema_name: vcrm_Confidence
+      type: decimal
+      min_value: 0
+      max_value: 1
+      precision: 4
+      display_name: Confidence
+      description: Overall extraction confidence 0..1.
+    - key: review_status
+      schema_name: vcrm_ReviewStatus
+      type: choice
+      display_name: Review status
+      options:
+        approved: 100000000
+        auto_approved: 100000001
+    - key: language
+      schema_name: vcrm_Language
+      type: string
+      max_length: 10
+      display_name: Language
+    - key: source_system
+      schema_name: vcrm_SourceSystem
+      type: string
+      max_length: 20
+      display_name: Source system
+      description: teams, zoom, genesys, mobile or upload.
+    - key: source_interaction_id
+      schema_name: vcrm_SourceInteractionId
+      type: string
+      max_length: 400
+      display_name: Source interaction id
+      description: Stable id of the call or meeting in the source system.
+    - key: idempotency_key
+      schema_name: vcrm_IdempotencyKey
+      type: string
+      max_length: 400
+      display_name: Idempotency key
+      description: "source:interaction:vN - one insight per key."
+    - key: conversation_id
+      schema_name: vcrm_ConversationId
+      type: string
+      max_length: 64
+      display_name: Conversation id
+    - key: transcript_pointer
+      schema_name: vcrm_TranscriptPointer
+      type: string
+      max_length: 2000
+      display_name: Transcript pointer
+      description: URI of the transcript in the vault when one is retained. Never text.
+
+  # Template sections -> columns. data/templates/*.yaml name the target in sections[].crm_field (the logical name);
+  # the adapter writes a section into its column when it is declared here, and always keeps all sections in vcrm_sectionsjson.
+  section_columns:
+    - key: overview
+      schema_name: vcrm_Overview
+      type: memo
+      max_length: 5000
+      display_name: Overview
+    - key: client_context
+      schema_name: vcrm_ClientContext
+      type: memo
+      max_length: 10000
+      display_name: Client objectives and context
+    - key: products_discussed
+      schema_name: vcrm_ProductsDiscussed
+      type: memo
+      max_length: 10000
+      display_name: Products and strategies discussed
+    - key: concerns
+      schema_name: vcrm_Concerns
+      type: memo
+      max_length: 10000
+      display_name: Concerns and objections
+    - key: next_steps
+      schema_name: vcrm_NextSteps
+      type: memo
+      max_length: 10000
+      display_name: Decisions and next steps
+    - key: relationship_notes
+      schema_name: vcrm_RelationshipNotes
+      type: memo
+      max_length: 10000
+      display_name: Relationship notes
+
+  # Lookups to the records the call concerned. The navigation property used in @odata.bind is the schema name.
+  lookups:
+    - key: account
+      schema_name: vcrm_AccountId
+      referenced_entity: account
+      referenced_attribute: accountid
+      entity_set: accounts
+      display_name: Account
+      relationship_schema_name: vcrm_account_conversationinsight
+    - key: contact
+      schema_name: vcrm_ContactId
+      referenced_entity: contact
+      referenced_attribute: contactid
+      entity_set: contacts
+      display_name: Contact
+      relationship_schema_name: vcrm_contact_conversationinsight
+    - key: opportunity            # needs Dynamics 365 Sales
+      schema_name: vcrm_OpportunityId
+      referenced_entity: opportunity
+      referenced_attribute: opportunityid
+      entity_set: opportunities
+      display_name: Opportunity
+      relationship_schema_name: vcrm_opportunity_conversationinsight
+    - key: phonecall              # activity tables as the "one" side of a relationship are unverified
+      schema_name: vcrm_PhoneCallId
+      referenced_entity: phonecall
+      referenced_attribute: activityid
+      entity_set: phonecalls
+      display_name: Phone call
+      relationship_schema_name: vcrm_phonecall_conversationinsight
+      optional: true              # the bootstrap tool continues when an optional relationship fails
+
+  # Uniqueness only: the key value contains ":" so address rows with $filter, never with the alternate-key URL syntax.
+  alternate_keys:
+    - schema_name: vcrm_conversationinsight_idempotency
+      display_name: Idempotency key
+      columns: [idempotency_key]
+
+  topic_options:
+    base: 100000000
+    overrides: {}      # topic_id -> value; pin values once the choice column exists (numbering follows taxonomy order)

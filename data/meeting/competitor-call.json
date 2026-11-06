@@ -1,0 +1,44 @@
+{
+  "scenario": "competitor",
+  "order": 5,
+  "title": "Harborview Pension Fund: Contoso Equity Fund Class R6 against a Vanguard index fund (live Teams demo call)",
+  "shows": "Objections and competitors: a cheaper index fund is a concern on the record, not a product tag; the fee waiver and the portfolio-manager call become dated tasks.",
+  "call_type": "product_recommendation",
+  "notes": "Played into ONE microphone, so every line is attributed to the host: customer lines make no first-person commitments and nothing says today, tonight or tomorrow. Vanguard's S&P 500 index fund is a competitor mention, not a catalogue product, so it must not be mapped to a product id. The seller owns both follow-ups: the fee waiver terms by Monday and a portfolio-manager call next Tuesday.",
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {"product_id": "SYN-000004", "surface_forms": ["Contoso Equity Fund, Class R6", "Class R6"], "mention_type": "interest"}
+    ],
+    "topics": ["competitor_comparison", "fees_expenses", "meeting_followup"],
+    "tasks": [
+      {"keywords": ["fee", "waiver"], "owner_role": "seller", "due_date": "2026-11-09"},
+      {"keywords": ["call", "portfolio", "manager"], "owner_role": "seller", "due_date": "2026-11-10"}
+    ],
+    "expect_crm_account": "acc-001",
+    "notes": "The competitor fund must not be tagged as a catalogue product. On a Friday call 'by Monday' is 2026-11-09 and 'next Tuesday' is Tuesday of the coming Monday-Sunday week, 2026-11-10."
+  },
+  "seller": {"name": "Aisha West", "voice": "en-US-AriaNeural"},
+  "customer": {"name": "Dana Whitfield", "voice": "en-US-JennyNeural"},
+  "turns": [
+    {"speaker": "seller", "text": "Morning, Dana. Thanks for joining. Is it still raining in Seattle?"},
+    {"speaker": "customer", "text": "Morning, Aisha. Off and on, but I'm used to it. How are things on your end?"},
+    {"speaker": "seller", "text": "Mild, thankfully. Shall we jump in? You said you wanted to go through the fund you've been evaluating for your large-cap core mandate."},
+    {"speaker": "customer", "text": "Yes. We're reviewing the large-cap core allocation, and I've been looking at the Contoso Equity Fund, Class R6, which is the only share class the plan is allowed to hold."},
+    {"speaker": "seller", "text": "Great. It's a large-cap core strategy that blends quality growth and value companies, and Class R6 is the lowest-cost way to own it."},
+    {"speaker": "customer", "text": "That's what I need. But I'll be upfront, I'm also looking at the Vanguard S&P 500 index fund as an alternative, and honestly the fees on yours are higher. That's a hard sell to our trustees."},
+    {"speaker": "seller", "text": "I appreciate you being direct. On the headline number you're right, the index fund is cheaper. After a contractual waiver, the net expense ratio on R6 is about forty basis points."},
+    {"speaker": "customer", "text": "Forty is still a good deal more than the index fund costs. And the waiver worries me, because how long does it actually last?"},
+    {"speaker": "seller", "text": "The waiver is renewed annually, and it has been extended every year since the fund launched. What you're paying for is active stock selection, and the real question is whether that adds value after fees."},
+    {"speaker": "customer", "text": "I get the argument, but I need to show net numbers side by side. Can you send me the details on the waiver and the net expense figures?"},
+    {"speaker": "seller", "text": "Of course. I'll send you the fee waiver terms and the net expense figures by Monday."},
+    {"speaker": "customer", "text": "Thank you. The other piece is how the team makes decisions. I'd like to hear from your portfolio manager on how the fund is positioned right now and what has changed over the past year."},
+    {"speaker": "seller", "text": "Let me set up a call with our portfolio manager next Tuesday so you can hear directly how the team is positioned."},
+    {"speaker": "customer", "text": "Perfect. Our trustees meet in December, so that timing works well for us."},
+    {"speaker": "seller", "text": "Good. Is there anything else you want to cover before we wrap up?"},
+    {"speaker": "customer", "text": "No, that's everything for now. I appreciate you taking the pushback so well."},
+    {"speaker": "seller", "text": "That's what I'm here for. Have a great weekend."},
+    {"speaker": "customer", "text": "You too, Aisha. Talk soon."}
+  ]
+}

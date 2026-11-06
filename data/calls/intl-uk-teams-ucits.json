@@ -1,0 +1,79 @@
+{
+  "fixture_id": "intl-uk-teams-ucits",
+  "title": "James Whitaker (Thames & Clyde) - Contoso Global Equity UCITS Fund, I class",
+  "description": "UK Teams call in British English: a head of product selection weighs the Contoso Global Equity UCITS Fund, I class against UCITS ETFs, asks about ESG and sustainability credentials and track record, and gets two dated follow-ups from the seller.",
+  "channel": "teams",
+  "direction": "meeting",
+  "market": "UK",
+  "business_line": "international",
+  "call_type": "product_recommendation",
+  "language": "en-US",
+  "started_at": "2026-11-16T10:00:00Z",
+  "duration_minutes": 13,
+  "seller": {
+    "id": "seller",
+    "display_name": "Casey Morgan",
+    "email": "casey.morgan@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "James Whitaker",
+      "email": "james.whitaker@thamesclyde-am.example",
+      "phone": "+44 20 7946 0191",
+      "role": "customer",
+      "org": "Thames & Clyde Asset Management"
+    }
+  ],
+  "internal": [],
+  "customer_org": "Thames & Clyde Asset Management",
+  "turns": [
+    {"speaker": "seller", "text": "Morning, James. Casey here, can you hear me all right?"},
+    {"speaker": "customer", "text": "Morning, Casey, loud and clear. Apologies, I'm still wrestling with my first coffee, it's been a grim start to the week."},
+    {"speaker": "seller", "text": "Ha, I know the feeling. It's properly grey and drizzly outside here as well. Did you manage anything nice at the weekend?"},
+    {"speaker": "customer", "text": "Not really, I took the kids to the football and got thoroughly soaked. Anyway, shall we crack on?"},
+    {"speaker": "seller", "text": "Please do. You mentioned in your email that you're selecting a global equity fund for your range, is that right?"},
+    {"speaker": "customer", "text": "That's right. We've been looking closely at the Contoso Global Equity UCITS Fund, I class, and I'd like to understand a few things before it goes any further."},
+    {"speaker": "seller", "text": "Of course. Where would you like to start?"},
+    {"speaker": "customer", "text": "Sustainability, probably. Our clients' mandates require us to evidence ESG integration, so I need to understand the exclusions and how the team approaches stewardship and engagement."},
+    {"speaker": "seller", "text": "Understood, we get asked about that a lot. I'd rather not paraphrase the detail from memory, so I'll send you the ESG and sustainability disclosure by Friday, which sets out the exclusions and the stewardship approach."},
+    {"speaker": "customer", "text": "Brilliant, that would be really helpful. We also hold a few UCITS ETFs on our platform, so I'm keen to understand why we'd choose the UCITS fund over an ETF for this exposure."},
+    {"speaker": "seller", "text": "Fair question. With the I class you deal at NAV through the platform, and the UCITS wrapper copes with larger tickets without you having to work the order. An ETF gives you intraday trading, which suits some investors, so it really depends on how you deal."},
+    {"speaker": "customer", "text": "That's what I suspected. Most of our orders go through once a day anyway, so intraday trading isn't a big deal for us."},
+    {"speaker": "seller", "text": "In that case the I class should suit you well."},
+    {"speaker": "customer", "text": "Good. Now, performance. What's the track record been like against the benchmark?"},
+    {"speaker": "seller", "text": "I'd rather not quote numbers from memory. The factsheet shows discrete annual and cumulative performance against the benchmark, and as ever, past performance isn't a guide to future returns."},
+    {"speaker": "customer", "text": "Fair enough. Could you send me the latest factsheet? The one we have on file is a few months old."},
+    {"speaker": "seller", "text": "Of course, I'll send the factsheet over by Wednesday."},
+    {"speaker": "customer", "text": "Lovely. On my side, I'll have a word with our compliance colleagues and come back to you next week."},
+    {"speaker": "seller", "text": "Perfect, no rush at all. Is there anything else I can help with today?"},
+    {"speaker": "customer", "text": "No, I think that covers it. Cheers, Casey, this has been really useful."},
+    {"speaker": "seller", "text": "Cheers, James. Have a good week, and do keep dry."},
+    {"speaker": "customer", "text": "You too. Speak soon."}
+  ],
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000182",
+        "surface_forms": ["Contoso Global Equity UCITS Fund, I class"],
+        "mention_type": "interest",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["esg_sustainability", "etf_vs_mutual_fund", "performance_returns"],
+    "tasks": [
+      {"keywords": ["esg", "disclosure"], "owner_role": "seller", "due_date": "2026-11-20"},
+      {"keywords": ["fact", "sheet"], "owner_role": "seller", "due_date": "2026-11-18"}
+    ],
+    "must_not_leak": [],
+    "must_keep": [],
+    "expect_crm_account": "acc-009",
+    "notes": "UK market, British phrasing. Share class is the I class of the UCITS fund (SYN-000182); the topic etf_vs_mutual_fund covers the UCITS wrapper vs ETF discussion. No performance figures are quoted (seller defers to the factsheet and gives the past-performance caveat). James checking with compliance next week is a customer-side distractor, not a seller task. 'By Friday' = 2026-11-20 and 'by Wednesday' = 2026-11-18 for a call on Monday 2026-11-16."
+  },
+  "tags": ["uk", "ucits", "teams", "international", "british_english", "esg", "wrapper_choice"]
+}

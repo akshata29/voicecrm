@@ -1,0 +1,47 @@
+{
+  "scenario": "class-c",
+  "order": 1,
+  "title": "Harborview Pension Fund: Contoso Equity Fund Class C fees (live Teams demo call)",
+  "shows": "Share-class precision: Class C is the product and Class A was only a comparison; two seller tasks with resolved dates.",
+  "call_type": "product_recommendation",
+  "notes": "Two voices, played into ONE microphone, so Teams attributes every line to the host. Design rules: every commitment is the seller's (a customer commitment would be filed as a seller task), no 'today', 'tonight' or 'tomorrow' (call dates are UTC, so they drift near midnight), and the share class is corrected out loud (Class A is rejected, Class C is the product).",
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {"product_id": "SYN-000002", "surface_forms": ["Contoso Equity Fund, Class C", "Class C"], "mention_type": "interest"}
+    ],
+    "topics": ["fees_expenses", "share_class_selection", "due_diligence_approval", "materials_request"],
+    "tasks": [
+      {"keywords": ["fee", "comparison"], "owner_role": "seller", "due_date": "2026-11-09"},
+      {"keywords": ["fact", "sheet"], "owner_role": "seller", "due_date": "2026-11-11"}
+    ],
+    "expect_crm_account": "acc-001",
+    "notes": "Class A is named only to be rejected, so it is not a gold product. 'By Monday' and 'by Wednesday' on a Friday call resolve to 2026-11-09 and 2026-11-11."
+  },
+  "seller": {"name": "Aisha West", "voice": "en-US-AriaNeural"},
+  "customer": {"name": "Dana Whitfield", "voice": "en-US-JennyNeural"},
+  "turns": [
+    {"speaker": "seller", "text": "Hi Dana, it's Aisha from Contoso Woodgrove. Can you hear me okay?"},
+    {"speaker": "customer", "text": "Hi Aisha, yes, loud and clear. Thanks for making the time."},
+    {"speaker": "seller", "text": "Of course. How's the week treating you? I know it's been a busy stretch with the quarter-end reviews."},
+    {"speaker": "customer", "text": "Busy is an understatement. Committee season never really ends, but we're getting there."},
+    {"speaker": "seller", "text": "I hear you. So, last time we spoke, you mentioned Harborview was pulling together a large-cap core mandate. I had the Class A shares of the Contoso Equity Fund in my notes. Is that still the one you're looking at?"},
+    {"speaker": "customer", "text": "Not quite. It's not the Class A shares. We're looking at the Contoso Equity Fund, Class C, because that's the only one our custodian's platform lists."},
+    {"speaker": "seller", "text": "Thanks for the catch, Dana. So that's Class C, which means no front-end sales charge, but there's an ongoing distribution fee and a deferred sales charge if you redeem in the first year."},
+    {"speaker": "customer", "text": "Right. What's the total expense ratio on Class C, and how does it stack up against what we'd pay on Class A?"},
+    {"speaker": "seller", "text": "Class C runs about one point six percent all in, and Class A is closer to ninety-five basis points before any sales charge. On a position your size, that gap matters, so the breakpoints are worth a look as well."},
+    {"speaker": "customer", "text": "That's helpful. Could you put the numbers in writing, class by class? Our investment committee will want to see them before they approve anything."},
+    {"speaker": "seller", "text": "Absolutely. I'll send you the fee comparison by Monday, with the expense ratios and the sales charge schedule side by side."},
+    {"speaker": "customer", "text": "Thanks. The other thing is that the one-pager in our file is from last quarter, so I'm not sure the holdings and expense figures are current."},
+    {"speaker": "seller", "text": "Good catch. Let me get the updated fact sheet over to you by Wednesday."},
+    {"speaker": "customer", "text": "Perfect. Our committee meets on the twentieth, so having both documents before then would be ideal."},
+    {"speaker": "seller", "text": "Understood. And if the committee ever wants a lower-cost share class down the road, a conversion is straightforward once you're past the breakpoints."},
+    {"speaker": "customer", "text": "Good to know. Is there a due diligence questionnaire we should expect to fill out on our side?"},
+    {"speaker": "seller", "text": "Not for a fund your platform already lists, though your committee may have its own checklist. Dana, you would know better than I would."},
+    {"speaker": "customer", "text": "We do have a short internal form, but my team handles that, so there's nothing for you to complete."},
+    {"speaker": "seller", "text": "Perfect, that keeps it simple. Anything else on your mind before we wrap up?"},
+    {"speaker": "customer", "text": "No, I think that covers it. Thanks, Aisha."},
+    {"speaker": "seller", "text": "Thank you, Dana. Enjoy the rest of your week."}
+  ]
+}

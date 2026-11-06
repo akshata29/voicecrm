@@ -1,0 +1,74 @@
+{
+  "fixture_id": "pb-teams-no-actions-smalltalk",
+  "title": "Cascade Endowment: relationship check-in dominated by market chat, no actions",
+  "description": "Relationship check-in dominated by small talk and market views. The Contoso Dividend Growth Fund, Class R6 is mentioned for information only, Ben will circle back after his committee meets (a customer commitment) and the seller makes no concrete commitment, so the expected task list is empty.",
+  "channel": "teams",
+  "direction": "meeting",
+  "market": "US",
+  "business_line": "professional_buyer",
+  "call_type": "relationship",
+  "language": "en-US",
+  "started_at": "2026-11-17T18:00:00Z",
+  "duration_minutes": 12,
+  "seller": {
+    "id": "seller",
+    "display_name": "Sam Rivera",
+    "email": "sam.rivera@contoso.example",
+    "role": "seller",
+    "org": "Contoso Woodgrove"
+  },
+  "customers": [
+    {
+      "id": "cust1",
+      "display_name": "Ben Okafor",
+      "email": "ben.okafor@cascade-endowment.example",
+      "phone": "+1 503 555 0122",
+      "role": "customer",
+      "org": "Cascade Endowment Partners"
+    }
+  ],
+  "internal": [],
+  "customer_org": "Cascade Endowment Partners",
+  "turns": [
+    {"speaker": "seller", "text": "Hey Ben, good to see you. How have you been?"},
+    {"speaker": "customer", "text": "Hi, Sam. Good, thanks, busy but good. We finally got our kitchen finished after what felt like a year of dust, so I'm in a great mood."},
+    {"speaker": "seller", "text": "Ha, that's a real milestone. Any Thanksgiving plans coming up?"},
+    {"speaker": "customer", "text": "We're hosting this year, so the new kitchen gets a real test. My in-laws are coming in from Phoenix, and my mother-in-law has strong opinions about stuffing."},
+    {"speaker": "seller", "text": "Good luck with that. Switching gears, how are you feeling about the market? Every conversation I have lately comes back to inflation and tariffs."},
+    {"speaker": "customer", "text": "Same here. Our investment staff keeps going back and forth on whether inflation is really coming down, and the tariff headlines don't help. Some days it feels like a soft landing, and other days it feels like a recession is right around the corner."},
+    {"speaker": "seller", "text": "I hear the same debate from almost everyone. Earnings season has been decent, but valuations in the large caps are stretched, and the market seems to be pricing in a lot of good news."},
+    {"speaker": "customer", "text": "Right, and that's partly why we've been revisiting our asset allocation. We're overweight US large-cap growth after the last two years, so I think we're due to rebalance."},
+    {"speaker": "seller", "text": "That makes sense. A lot of the endowments I talk to are doing the same thing, trimming growth and adding some diversification in more defensive, dividend-paying areas."},
+    {"speaker": "customer", "text": "That's where my head is too. We've been kicking around the idea of a dividend growth strategy, but nothing is decided and it's early days."},
+    {"speaker": "seller", "text": "Totally fair. For what it's worth, the Contoso Dividend Growth Fund, Class R6 has been a popular topic with institutions lately, but I'm not pitching anything today. I just wanted you to know it's out there."},
+    {"speaker": "customer", "text": "Appreciate that. I'll bring the broader allocation question to our committee when it meets, and then I'll circle back to you."},
+    {"speaker": "seller", "text": "No rush at all. Reach out whenever you're ready."},
+    {"speaker": "customer", "text": "Will do. How's the mood on your side of the desk, by the way? Is anyone actually panicking?"},
+    {"speaker": "seller", "text": "Not panicking, but definitely cautious. Most people are staying invested and just being more selective, and a few are building up cash so they're ready for a pullback."},
+    {"speaker": "customer", "text": "That matches what we're seeing. Nobody wants to be the one who sold the bottom, and nobody wants to be the one who bought the top either."},
+    {"speaker": "seller", "text": "Ha, exactly. That's why these check-ins are useful, it's good to hear what other people are thinking."},
+    {"speaker": "customer", "text": "Agreed. Okay, I should run, I have a call with our custodian in a few minutes. Great talking, Sam."},
+    {"speaker": "seller", "text": "You too, Ben. Good luck with the stuffing negotiations, and say hi to the family."},
+    {"speaker": "customer", "text": "Ha, I'll need it. Take care, Sam."}
+  ],
+  "gold": {
+    "template_id": "pb_institutional",
+    "expected_language": "en",
+    "products": [
+      {
+        "product_id": "SYN-000049",
+        "surface_forms": ["Contoso Dividend Growth Fund, Class R6", "Dividend Growth Fund"],
+        "mention_type": "info_only",
+        "ambiguous": false,
+        "acceptable_ids": []
+      }
+    ],
+    "topics": ["market_outlook", "allocation_portfolio"],
+    "tasks": [],
+    "must_not_leak": [],
+    "must_keep": ["committee"],
+    "expect_crm_account": "acc-002",
+    "notes": "No seller commitments by design: 'no rush, reach out whenever you're ready' is not a task, and the seller explicitly says he is not pitching the Dividend Growth Fund (info_only). Ben bringing the allocation question to his committee and circling back is a customer commitment. Kitchen, Thanksgiving and family chatter is small talk to drop."
+  },
+  "tags": ["teams", "pb", "relationship", "no_tasks", "info_only", "smalltalk"]
+}
