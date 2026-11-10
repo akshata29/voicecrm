@@ -323,3 +323,21 @@ async def test_delete_conversations_removes_everything_a_conversation_wrote_and_
     assert (leftovers["p"], leftovers["t"], leftovers["i"]) == (len(second.insight.product_ids), len(second.insight.topic_ids), 1)
     assert (await crm.write(first)).created                              # the key is free again, so the call can be written anew
     assert await crm.delete_conversations([]) == 0
+
+
+async def test_clear_written_removes_what_the_pipeline_wrote_and_keeps_the_seed(crm):
+    first, second = make_package(), make_package()
+    first.conversation_id, first.idempotency_key = "conv-a", "key-a"
+    second.conversation_id, second.idempotency_key = "conv-b", "key-b"
+    assert (await crm.write(first)).ok and (await crm.write(second)).ok
+    seeded = {entity: len(await crm.list_records(entity)) for entity in ("account", "contact", "opportunity")}
+    assert await crm.clear_written() == {"phonecalls": 2, "tasks": 2, "insights": 2}
+    counts = (await crm.health())["counts"]
+    assert (counts["phonecalls"], counts["tasks"], counts["insights"]) == (0, 0, 0)
+    assert {entity: len(await crm.list_records(entity)) for entity in seeded} == seeded       # accounts, contacts, opportunities stay
+    leftovers = crm._query("SELECT (SELECT COUNT(*) FROM insight_products) AS p, (SELECT COUNT(*) FROM insight_topics) AS t,"
+                           " (SELECT COUNT(*) FROM idempotency) AS i")[0]
+    assert (leftovers["p"], leftovers["t"], leftovers["i"]) == (0, 0, 0)
+    assert (await crm.write(first)).created                              # the keys are free again, so the calls can be written anew
+    assert await crm.clear_written() == {"phonecalls": 1, "tasks": 1, "insights": 1}
+    assert await crm.clear_written() == {"phonecalls": 0, "tasks": 0, "insights": 0}

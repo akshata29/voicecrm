@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { getErrorMessage } from '@/api/client';
 import { useFixtures, usePreflight, useSimulate } from '@/api/hooks';
 import type { PreflightReadiness } from '@/api/types';
+import { TeamsHistoryCard } from '@/components/conversation/TeamsHistoryCard';
 import { TeamsLiveCard } from '@/components/conversation/TeamsLiveCard';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -116,6 +117,7 @@ export function TeamsScenario({ verdict }: { verdict: PreflightReadiness | undef
       </Card>
 
       <TeamsLiveCard />
+      <TeamsHistoryCard />
 
       <Card aria-labelledby="teams-sim-title">
         <CardHeader

@@ -802,6 +802,54 @@ export interface TeamsPollResult {
   status: TeamsStatus;
 }
 
+/** GET /sources/teams/history and POST /sources/teams/import - earlier meetings brought into the pipeline on demand. */
+export type TeamsHistoryState = 'new' | 'in_inbox' | 'unfinished';
+
+export interface TeamsHistoryItem {
+  organizer: string; // as configured (UPN or object id); the import sends it back unchanged
+  organizer_name: string | null;
+  meeting_id: string;
+  transcript_id: string;
+  title: string | null; // null when the meeting details could not be read
+  started_at: IsoDateTime | null;
+  ended_at: IsoDateTime | null;
+  duration_seconds: number | null;
+  attendees: string[];
+  state: TeamsHistoryState;
+  conversation_id: string | null; // set when state is in_inbox
+  conversation_status: ConversationStatus | null;
+}
+
+export interface TeamsHistory {
+  days: number;
+  since: IsoDateTime;
+  organizers: string[];
+  items: TeamsHistoryItem[]; // newest first
+  truncated: boolean; // more transcripts exist than are listed
+  errors: string[]; // organisers that could not be searched; the others are still listed
+}
+
+export interface TeamsImportItem {
+  organizer: string;
+  meeting_id: string;
+  transcript_id: string;
+}
+
+export interface TeamsImportOutcome {
+  transcript_id: string;
+  outcome: 'ingested' | 'duplicate' | 'failed';
+  conversation_id: string | null;
+  title: string | null;
+  detail: string | null;
+}
+
+export interface TeamsImportResult {
+  ingested: number;
+  duplicates: number;
+  failed: number;
+  outcomes: TeamsImportOutcome[];
+}
+
 /** /live/* - the Live demo page: a load test run from the UI, and the in-app service check (pipeline/load.py). */
 export type LoadVia = 'transcript' | 'audio';
 export type LoadState = 'idle' | 'preparing' | 'running' | 'stopping' | 'finished' | 'stopped' | 'failed';
@@ -946,6 +994,25 @@ export type CrmHealth = Record<string, unknown>;
 
 export interface DeletedCount {
   deleted: number;
+}
+
+/** What a demo reset would remove (`GET /demo/data`) or has removed (`POST /demo/reset`). */
+export interface DemoCounts {
+  conversations: number;
+  crm_phone_calls: number;
+  crm_tasks: number;
+  crm_insights: number;
+  vault_items: number;
+  learned_aliases: number;
+  evaluation_runs: number;
+  policy_changes: boolean; // changes saved from the Policies page
+}
+
+export interface DemoData extends DemoCounts {
+  can_reset: boolean;
+  reason: string | null; // why a reset cannot run right now (a real CRM, calls in flight, a load test)
+  in_flight: number;
+  crm: string; // adapter name: local_sim | dataverse
 }
 
 export type TranscriptSource = 'working' | 'vault';

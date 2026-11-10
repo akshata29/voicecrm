@@ -11,6 +11,7 @@ import {
   configApi,
   conversationsApi,
   crmApi,
+  demoApi,
   evalApi,
   ingestApi,
   liveApi,
@@ -35,6 +36,7 @@ import type {
   RejectRequest,
   ReprocessRequest,
   SimulateRequest,
+  TeamsImportItem,
 } from './types';
 import { ENGINES } from './types';
 
@@ -64,6 +66,7 @@ export const qk = {
   teams: ['sources', 'teams'] as const,
   load: ['live', 'load'] as const,
   loadEstimate: (body: LoadRequest | null) => ['live', 'load-estimate', body] as const,
+  demoData: ['demo', 'data'] as const,
 };
 
 /** Statuses during which the detail endpoint is polled (contract: every 1 s while received | processing). */
@@ -215,6 +218,20 @@ export function usePollTeams() {
   });
 }
 
+/** Looks for earlier meetings (a Graph search per organiser); each caller keeps its own result, nothing is cached. */
+export function useFindTeamsMeetings() {
+  return useMutation({ mutationFn: (days: number) => teamsApi.history(days) });
+}
+
+/** Brings the picked earlier meetings through the pipeline. The live counters are untouched: they report the poller. */
+export function useImportTeams() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (items: TeamsImportItem[]) => teamsApi.importTranscripts(items),
+    onSuccess: () => refreshAfterConversationChange(client),
+  });
+}
+
 // ---- Live demo: load test and service check -------------------------------------------------------
 export const LOAD_ACTIVE_STATES: ReadonlySet<string> = new Set(['preparing', 'running', 'stopping']);
 
@@ -274,6 +291,29 @@ export function usePreflight() {
   return useMutation({ mutationFn: (only?: PreflightProbe[]) => liveApi.preflight(only) });
 }
 
+/** What a demo reset would remove, and whether it can run right now. Re-checks while calls are still running. */
+export function useDemoData() {
+  return useQuery({
+    queryKey: qk.demoData,
+    queryFn: demoApi.data,
+    staleTime: 5000,
+    refetchInterval: (query) => (query.state.data && !query.state.data.can_reset && query.state.data.crm === 'local_sim' ? 3000 : false),
+  });
+}
+
+/** Resets the demo data, then refetches everything the pages show (nothing cached may describe a removed call). */
+export function useResetDemo() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: demoApi.reset,
+    onSuccess: () => {
+      client.removeQueries({ queryKey: ['conversation'] });
+      client.removeQueries({ queryKey: ['transcript'] });
+      void client.invalidateQueries();
+    },
+  });
+}
+
 // ---- mutations -------------------------------------------------------------------------------------
 function refreshAfterConversationChange(client: QueryClient) {
   void client.invalidateQueries({ queryKey: qk.conversations });
@@ -282,6 +322,7 @@ function refreshAfterConversationChange(client: QueryClient) {
   void client.invalidateQueries({ queryKey: qk.vault });
   void client.invalidateQueries({ queryKey: qk.aliases });
   void client.invalidateQueries({ queryKey: qk.catalogueStats });
+  void client.invalidateQueries({ queryKey: qk.demoData });
 }
 
 function storeDetail(client: QueryClient, id: string, detail: ConversationDetail) {

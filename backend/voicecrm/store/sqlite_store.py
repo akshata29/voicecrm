@@ -23,6 +23,7 @@ from ..ports.state import FeedbackRecord
 logger = logging.getLogger(__name__)
 
 _DELETE_CHUNK = 500
+_TABLES = ("conversations", "events", "usage", "feedback", "aliases", "eval_runs")     # fixed names: never user input
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS conversations (
@@ -261,3 +262,17 @@ class SqliteStateStore:
         with self._tx() as cur:
             rows = cur.execute("SELECT data FROM eval_runs ORDER BY created_at DESC LIMIT ?", (limit,)).fetchall()
         return [EvalRun.model_validate_json(r["data"]) for r in rows]
+
+    # ---- demo reset -------------------------------------------------------------------------------
+    def count_all(self) -> dict[str, int]:
+        """Rows per table, keyed by what they hold (conversations, events, usage, feedback, aliases, eval_runs)."""
+        with self._tx() as cur:
+            return {table: int(cur.execute(f"SELECT COUNT(*) AS n FROM {table}").fetchone()["n"]) for table in _TABLES}
+
+    def clear_all(self) -> dict[str, int]:
+        """Remove everything the store holds, in one transaction. Returns the rows removed per table."""
+        with self._tx() as cur:
+            removed = {table: int(cur.execute(f"SELECT COUNT(*) AS n FROM {table}").fetchone()["n"]) for table in _TABLES}
+            for table in _TABLES:
+                cur.execute(f"DELETE FROM {table}")
+        return removed

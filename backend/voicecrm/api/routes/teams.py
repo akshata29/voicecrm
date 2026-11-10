@@ -1,17 +1,19 @@
-"""Live Teams ingestion: status, an on-demand poll, and the Graph lifecycle webhook."""
+"""Live Teams ingestion: status, an on-demand poll, earlier meetings to import, and the Graph lifecycle webhook."""
 from __future__ import annotations
 
 import hmac
 import logging
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response
+import httpx
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request, Response
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from ...adapters.sources import teams
 from ...adapters.sources.teams_graph import GraphError
 from ...container import Container
-from ...pipeline.teams_live import TeamsStatus
+from ...pipeline.teams_live import (
+    HISTORY_DEFAULT_DAYS, HISTORY_MAX_DAYS, IMPORT_MAX, TeamsHistory, TeamsImportResult, TeamsImportSelection, TeamsStatus)
 from ..deps import get_container
 
 logger = logging.getLogger(__name__)
@@ -24,6 +26,10 @@ OFF = ("Live Teams ingestion is off. Set VOICECRM_TEAMS_MODE=poll and the VOICEC
 class TeamsPollResult(BaseModel):
     ingested: int
     status: TeamsStatus
+
+
+class TeamsImportRequest(BaseModel):
+    items: list[TeamsImportSelection] = Field(min_length=1, max_length=IMPORT_MAX)
 
 
 @router.get("/sources/teams", response_model=TeamsStatus)
@@ -43,6 +49,33 @@ async def teams_poll(c: Container = Depends(get_container)) -> TeamsPollResult:
     except GraphError as exc:
         raise HTTPException(409 if exc.status is None else 502, str(exc)) from exc
     return TeamsPollResult(ingested=created, status=c.teams.status())
+
+
+@router.get("/sources/teams/history", response_model=TeamsHistory)
+async def teams_history(days: int = Query(HISTORY_DEFAULT_DAYS, ge=1, le=HISTORY_MAX_DAYS),
+                        c: Container = Depends(get_container)) -> TeamsHistory:
+    """Earlier meetings the configured organisers have a transcript for, newest first. Nothing is ingested."""
+    if c.teams is None:
+        raise HTTPException(409, OFF)
+    try:
+        return await c.teams.history(days)
+    except GraphError as exc:
+        raise HTTPException(409 if exc.status is None else 502, str(exc)) from exc
+    except httpx.HTTPError as exc:
+        raise HTTPException(502, f"could not reach Microsoft Graph ({type(exc).__name__})") from exc
+
+
+@router.post("/sources/teams/import", response_model=TeamsImportResult)
+async def teams_import(body: TeamsImportRequest, c: Container = Depends(get_container)) -> TeamsImportResult:
+    """Runs the pipeline on transcripts picked from the history list, without waiting for a live meeting or poll."""
+    if c.teams is None:
+        raise HTTPException(409, OFF)
+    try:
+        return await c.teams.import_transcripts(body.items)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    except GraphError as exc:
+        raise HTTPException(409 if exc.status is None else 502, str(exc)) from exc
 
 
 async def _renew(c: Container, subscription_id: str) -> None:

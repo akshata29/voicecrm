@@ -1,7 +1,7 @@
 r"""Regenerates the README gallery (docs/screenshots/*.png) from a throwaway VoiceCRM instance.
 
-1. Starts the API on a free port with an empty temporary state directory and every service forced to mock/local,
-   so nothing live is ever called and your own .state is left alone.
+1. Starts the API on a free port with an empty temporary state directory, every service forced to mock/local and Teams
+   ingestion forced off (.env holds the real tenant's credentials), so nothing live is ever called and your own .state is left alone.
 2. Runs two evaluations, then seeds a fixed synthetic demo set through the public API (the calls the UI makes).
 3. Drives a headless Chrome / Edge (Playwright) over the built SPA and saves one PNG per view.
 
@@ -75,16 +75,22 @@ def _remove_tree(path: Path) -> None:
 
 
 @contextmanager
-def throwaway_server() -> Iterator[str]:
-    """Runs the API against an empty temp state dir with every service on its mock/local adapter; yields the base URL."""
+def throwaway_server(live: bool = False) -> Iterator[str]:
+    """Runs the API against an empty temp state dir; yields the base URL.
+
+    By default every service is on its mock/local adapter. With live=True the service modes come from .env (real Azure).
+    Either way Teams ingestion is forced off: .env holds the real tenant's credentials, and a poller that finds a real
+    meeting would put it in the Inbox and so in the screenshots.
+    """
     state = Path(tempfile.mkdtemp(prefix="voicecrm-shots-"))
     port = _free_port()
     env = {k: v for k, v in os.environ.items() if not k.startswith("VOICECRM_")}
-    env.update(
-        VOICECRM_STATE_DIR=str(state), VOICECRM_DEMO_MODE="true", VOICECRM_TRANSCRIPTION_MODE="mock",
-        VOICECRM_LLM_MODE="rules", VOICECRM_SEARCH_MODE="local", VOICECRM_PII_MODE="local",
-        VOICECRM_CRM_MODE="local", VOICECRM_VAULT_MODE="local",
-    )
+    env.update(VOICECRM_STATE_DIR=str(state), VOICECRM_TEAMS_MODE="off")
+    if not live:
+        env.update(
+            VOICECRM_DEMO_MODE="true", VOICECRM_TRANSCRIPTION_MODE="mock", VOICECRM_LLM_MODE="rules",
+            VOICECRM_SEARCH_MODE="local", VOICECRM_PII_MODE="local", VOICECRM_CRM_MODE="local", VOICECRM_VAULT_MODE="local",
+        )
     log_path = state / "server.log"
     log = log_path.open("w")
     proc = subprocess.Popen([sys.executable, "-m", "voicecrm.cli", "serve", "--port", str(port)],

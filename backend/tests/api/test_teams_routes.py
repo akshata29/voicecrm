@@ -1,13 +1,16 @@
-"""Teams routes: status, poll now, the authenticated Graph webhook and the lifecycle endpoint."""
+"""Teams routes: status, poll now, earlier meetings (list + import), the authenticated Graph webhook and the lifecycle endpoint."""
 from __future__ import annotations
 
+from datetime import timedelta
 from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
 
 from voicecrm.adapters.sources.teams_graph import GraphError
-from voicecrm.pipeline.teams_live import TeamsStatus
+from voicecrm.domain.conversation import utcnow
+from voicecrm.pipeline.teams_live import (
+    IMPORT_MAX, TeamsHistory, TeamsHistoryItem, TeamsImportOutcome, TeamsImportResult, TeamsStatus)
 
 from .helpers import API
 
@@ -19,10 +22,16 @@ def notification(client_state: str, transcript: str = "T1") -> dict:
                        "resource": f"users/{ORG}/onlineMeetings('M1')/transcripts('{transcript}')"}]}
 
 
+def pick(transcript: str = "T1") -> dict:
+    return {"organizer": ORG, "meeting_id": "M1", "transcript_id": transcript}
+
+
 class StubIngestor:
     def __init__(self, polled: int = 2, error: Exception | None = None) -> None:
         self.refs: list = []
         self.polled, self.error = polled, error
+        self.days: list[int] = []
+        self.imported: list = []
         self.graph = SimpleNamespace(renewed=[])
 
         async def renew(subscription_id: str, minutes: int) -> None:
@@ -38,6 +47,21 @@ class StubIngestor:
         if self.error:
             raise self.error
         return self.polled
+
+    async def history(self, days: int) -> TeamsHistory:
+        if self.error:
+            raise self.error
+        self.days.append(days)
+        item = TeamsHistoryItem(organizer=ORG, meeting_id="M1", transcript_id="T1", title="Renewal call")
+        return TeamsHistory(days=days, since=utcnow() - timedelta(days=days), organizers=[ORG], items=[item])
+
+    async def import_transcripts(self, selections) -> TeamsImportResult:
+        if self.error:
+            raise self.error
+        self.imported += selections
+        outcomes = [TeamsImportOutcome(transcript_id=s.transcript_id, outcome="ingested", conversation_id=f"c-{s.transcript_id}")
+                    for s in selections]
+        return TeamsImportResult(ingested=len(outcomes), outcomes=outcomes)
 
     def status(self) -> TeamsStatus:
         return TeamsStatus(mode="poll", configured=True, ingested=self.polled)
@@ -72,6 +96,62 @@ def test_poll_errors_carry_the_fix_and_a_sensible_status(client: TestClient, tea
     teams.error = error
     response = client.post(f"{API}/sources/teams/poll")
     assert response.status_code == status and error.message in response.json()["detail"]
+
+
+def test_earlier_meetings_are_refused_when_teams_is_off(client: TestClient):
+    listing = client.get(f"{API}/sources/teams/history")
+    assert listing.status_code == 409 and "off" in listing.json()["detail"]
+    importing = client.post(f"{API}/sources/teams/import", json={"items": [pick()]})
+    assert importing.status_code == 409 and "off" in importing.json()["detail"]
+
+
+def test_history_lists_the_earlier_meetings_for_a_window_of_days(client: TestClient, teams):
+    body = client.get(f"{API}/sources/teams/history").json()                          # a month unless told otherwise
+    assert body["days"] == 30 and body["organizers"] == [ORG] and body["truncated"] is False and body["errors"] == []
+    assert [(i["transcript_id"], i["title"], i["state"]) for i in body["items"]] == [("T1", "Renewal call", "new")]
+    assert client.get(f"{API}/sources/teams/history", params={"days": 7}).json()["days"] == 7
+    assert teams.days == [30, 7]
+
+
+@pytest.mark.parametrize("days", [0, -1, 91, "many"])
+def test_history_window_must_be_between_one_and_ninety_days(client: TestClient, teams, days):
+    assert client.get(f"{API}/sources/teams/history", params={"days": days}).status_code == 422
+    assert teams.days == []
+
+
+@pytest.mark.parametrize("error,status", [(GraphError("no", status=403, hint="fix it"), 502), (GraphError("not configured"), 409)])
+def test_history_errors_carry_the_fix_and_a_sensible_status(client: TestClient, teams, error, status):
+    teams.error = error
+    response = client.get(f"{API}/sources/teams/history")
+    assert response.status_code == status and error.message in response.json()["detail"]
+
+
+def test_import_runs_the_picked_transcripts(client: TestClient, teams):
+    body = client.post(f"{API}/sources/teams/import", json={"items": [pick("T1"), pick("T2")]}).json()
+    assert (body["ingested"], body["duplicates"], body["failed"]) == (2, 0, 0)
+    assert [(o["transcript_id"], o["outcome"], o["conversation_id"]) for o in body["outcomes"]] == [
+        ("T1", "ingested", "c-T1"), ("T2", "ingested", "c-T2")]
+    assert [(s.organizer, s.meeting_id, s.transcript_id) for s in teams.imported] == [(ORG, "M1", "T1"), (ORG, "M1", "T2")]
+
+
+@pytest.mark.parametrize("body", [
+    {}, {"items": []}, {"items": [pick()] * (IMPORT_MAX + 1)},
+    {"items": [{"organizer": ORG, "meeting_id": "M1"}]},                                # no transcript id
+    {"items": [{**pick(), "title": "not a field"}]},                                    # unknown keys are refused
+    {"items": [{**pick(), "transcript_id": ""}]},
+])
+def test_import_refuses_a_malformed_request(client: TestClient, teams, body):
+    assert client.post(f"{API}/sources/teams/import", json=body).status_code == 422
+    assert teams.imported == []
+
+
+@pytest.mark.parametrize("error,status", [
+    (ValueError("someone is not one of the configured organisers"), 422),
+    (GraphError("no", status=403, hint="fix it"), 502), (GraphError("not configured"), 409)])
+def test_import_errors_carry_the_reason_and_a_sensible_status(client: TestClient, teams, error, status):
+    teams.error = error
+    response = client.post(f"{API}/sources/teams/import", json={"items": [pick()]})
+    assert response.status_code == status and getattr(error, "message", str(error)) in response.json()["detail"]
 
 
 def test_graph_validation_is_answered_with_the_decoded_token(client: TestClient):

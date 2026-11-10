@@ -63,7 +63,8 @@ export function AppShell() {
           <EnvChips className="no-scrollbar overflow-x-auto px-3 pb-2 sm:px-4 md:hidden" />
         </header>
 
-        <main id="main" tabIndex={-1} className="min-h-0 flex-1 overflow-y-auto focus:outline-none">
+        {/* relative: absolutely positioned children (sr-only inputs and labels) stay inside this scroller. Without it they are placed against the page itself and stretch it, so the window scrolls behind the app shell. */}
+        <main id="main" tabIndex={-1} className="relative min-h-0 flex-1 overflow-y-auto focus:outline-none">
           <div className="mx-auto w-full max-w-[1400px] px-3 py-4 sm:px-4 md:px-6 md:py-6">
             <Outlet />
           </div>

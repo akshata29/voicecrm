@@ -2,12 +2,12 @@
 
 Audience: a customer sponsor and their technical colleagues. Every scene maps to a requirement the customer stated.
 All data is synthetic. The UI shows a "Synthetic demo data" badge and which services are live vs mock.
-Running it against real Azure services (play a call, a Teams call, 800 calls)? Use [live-demo.md](live-demo.md).
+Running it against real Azure services (play a call, a Teams call, 800 calls)? Use [live-demo.md](live-demo.md). Want to click through every scenario yourself, with a screenshot at each step? Follow [walkthrough.md](walkthrough.md).
 
 ## Pre-flight (5 minutes before)
 1. `scripts\run_all.bat` (or backend + frontend separately). Open http://localhost:5173.
 2. Top bar chips: confirm which services are **Live** (Azure Speech, Foundry model, ...) and which are **Mock**. Say so out loud - it keeps the demo honest.
-3. `scripts\seed_demo.bat` fills the inbox so there is always something to review.
+3. `scripts\seed_demo.bat` fills the inbox so there is always something to review. To start from an empty inbox instead, use **Live demo -> Start clean -> Reset demo data**.
 4. Policies page: US = transcript **off**, EU = **on** (these are example policies, not any real firm's).
 
 ## Scenes

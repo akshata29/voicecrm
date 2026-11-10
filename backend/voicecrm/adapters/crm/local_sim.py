@@ -264,6 +264,26 @@ class LocalCrm:
                 raise
         return removed
 
+    async def clear_written(self) -> dict[str, int]:
+        """Remove every phone call, task and insight the pipeline wrote (a demo reset). Returns the rows removed.
+
+        Accounts, contacts, opportunities and users stay, including contacts added with `crm-add`. Like
+        delete_conversations, only the simulator can do this: the Dataverse adapter has no such method, so a real CRM is
+        never touched.
+        """
+        with self._lock:
+            self._db.execute("BEGIN IMMEDIATE")
+            try:
+                removed = {name: int(self._db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
+                           for name, table in (("phonecalls", "phonecalls"), ("tasks", "tasks"), ("insights", "insights"))}
+                for table in ("insight_products", "insight_topics", "insights", "tasks", "phonecalls", "idempotency"):
+                    self._db.execute(f"DELETE FROM {table}")
+                self._db.execute("COMMIT")
+            except Exception:
+                self._db.execute("ROLLBACK")
+                raise
+        return removed
+
     # ---- write -----------------------------------------------------------------------------------------
     def _insert_package(self, package: CrmPackage, key: str) -> list[CrmRecordRef]:
         now = _iso(self._clock())

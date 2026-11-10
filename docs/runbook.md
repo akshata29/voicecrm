@@ -19,8 +19,9 @@ scripts\test_all.bat           rem backend pytest + frontend typecheck/build
 CLI without the UI: `.venv\Scripts\python.exe -m voicecrm.cli doctor | fixtures | simulate <fixture_id> --approve | eval [--noise] [--learn] | sweep`
 (run from `backend\`).
 
-State lives in `.state\` (SQLite, vault, CRM simulator, policy overrides). Delete the folder for a clean slate; the UI also has
-"clear learned aliases" and "retention sweep".
+State lives in `.state\` (SQLite, vault, CRM simulator, policy overrides). For a clean slate use the UI's **Live demo -> Start clean
+-> Reset demo data** (it works while the backend runs, and refuses against a real Dataverse CRM), or stop the backend and delete
+the folder. The UI also has "clear learned aliases" and "retention sweep".
 
 **Check what is live:** the UI top bar, `GET /api/v1/config`, or `python -m voicecrm.cli doctor`. With
 `VOICECRM_DEMO_MODE=true` a service whose settings are incomplete silently falls back to its mock - always check `config`.

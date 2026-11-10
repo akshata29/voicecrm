@@ -23,10 +23,11 @@ import unicodedata
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 from urllib.parse import quote
 
 import httpx
+from pydantic import Field
 
 from ..adapters.sources import detect_and_parse
 from ..adapters.sources.teams import TranscriptRef
@@ -34,8 +35,8 @@ from ..adapters.sources.teams_graph import ClientSecretAuth, GraphClient, GraphE
 from ..config import Settings
 from ..domain.base import VModel
 from ..domain.conversation import ConsentInfo, ConversationMeta, Participant, utcnow
-from ..domain.enums import Channel, Direction, SpeakerRole, TranscriptOrigin
-from .models import IngestInput
+from ..domain.enums import Channel, ConversationStatus, Direction, SpeakerRole, TranscriptOrigin
+from .models import IngestInput, IngestResult
 from .service import PipelineService
 
 logger = logging.getLogger(__name__)
@@ -45,6 +46,14 @@ UNFINISHED_GRACE = timedelta(minutes=10)         # a transcript without an end t
 RETRY_AFTER_FAILURE = timedelta(seconds=60)
 SEEN_RETENTION = timedelta(days=7)
 MAX_RECENT = 8
+HISTORY_DEFAULT_DAYS = 30                        # how far back the "import earlier meetings" card looks by default
+HISTORY_MAX_DAYS = 90
+HISTORY_LIMIT = 60                               # newest transcripts listed per search (each costs one meeting lookup)
+IMPORT_MAX = 25                                  # transcripts per import request
+_HISTORY_SCAN = 500                              # transcripts read per organiser before the search stops
+_DETAIL_PARALLEL = 6
+_IMPORT_PARALLEL = 3
+_EPOCH = datetime.min.replace(tzinfo=timezone.utc)
 
 
 class TeamsRecent(VModel):
@@ -73,6 +82,52 @@ class TeamsStatus(VModel):
     recent: list[TeamsRecent] = []
 
 
+class TeamsHistoryItem(VModel):
+    """One transcript Graph still holds for a configured organiser, and whether the Inbox already has it."""
+    organizer: str                                  # as configured (UPN or object id); the import sends it back unchanged
+    organizer_name: str | None = None               # a name when one is known, else the organiser's address
+    meeting_id: str
+    transcript_id: str
+    title: str | None = None                        # None when the meeting details could not be read
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
+    duration_seconds: float | None = None
+    attendees: list[str] = []                       # names, else addresses
+    state: Literal["new", "in_inbox", "unfinished"] = "new"
+    conversation_id: str | None = None              # set when state is in_inbox
+    conversation_status: str | None = None
+
+
+class TeamsHistory(VModel):
+    days: int
+    since: datetime
+    organizers: list[str] = []
+    items: list[TeamsHistoryItem] = []              # newest first
+    truncated: bool = False                         # more transcripts exist than are listed
+    errors: list[str] = []                          # organisers that could not be searched (the others are still listed)
+
+
+class TeamsImportSelection(VModel):
+    organizer: str = Field(min_length=1, max_length=320)
+    meeting_id: str = Field(min_length=1, max_length=1024)
+    transcript_id: str = Field(min_length=1, max_length=1024)
+
+
+class TeamsImportOutcome(VModel):
+    transcript_id: str
+    outcome: Literal["ingested", "duplicate", "failed"]
+    conversation_id: str | None = None
+    title: str | None = None
+    detail: str | None = None
+
+
+class TeamsImportResult(VModel):
+    ingested: int = 0
+    duplicates: int = 0
+    failed: int = 0
+    outcomes: list[TeamsImportOutcome] = []
+
+
 @dataclass(frozen=True)
 class _User:
     id: str
@@ -98,6 +153,11 @@ def _name_from_email(email: str | None) -> str | None:
     if not email or "@" not in email:
         return None
     return " ".join(part.capitalize() for part in re.split(r"[._-]+", email.split("@")[0]) if part) or None
+
+
+def _listed_name(email: str | None) -> str | None:
+    """A name for a list row, only when the address spells one out ("aisha.west@..."); an alias like "AishaW" is not one."""
+    return _name_from_email(email) if email and re.search(r"[._-]", email.split("@")[0]) else None
 
 
 def _ascii_lower(text: str) -> str:
@@ -187,6 +247,14 @@ class TeamsIngestor:
     def status(self) -> TeamsStatus:
         return self._status.model_copy(deep=True)
 
+    def forget(self) -> None:
+        """Clear the status card (the counters and the recent list) after a demo reset.
+
+        What was already ingested stays remembered, so a reset does not bring old meetings back into an empty inbox.
+        """
+        self._status = self._status.model_copy(
+            update={"ingested": 0, "duplicates": 0, "failed": 0, "recent": [], "last_ingest_at": None})
+
     # ------------------------------------------------------------------ persistence of what was already ingested
     def _load_seen(self) -> dict[str, datetime]:
         if self._state_file is None or not self._state_file.exists():
@@ -233,6 +301,12 @@ class TeamsIngestor:
         self._users[ident] = user
         return user
 
+    @staticmethod
+    def _transcripts_path(user: _User, since: datetime) -> str:
+        """`getAllTranscripts` for one organiser, from ``since`` on (the poller and the history search both use it)."""
+        return (f"/users/{user.id}/onlineMeetings/getAllTranscripts"
+                f"(meetingOrganizerUserId='{user.id}',startDateTime={_iso(since)})")
+
     async def poll_once(self) -> int:
         """Checks every organiser for new transcripts and ingests them. Returns how many conversations were created."""
         graph = self._require_graph()
@@ -241,14 +315,12 @@ class TeamsIngestor:
                              "each seller who hosts the meetings")
         async with self._lock:
             now = utcnow()
-            since = _iso(now - self._lookback)
             created = 0
             self._status.last_error = None
             try:
                 for ident in self._organizers:
                     user = await self._user(ident)
-                    path = (f"/users/{user.id}/onlineMeetings/getAllTranscripts"
-                            f"(meetingOrganizerUserId='{user.id}',startDateTime={since})")
+                    path = self._transcripts_path(user, now - self._lookback)
                     async for item in graph.paged(path, params={"$top": 50}):
                         try:
                             created += await self._consider(user, item)
@@ -305,16 +377,28 @@ class TeamsIngestor:
         return created
 
     # ------------------------------------------------------------------ one transcript
+    @staticmethod
+    def _meeting_path(user: _User, meeting_id: str) -> str:
+        return f"/users/{quote(user.id, safe='')}/onlineMeetings/{quote(meeting_id, safe='')}"
+
+    async def _submit_transcript(self, user: _User, meeting_id: str, transcript_id: str) -> tuple[IngestInput, IngestResult]:
+        """Downloads the WebVTT, reads the meeting, maps both to an `IngestInput` and hands it to the pipeline.
+
+        The one path every transcript takes: the poller, the webhook and the "import earlier meetings" card.
+        """
+        base = self._meeting_path(user, meeting_id)
+        vtt = await self._require_graph().get_text(f"{base}/transcripts/{quote(transcript_id, safe='')}/content",
+                                                   accept="text/vtt")
+        meeting = await self._meeting(base)
+        ingest = self._ingest_input(user, meeting, transcript_id, vtt)
+        return ingest, await self.service.submit(ingest)
+
     async def ingest_transcript(self, user: _User, meeting_id: str, transcript_id: str) -> int:
         """Downloads, maps and submits one transcript. Returns 1 when a new conversation was created, else 0."""
-        graph = self._require_graph()
+        self._require_graph()
         key = f"{meeting_id}|{transcript_id}"
-        base = f"/users/{quote(user.id, safe='')}/onlineMeetings/{quote(meeting_id, safe='')}"
         try:
-            vtt = await graph.get_text(f"{base}/transcripts/{quote(transcript_id, safe='')}/content", accept="text/vtt")
-            meeting = await self._meeting(base)
-            ingest = self._ingest_input(user, meeting, transcript_id, vtt)
-            result = await self.service.submit(ingest)
+            ingest, result = await self._submit_transcript(user, meeting_id, transcript_id)
         except (GraphError, ValueError) as exc:
             self._retry_at[key] = utcnow() + RETRY_AFTER_FAILURE
             self._status.failed += 1
@@ -349,6 +433,133 @@ class TeamsIngestor:
         self._status.recent = [TeamsRecent(transcript_id=transcript_id[:12], title=title, conversation_id=conversation_id,
                                            at=utcnow(), outcome=outcome, detail=detail),
                                *self._status.recent][:MAX_RECENT]
+
+    # ------------------------------------------------------------------ earlier meetings (the "Import earlier meetings" card)
+    async def history(self, days: int = HISTORY_DEFAULT_DAYS) -> TeamsHistory:
+        """The organisers' transcripts from the last ``days`` days, newest first, each marked if the Inbox already has it.
+
+        The same `getAllTranscripts` call the poller makes, only with an earlier start, plus one meeting lookup per row for
+        the subject and attendees. Nothing is downloaded or ingested here: `import_transcripts` does that for the rows picked.
+        """
+        graph = self._require_graph()
+        if not self._organizers:
+            raise GraphError("no organisers configured", hint="set VOICECRM_TEAMS_ORGANIZERS to the UPN or object id of "
+                             "each seller who hosts the meetings")
+        days = max(1, min(int(days), HISTORY_MAX_DAYS))
+        since = utcnow() - timedelta(days=days)
+        found: dict[str, tuple[str, _User, dict[str, Any]]] = {}
+        failures: list[tuple[str, GraphError]] = []
+        capped = False
+        for ident in self._organizers:
+            scanned = 0
+            try:
+                user = await self._user(ident)
+                async for item in graph.paged(self._transcripts_path(user, since), params={"$top": 50}, limit=_HISTORY_SCAN):
+                    scanned += 1
+                    if item.get("meetingId") and item.get("id"):
+                        found.setdefault(f"{item['meetingId']}|{item['id']}", (ident, user, item))
+            except GraphError as exc:
+                failures.append((ident, exc))
+            except httpx.HTTPError as exc:
+                failures.append((ident, GraphError(f"could not reach Microsoft Graph ({type(exc).__name__})")))
+            capped = capped or scanned >= _HISTORY_SCAN
+        if len(failures) == len(self._organizers):
+            raise failures[0][1]
+        ranked = sorted(found.values(), key=lambda row: _parse_time(row[2].get("createdDateTime")) or _EPOCH, reverse=True)
+        gate = asyncio.Semaphore(_DETAIL_PARALLEL)
+
+        async def describe(row: tuple[str, _User, dict[str, Any]]) -> TeamsHistoryItem:
+            ident, user, item = row
+            async with gate:
+                meeting = await self._meeting(self._meeting_path(user, str(item["meetingId"])))
+            return self._history_item(ident, user, item, meeting)
+
+        items = list(await asyncio.gather(*(describe(row) for row in ranked[:HISTORY_LIMIT])))
+        return TeamsHistory(days=days, since=since, organizers=list(self._organizers), items=items,
+                            truncated=len(ranked) > HISTORY_LIMIT or capped,
+                            errors=[f"{ident}: {exc}"[:300] for ident, exc in failures])
+
+    def _history_item(self, ident: str, user: _User, item: dict[str, Any], meeting: dict[str, Any]) -> TeamsHistoryItem:
+        participants = meeting.get("participants") or {}
+        organizer = participants.get("organizer") or {}
+        organizer_user = (organizer.get("identity") or {}).get("user") or {}
+        organizer_email = user.mail or organizer.get("upn")
+        attendees: list[str] = []
+        for attendee in participants.get("attendees") or []:
+            identity = (attendee.get("identity") or {}).get("user") or {}
+            upn = attendee.get("upn") or ""
+            email = upn if "@" in upn else None
+            if identity.get("id") == user.id or (email and organizer_email and email.lower() == organizer_email.lower()):
+                continue
+            name = identity.get("displayName") or _listed_name(email) or email
+            if name and name not in attendees:
+                attendees.append(name)
+        transcript_id = str(item["id"])
+        created, ended = _parse_time(item.get("createdDateTime")), _parse_time(item.get("endDateTime"))
+        existing = (self.service.deps.store.find_by_source(Channel.teams.value, transcript_id)
+                    if self.service is not None else None)
+        in_inbox = existing is not None and existing.status not in (ConversationStatus.failed, ConversationStatus.rejected)
+        state: Literal["new", "in_inbox", "unfinished"] = "new"
+        if in_inbox:
+            state = "in_inbox"
+        elif not self._finished(item):
+            state = "unfinished"
+        return TeamsHistoryItem(
+            organizer=ident, organizer_name=user.name or organizer_user.get("displayName") or _listed_name(organizer_email) or organizer_email,
+            meeting_id=str(item["meetingId"]), transcript_id=transcript_id, title=meeting.get("subject") or None,
+            started_at=_parse_time(meeting.get("startDateTime")) or created,
+            ended_at=ended or _parse_time(meeting.get("endDateTime")),
+            duration_seconds=(ended - created).total_seconds() if created and ended and ended > created else None,
+            attendees=attendees, state=state,
+            conversation_id=existing.meta.conversation_id if in_inbox else None,
+            conversation_status=existing.status.value if in_inbox else None)
+
+    async def import_transcripts(self, selections: list[TeamsImportSelection]) -> TeamsImportResult:
+        """Ingests transcripts picked from `history`, whether or not the live poller has already looked at them.
+
+        For showing the Teams integration without a new meeting: the same download, parser and pipeline as a live
+        transcript, and the same idempotency key (the Graph transcript id), so importing a meeting twice, or one the poller
+        already ingested, never creates a second conversation. The live counters stay as they are: they report what the
+        poller found on its own.
+        """
+        self._require_graph()
+        if not 0 < len(selections) <= IMPORT_MAX:
+            raise ValueError(f"choose between 1 and {IMPORT_MAX} transcripts to import")
+        for selection in selections:
+            if selection.organizer not in self._organizers:
+                raise ValueError(f"{selection.organizer} is not one of the configured organisers (VOICECRM_TEAMS_ORGANIZERS)")
+        gate = asyncio.Semaphore(_IMPORT_PARALLEL)
+
+        async def one(selection: TeamsImportSelection) -> TeamsImportOutcome:
+            async with gate:
+                return await self._import_one(selection)
+
+        outcomes = list(await asyncio.gather(*(one(selection) for selection in selections)))
+        return TeamsImportResult(ingested=sum(o.outcome == "ingested" for o in outcomes),
+                                 duplicates=sum(o.outcome == "duplicate" for o in outcomes),
+                                 failed=sum(o.outcome == "failed" for o in outcomes), outcomes=outcomes)
+
+    async def _import_one(self, selection: TeamsImportSelection) -> TeamsImportOutcome:
+        transcript_id = selection.transcript_id
+        try:
+            user = await self._user(selection.organizer)
+            ingest, result = await self._submit_transcript(user, selection.meeting_id, transcript_id)
+        except (GraphError, ValueError, httpx.HTTPError) as exc:
+            logger.warning("Teams import of transcript %s failed: %s", transcript_id[:12], exc)
+            if isinstance(exc, ValueError):
+                detail = f"the transcript could not be read: {exc}"
+            elif isinstance(exc, httpx.HTTPError):
+                detail = f"could not reach Microsoft Graph ({type(exc).__name__})"
+            else:
+                detail = str(exc)
+            return TeamsImportOutcome(transcript_id=transcript_id, outcome="failed", detail=detail[:300])
+        self._remember(f"{selection.meeting_id}|{transcript_id}")            # the poller need not count it again
+        if result.duplicate_of:
+            return TeamsImportOutcome(transcript_id=transcript_id, outcome="duplicate", conversation_id=result.duplicate_of,
+                                      title=ingest.meta.title)
+        logger.info("Teams transcript %s imported as %s", transcript_id[:12], result.conversation_id)
+        return TeamsImportOutcome(transcript_id=transcript_id, outcome="ingested", conversation_id=result.conversation_id,
+                                  title=ingest.meta.title)
 
     def _ingest_input(self, user: _User, meeting: dict[str, Any], transcript_id: str, vtt: str) -> IngestInput:
         parsed = detect_and_parse(f"teams-{transcript_id[:16]}.vtt", "text/vtt", vtt.encode("utf-8"), channel=Channel.teams)

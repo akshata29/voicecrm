@@ -20,6 +20,7 @@ import type {
 import { CONVERSATION_STATUSES } from '../types';
 import * as admin from './admin';
 import { searchCatalogue } from './catalogue';
+import * as demo from './demo';
 import * as evaluation from './evaluation';
 import { simulate, upload } from './ingest';
 import * as live from './live';
@@ -138,6 +139,9 @@ const routes: Route[] = [
   { method: 'POST', pattern: /^\/live\/load\/stop$/, handler: () => live.loadStatus() },
   { method: 'DELETE', pattern: /^\/live\/load\/calls$/, handler: () => ({ deleted: 0 }) },
   { method: 'POST', pattern: /^\/live\/preflight$/, handler: ({ body }) => live.preflight(asBody<{ only?: PreflightProbe[] }>(body).only) },
+
+  { method: 'GET', pattern: /^\/demo\/data$/, handler: () => demo.demoData() },
+  { method: 'POST', pattern: /^\/demo\/reset$/, handler: () => demo.resetDemo(), extraDelayMs: 400 },
 
   { method: 'POST', pattern: /^\/eval\/run$/, handler: ({ body }) => evaluation.runEvaluation(asBody<EvalRunRequest>(body)), extraDelayMs: 1800 },
   { method: 'GET', pattern: /^\/eval\/runs$/, handler: () => evaluation.listRuns() },

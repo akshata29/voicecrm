@@ -4,6 +4,9 @@ How to run the three live scenarios from the demo brief against real Azure servi
 repo root. It is set up on the **demo tenant** (section 1) and the numbers were measured there on
 2026-11-05; earlier measurements from the first Azure account are marked as such.
 
+> **New here?** [walkthrough.md](walkthrough.md) is the self-guided version of this guide: a screenshot at every step, for every
+> scenario. This page is the reference: setup, measurements and costs.
+
 | | Scenario | What is real | Status |
 |---|---|---|---|
 | **A** | Play a call -> speech-to-text -> language service -> model -> review | Azure Speech, Azure AI Language, a Foundry model | **Verified live** on the demo tenant, ready |
@@ -25,16 +28,17 @@ gets its checks, its status card and a rehearsal. Restart the backend and run `n
 |---|---|---|
 | **Services behind these runs** | **Check services now** | which services are live or mock, then the probes of `scripts\preflight.bat` (a few tiny requests, under a cent) and READY / NOT READY for A, B and C with the fix for anything that fails |
 | **A: play a recorded call** | pick a recording, play it, **Process with Azure** | the pipeline step by step, each with the service behind it and its duration; products, topics, tasks; the cost; one click to write it to the CRM; the redacted transcript |
-| **B: a Teams call** | **Check Teams setup**; watch the ingestion card; **Simulate a Teams call** | the tenant checks with the fix for each failure; the live ingestion card; a rehearsal labelled *Simulated* |
+| **B: a Teams call** | **Check Teams setup**; watch the ingestion card; **Find meetings** and import an earlier one; **Simulate a Teams call** | the tenant checks with the fix for each failure; the live ingestion card; the meetings of the last 7 to 90 days listed and imported through the real pipeline on request; a rehearsal labelled *Simulated* |
 | **C: hundreds of calls** | calls (50 / 200 / 800 / your number), input, arrival, parallelism, auto-approve, **Start** | an estimate (tokens, list-price cost, time), a confirmation when billed services are live, a live board with the throughput card, then a report; **Remove load-test calls** |
+| **Start clean** | **Reset demo data** (after a confirmation that lists what goes) | the calls, CRM rows, vault copies, learned product names, scoreboard runs and policy edits that earlier runs left behind are removed, so the next demo starts from an empty Inbox |
 
 ![Live demo, scenario A](screenshots/live-demo-audio.png)
 
 ![Live demo, scenario C](screenshots/live-demo-bulk.png)
 
-Both captures are real runs on the first Azure account (`tools\capture_live_demo.py`): the audio call took 13 s end to end for
-$0.023; 60 calls took 25 s and $0.265, 51 were written to the CRM with zero clicks and 9 waited for a product pick. On the
-demo tenant the same page measured 10.6 s and $0.026 for the audio call and 172 s and $5.91 for 800 calls (section 4).
+Both captures are real runs on the demo tenant (`tools\capture_live_demo.py`, 2026-11-06): the audio call took 20 s end to end for
+$0.026 (the 2026-11-05 measurement was 10.6 s); 60 calls took 28 s and $0.444, 51 were written to the CRM with zero clicks and 9 waited for a product pick.
+The 800-call run took 172 s and $5.91 (section 4).
 
 What the page guards, so a click cannot surprise you:
 
@@ -49,6 +53,15 @@ What the page guards, so a click cannot surprise you:
   and the CRM simulator. Calls you made any other way are never touched.
 * **Parallelism** defaults to 32 when a live service is involved (or `VOICECRM_MAX_CONCURRENCY` if that is higher) and 16 on
   mocks; the run raises the privacy-filter client's concurrency to match and restores both afterwards.
+* **Reset demo data** (the last section, **Start clean**) clears everything earlier runs left in the app, not only load-test
+  calls: every conversation with its review history and cost, the vault copies, the phone calls, tasks and insights the pipeline
+  wrote to the CRM simulator, learned product names, scoreboard runs and the policy edits saved from the Policies page, plus the
+  in-memory throughput and load-test figures. It keeps the catalogue, topics and templates, the CRM accounts, contacts and
+  opportunities (including contacts you added with `crm-add`), your recordings in `data\audio`, and the list of Teams meetings
+  already ingested, so a reset does not bring them back (**Import earlier meetings** can, on request). A confirmation lists what will go, with counts. It never runs against
+  a real Dataverse CRM, and it waits while calls are being processed or a load test is running (the card says so and
+  re-checks every few seconds). The API is `GET /api/v1/demo/data` (the preview) and `POST /api/v1/demo/reset` with
+  `{"confirm": true}`.
 
 ## 0. Demo-day checklist
 
@@ -63,7 +76,9 @@ scripts\run_backend.bat               rem API + built UI on http://127.0.0.1:801
 ```
 
 Open **http://127.0.0.1:8010**. The top bar shows which services are *Live* and which are *Mock*; say so out loud.
-The preflight also runs in the browser: **Live demo -> Check services now** (without the burst test).
+The preflight also runs in the browser: **Live demo -> Check services now** (without the burst test). Start from an empty Inbox:
+**Live demo -> Start clean -> Reset demo data** removes what earlier runs left behind. No time to hold a Teams meeting? **Live
+demo -> B -> Import earlier meetings** brings one from the last 30 days through the real pipeline (section 3.4).
 `scripts\run_all.bat` also starts the Vite dev server (http://localhost:5173) if you want hot reload.
 After changing the frontend run `npm run build` in `frontend` (the API serves `frontend\dist`).
 
@@ -175,7 +190,10 @@ The older route still works: **Sources -> Simulate a call**, then **Run via audi
 30 seconds, e.g. *"Hi Dana, it's Sam from Contoso Woodgrove. Following up on the Contoso Equity Fund, class C. I'll send
 the fee comparison by Friday and set up a session with your committee."* Say "class C" explicitly. Browsers record
 WebM/Opus; verified live that WebM, Ogg/Opus and MP3 all transcribe correctly (about 1.4-2.1 s for a 10-second clip). You can also
-upload any wav/mp3/m4a/ogg/webm on **Sources -> Upload**.
+upload any wav/mp3/m4a/ogg/webm on **Sources -> Upload**. Two people can read the whole hero call aloud (about 3 minutes) too:
+verified live through the real Record button (1.7% word error, every segment on the right speaker, review-ready 22 s after the
+upload). Fill in **Client organisation**, **Client name** and **Your name** first, or the CRM match fails. Step by step, with
+screenshots: [walkthrough.md](walkthrough.md), part 7.
 
 **Cost of one call, audio path (list prices):** speech $0.018 (3 minutes at $0.36/hour) + privacy filter $0.002 + model
 about $0.005 on `chat54mini` = **$0.026 measured** for the hero call (section 5).
@@ -303,7 +321,7 @@ Only a person in the Teams client can start a meeting transcript, so this part i
    (a second account of yours, a colleague) as Dana:
    `scripts\crm_add.bat --email <the guest's address> --name "Dana Whitfield" --account "Harborview Pension Fund"`
 3. Restart the backend (`scripts\run_backend.bat`). **Sources** and **Live demo -> B** now show a **Live Teams ingestion** card:
-   *Polling*, last check, the three organisers.
+   *Polling*, last check, the three organisers, and an **Import earlier meetings** card below it.
 
 Each rehearsal:
 
@@ -325,6 +343,30 @@ Each rehearsal:
 Tip: end the meeting at least 30 minutes before you present (better: the day before), so the transcript is already in; the
 Live demo page's *Check now* then shows it landing. If step 6 stays empty after that long,
 run `scripts\teams_check.bat`: a 403 on the listing means the access policy has not propagated yet (up to 30 minutes after it was granted).
+
+**No time to hold a meeting? Import an earlier one.** On **Live demo -> B** (or **Sources**) the **Import earlier meetings** card
+asks Graph for the transcripts of the organisers in `VOICECRM_TEAMS_ORGANIZERS` from the last 7, 14, 30 (the default), 60 or 90
+days. **Find meetings** lists them newest first with the title, guests, start, length and whether the Inbox already has the call;
+tick the ones you want (**Select all new** takes up to 25) and press **Import N selected**. Each is downloaded and goes through
+the same parser and pipeline as a meeting that just ended, and its row turns into its Inbox status with an **Open** link. How it
+behaves:
+
+* **It is the poller's call with an earlier start.** `GET /api/v1/sources/teams/history` uses `getAllTranscripts` with
+  `startDateTime` days back, then reads each meeting for its subject and guests (the newest 60 are listed; the first search on the
+  demo tenant took about 10 s). `POST /api/v1/sources/teams/import` runs the same download-and-ingest function the poller and the
+  webhook use.
+* **Idempotent.** The key is the Graph transcript id: a meeting already in the Inbox, whether the poller ingested it or an earlier
+  import did, shows *In the Inbox* and is never imported twice. A call that failed or was rejected can be imported again.
+* **Only your organisers.** An organiser that is not in `VOICECRM_TEAMS_ORGANIZERS` is refused (422): the app's permissions and
+  the application access policy are per organiser anyway.
+* **The live counters stay put.** The *Live Teams ingestion* card counts what the poller found on its own; an import reports in its
+  own toast and the Inbox, so "the poller found it" stays true when you show scenario B.
+* **Old meeting, old dates.** Due dates count from the meeting's own start, so "by Friday" in a meeting from three weeks ago is a
+  date in the past. Pick the newest meeting, or say so.
+* **After Reset demo data** the Inbox is empty but the poller still remembers the meetings it ingested; the import does not use that
+  list, so *Reset* then *Import* is the quick way to show a real meeting arriving.
+* **Verified live** on the demo tenant: the search listed the real scheduled meeting, the import made a *Needs review* call with the
+  host and the guest named (2.7 s), the list then showed it as in the Inbox, and importing it again changed nothing.
 
 **The calls to play.** Nobody has to improvise. `data\audio\meeting` holds eight recordings, 2:45 to 3:25 each: Aisha West
 (Contoso Woodgrove) talking to Dana Whitfield (CIO of Harborview Pension Fund), two Azure neural voices. Each one is a
@@ -523,8 +565,9 @@ What the numbers mean:
 * **Audio at scale:** `scripts\bulk_load.bat --count 40 --via audio` sends the real recordings through Speech (about 190
   calls/min measured on the first account; add $0.018 per call). The UI keeps at most parallel + 4 recordings in memory (about
   6 MB each); the 8 recordings repeat, and Speech is billed for every repeat (the estimate says so).
-* **Reset:** the UI's **Remove load-test calls**, or stop the bulk backend and delete `.state-bulk`. Your `.state` (and the
-  conversations in it) is never touched by the second route; the first removes only calls tagged as a load test.
+* **Reset:** the UI's **Reset demo data** (Live demo, last section) clears everything earlier runs left in the app, **Remove load-test
+  calls** removes only the calls tagged as a load test, or stop the bulk backend and delete `.state-bulk`. Your `.state` is never
+  touched by the third route; the first two work on whatever the running backend holds.
 
 ![A recorded call with its player](screenshots/live-audio.png)
 
@@ -570,6 +613,7 @@ Add $14 for 800 three-minute recordings through Speech. Not included: hosting, s
 | Teams: 404 on a transcript | not a scheduled calendar meeting, expired, or the wrong organiser |
 | Teams: sign-in `AADSTS7000215` | the secret is wrong: use the secret **value**, not its id |
 | Teams: nothing appears | `Check now` on Sources shows the last error; confirm transcription was started and the meeting has ended |
+| Teams: **Import earlier meetings** lists nothing | only scheduled meetings with transcription started have a transcript, and only for the organisers in `VOICECRM_TEAMS_ORGANIZERS`: pick a longer period (up to 90 days); a Graph refusal is shown on the card with the fix |
 | UI looks stale after pulling changes | `npm run build` in `frontend`, then hard-refresh |
 | A call "needs review" unexpectedly | that is the product working (ambiguous share class, no CRM match): open the review reasons |
 | Live demo: **Start** says "confirmation required" | the run uses billed services: the page asks first; an API call needs `"confirm": true` |
@@ -578,6 +622,7 @@ Add $14 for 800 three-minute recordings through Speech. Not included: hosting, s
 | Live demo: "No recordings yet" | run `scripts\make_audio.bat` once, then reload |
 | Live demo: a run shows throttling errors or "N fell back to rules" | the model quota is exhausted: lower **Calls in parallel** or raise the model deployment's quota (TPM); the adapters already retry |
 | Load-test calls are still in the Inbox | **Remove load-test calls** (Live demo, or the banner on the Inbox); the next run also replaces them |
+| Other calls, CRM rows, learned names or policy edits are left over from earlier runs | **Reset demo data** (Live demo, last section) |
 
 ## 7. Appendix: what was measured
 
@@ -611,7 +656,7 @@ Live, against the demo tenant (`<foundry-resource>`, East US 2, Entra auth, `cha
   model stage 3-4 s a call, about $0.026 a call. Product top-3 89%: the one miss is the former fund name (#3), unresolved by
   design until a reviewer teaches it. The same scripts run as one-microphone Teams transcripts through the rules engine in the
   test suite (`tests\eval\test_meeting_scenarios.py`), including the teach-once flow for #3.
-* **Test suite:** 1,496 backend tests, ruff clean.
+* **Test suite:** 1,564 backend tests, ruff clean.
 
 Earlier, against the first account (East US 2), keys, 2026-11-03:
 

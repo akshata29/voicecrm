@@ -127,6 +127,11 @@ class PipelineStats:
         if self._unfinished <= 0:
             self._begin_run()
 
+    def reset(self) -> None:
+        """Forget every figure, lifetime totals included (a demo reset). Only meaningful when nothing is in flight."""
+        self.lifetime_completed = self.lifetime_failed = 0
+        self._begin_run()
+
     # ------------------------------------------------------------------ recording (called by the pipeline)
     def submitted(self) -> None:
         idle_for = self._clock() - self._last_finish if self._last_finish is not None else float("inf")

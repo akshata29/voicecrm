@@ -13,7 +13,7 @@ The diagram source is `diagrams/voicecrm-architecture-v2.excalidraw` (generated 
 
 | Principle | What it means in the code |
 |---|---|
-| **Compute in Python, let a model only write** | Product matching, topic tagging, task dates, redaction and validation are deterministic engines. A model (optional) writes the prose and may *confirm* what the engines found - it can never invent a product or pick a share class. |
+| **Compute in Python; a model writes, the code decides** | Product matching, topic tagging, task dates, redaction and validation are deterministic engines. A model (optional) writes the prose and may *confirm* what the engines found; in the `llm` engine it also proposes topics and tasks. Every model answer is reconciled against the catalogue, the taxonomy, the call date and the transcript segments, and it can never invent a product or pick a share class. |
 | **Ports and adapters** | Every external dependency is a `Protocol` in `voicecrm/ports/`. Each has a mock/local adapter (default, no Azure needed) and a live adapter. `container.py` is the only place that knows which one is used. |
 | **Privacy by construction** | The pipeline hands engines a *redacted* conversation. The CRM package type has no transcript field. A validator re-scans every CRM-bound field before anything is sent. |
 | **Policy is data** | Retention per market, the notes policy, the preferred transcript source per channel and the default template per business line live in `data/policies/policies.yaml`, editable from the UI. |
@@ -112,7 +112,7 @@ commitments become tasks; writes go to a non-production Dataverse environment on
 |---|---|---|
 | Teams | Graph change notifications -> transcript (VTT) / recording; or file upload | Handler + parser; live use needs tenant admin consent and a transcript policy |
 | Zoom | webhook (URL validation + HMAC signature) -> recording files (audio / VTT) | Transcript entitlement unconfirmed -> default is central Speech on the audio |
-| Genesys | notification handler -> platform transcript or audio | Caller identified by phone number (ANI) -> CRM phone match |
+| Genesys | notification handler -> platform transcript or audio | A phone match on the caller's number when the payload carries it (uploaded and simulated payloads do; extracting the caller number from live notifications is not built) |
 | Mobile | PWA `/capture`: record, offline queue, auto-upload | In-person meetings |
 | Upload | `POST /api/v1/ingest/upload` | WebVTT / JSON transcripts and audio (wav, mp3, m4a, ogg, webm) |
 
@@ -138,7 +138,7 @@ regression gate and a demonstration, not as expected production accuracy. Real a
 
 | MVP | Production |
 |---|---|
-| Mock transcriber replaying scripts | Azure Speech fast / batch transcription (EN + ES, diarization, catalogue phrase lists) |
+| Mock transcriber replaying scripts | Azure Speech fast transcription (built, and run live: EN + ES, diarization, catalogue phrase lists); batch transcription only if very long recordings need it |
 | Rules engine | `hybrid` with a Foundry model deployment; same reconciliation and validator |
 | SQLite state, one replica | Cosmos DB / Postgres behind `StateStore`; queue (Service Bus) between ingest and the pipeline |
 | Local vault | Blob with private endpoints, customer-managed keys, lifecycle rules for retention |

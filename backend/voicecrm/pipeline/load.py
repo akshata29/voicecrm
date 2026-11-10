@@ -360,6 +360,17 @@ class LoadRunner:
             raise PipelineError("a load test is running: stop it first", status=409)
         return await self._remove_batch()
 
+    @property
+    def active(self) -> bool:
+        return self._state in _ACTIVE
+
+    def forget(self) -> None:
+        """Drop the last run's report and counters, because the calls they describe are gone (a demo reset)."""
+        if self._state in _ACTIVE:
+            raise PipelineError("a load test is running: stop it first", status=409)
+        self._reset()
+        self._state = "idle"
+
     async def aclose(self) -> None:
         task = self._task
         if task is None or task.done():

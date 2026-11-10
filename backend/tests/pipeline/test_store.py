@@ -114,6 +114,26 @@ def test_deleting_more_conversations_than_one_chunk_removes_them_all():
     assert s.delete_conversations(ids) == 1200 and s.count_batch() == 0
 
 
+def test_clear_all_removes_every_table_and_reports_what_it_removed():
+    s = SqliteStateStore(":memory:")
+    empty = {"conversations": 0, "events": 0, "usage": 0, "feedback": 0, "aliases": 0, "eval_runs": 0}
+    assert s.count_all() == empty and s.clear_all() == empty
+    s.save_conversation(_record("a", "1"))
+    s.save_conversation(_record("b", "2"))
+    s.add_event(StageEvent(conversation_id="a", stage=Stage.ingest, status=StageStatus.completed))
+    s.add_usage(UsageRecord(conversation_id="a", stage=Stage.transcribe, service="speech", provider="mock", audio_seconds=3))
+    s.add_feedback(FeedbackRecord(conversation_id="b", kind="reject", payload={}))
+    s.upsert_alias(LearnedAlias(surface="equity fund see", product_id="SYN-1"))
+    s.save_eval_run(EvalRun(run_id="r1", engine="rules", metrics=EvalMetrics(cases=3), cases=[]))
+    counts = {"conversations": 2, "events": 1, "usage": 1, "feedback": 1, "aliases": 1, "eval_runs": 1}
+    assert s.count_all() == counts
+    assert s.clear_all() == counts
+    assert s.count_all() == empty
+    assert s.list_conversations() == [] and s.list_aliases() == [] and s.list_eval_runs() == [] and s.list_usage() == []
+    s.save_conversation(_record("c", "3"))                                # the store is still usable afterwards
+    assert s.count_all()["conversations"] == 1
+
+
 def test_a_database_from_before_the_batch_tag_is_migrated_in_place(tmp_path):
     path = tmp_path / "old.sqlite"
     old = sqlite3.connect(path)

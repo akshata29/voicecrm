@@ -23,6 +23,8 @@ All endpoints return JSON unless stated. Errors: `{"detail": "..."}` with the us
 | POST | `/webhooks/teams/lifecycle` | Graph lifecycle notification (handles `validationToken`; `reauthorizationRequired` renews the subscription) | `202` |
 | GET | `/sources/teams` | - | `TeamsStatus` (mode, health, organisers, last poll / ingest, counters, recent transcripts; `mode: "off"` when live ingestion is not enabled) |
 | POST | `/sources/teams/poll` | - | `{"ingested": n, "status": TeamsStatus}` - look for new transcripts now; `409` when off or misconfigured, `502` with the fix when Graph refuses |
+| GET | `/sources/teams/history?days=30` | - | `TeamsHistory` (`days` 1-90, default 30): the transcripts the configured organisers still have from the last `days` days, newest first, at most 60 (`truncated` says there were more), each with `organizer`, `meeting_id`, `transcript_id`, `title`, `started_at`, `duration_seconds`, `attendees` and a `state` of `new`, `in_inbox` (with `conversation_id` and `conversation_status`) or `unfinished` (still being written); `errors` lists organisers that could not be searched. Nothing is ingested. `409` when off or misconfigured, `502` with the fix when Graph refuses |
+| POST | `/sources/teams/import` | `{"items": [{"organizer", "meeting_id", "transcript_id"}]}` (1-25, as listed by `history`) | `TeamsImportResult` `{"ingested", "duplicates", "failed", "outcomes": [{"transcript_id", "outcome", "conversation_id", "title", "detail"}]}` - downloads each transcript and runs it through the pipeline like a meeting that just ended, whether or not the poller has seen it; idempotent on the transcript id (`duplicate`), one failure is an outcome and does not stop the rest, and the live counters in `TeamsStatus` do not change. `422` for an organiser that is not in `VOICECRM_TEAMS_ORGANIZERS` or a bad item list, `409` / `502` as above |
 
 ## Conversations and review
 | Method | Path | Body | Returns |
@@ -69,9 +71,9 @@ When auto-approve is enabled and the proposal is eligible the pipeline goes `pro
 | GET | `/eval/runs` | - | `EvalRun[]` (newest first, without per-case details) |
 | GET | `/eval/runs/{run_id}` | - | `EvalRun` |
 
-## Live demo (load test and service check)
-The Live demo page's backend (`pipeline/load.py`, `api/routes/live.py`). A run is in-process, one at a time, and every call it
-creates carries a batch tag (`ConversationRecord.batch_id = "load-<run id>"`).
+## Live demo (load test, service check, demo reset)
+The Live demo page's backend (`pipeline/load.py`, `pipeline/demo_reset.py`, `api/routes/live.py`, `api/routes/demo.py`). A run is
+in-process, one at a time, and every call it creates carries a batch tag (`ConversationRecord.batch_id = "load-<run id>"`).
 
 | Method | Path | Body | Returns |
 |---|---|---|---|
@@ -80,6 +82,8 @@ creates carries a batch tag (`ConversationRecord.batch_id = "load-<run id>"`).
 | POST | `/live/load` | `LoadRequest` | `202` `LoadStatus` - starts the run in the background; replaces the previous run's calls. `409` when a run is active, or when billed services are live and `confirm` is not `true`; `422` for more than `VOICECRM_LOAD_MAX_CALLS` calls, unknown calls, an unavailable `engine`, no recordings for a live-Speech audio run, or `auto_approve` with a live CRM |
 | POST | `/live/load/stop` | - | `LoadStatus` - stops sending; calls already in the pipeline finish, unsent ones are dropped (`state: stopping`, then `stopped`) |
 | DELETE | `/live/load/calls` | - | `{"deleted": n}` - removes every load-test call from the state store, the vault and (local only) the CRM simulator; `409` while a run is active |
+| GET | `/demo/data` | - | `DemoData` - what a reset would remove right now: `conversations`, `crm_phone_calls`, `crm_tasks`, `crm_insights`, `vault_items`, `learned_aliases`, `evaluation_runs`, `policy_changes`; plus `can_reset`, `reason` (why not), `in_flight` and `crm` (the adapter). Removes nothing |
+| POST | `/demo/reset` | `{"confirm": true}` | `DemoCounts` - what was removed. Clears every conversation (with events, usage and feedback), every vault copy, what the pipeline wrote to the CRM simulator, learned aliases, evaluation runs, saved policy changes and the in-memory run figures. Keeps the catalogue, taxonomy, templates, the CRM accounts, contacts and opportunities, the recordings and the list of Teams meetings already ingested. `409` without `confirm: true`, while calls are being processed or a load test runs, and against a real Dataverse CRM (local simulator only) |
 | POST | `/live/preflight` | `{"only": ["speech","language","model","search","vault","crm","teams"]?}` | `{"checks": [{name, status: pass\|warn\|fail\|skip, detail, hint, seconds}], "readiness": [{scenario, verdict, why}], "seconds"}` - the preflight CLI's probes against the services this API is running on (synthetic data only; a few cents at most). `409` while another check runs |
 
 `LoadRequest`: `count` (1..`max_calls`), `via` (`transcript\|audio`), `rate` (calls per second, 0 = burst), `auto_approve`

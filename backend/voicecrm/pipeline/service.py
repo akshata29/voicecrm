@@ -191,6 +191,11 @@ class PipelineService:
         while self._tasks:
             await asyncio.gather(*list(self._tasks), return_exceptions=True)
 
+    @property
+    def in_flight(self) -> int:
+        """Calls being processed right now: a demo reset has to wait for them."""
+        return len(self._tasks)
+
     # ------------------------------------------------------------------ processing
     async def process(self, cid: str, ing: IngestInput) -> ConversationRecord:
         queued_at = time.perf_counter()

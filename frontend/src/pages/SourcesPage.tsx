@@ -16,6 +16,7 @@ import { useConfig, useConversation, useFixtures, usePolicies, useSimulate, useU
 import { CHANNELS, type Channel, type FixtureInfo, type SimulateVia } from '@/api/types';
 import { BusinessLineChip, ChannelIcon, LanguageChip, MarketChip, StatusBadge } from '@/components/conversation/Badges';
 import { PipelineStepper } from '@/components/conversation/PipelineViews';
+import { TeamsHistoryCard } from '@/components/conversation/TeamsHistoryCard';
 import { TeamsLiveCard } from '@/components/conversation/TeamsLiveCard';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -607,6 +608,7 @@ export default function SourcesPage() {
         </div>
       </section>
       <TeamsLiveCard />
+      <TeamsHistoryCard />
       <SimulateGallery />
       <UploadForm />
     </div>

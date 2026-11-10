@@ -17,6 +17,7 @@ class PolicyStore:
     def __init__(self, defaults: PolicyBundle, override_path: Path | None = None) -> None:
         self._lock = threading.RLock()
         self._override_path = override_path
+        self._defaults = defaults
         self._bundle = defaults
         if override_path and override_path.exists():
             try:
@@ -32,6 +33,21 @@ class PolicyStore:
     def bundle(self) -> PolicyBundle:
         with self._lock:
             return self._bundle
+
+    @property
+    def customised(self) -> bool:
+        """True when what is in force differs from the shipped defaults, or a saved override is on disk."""
+        with self._lock:
+            return self._bundle != self._defaults or bool(self._override_path and self._override_path.exists())
+
+    def reset(self) -> bool:
+        """Back to the shipped defaults (data/policies/policies.yaml): drops every change made on the Policies page."""
+        with self._lock:
+            changed = self.customised
+            self._bundle = self._defaults
+            if self._override_path:
+                self._override_path.unlink(missing_ok=True)
+            return changed
 
     def market(self, market: str) -> MarketPolicy:
         b = self.bundle

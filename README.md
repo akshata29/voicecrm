@@ -19,7 +19,7 @@ transcript retention switchable **per market**.
 | **Behind ports** (a mock and a live adapter each) | Azure Speech, AI Foundry model, AI Search, AI Language (PII), Blob storage, Dynamics 365 / Dataverse |
 | **Runs with** | no Azure account: a mock transcriber that replays scripted calls, a rules engine, local PII rules, a SQLite CRM simulator, a local vault |
 | **Demo data** | 18 scripted calls with gold labels (EN/ES; Teams, Zoom, Genesys, mobile), 1,395 synthetic products in 326 fund families and 8 share classes, 20 topics, 2 summary templates, 3 market policies |
-| **Checks** | 1,496 backend tests, frontend typecheck and build, lint |
+| **Checks** | 1,564 backend tests, frontend typecheck and build, lint |
 
 [Screens](#screens) · [What it demonstrates](#what-it-demonstrates) · [Architecture](#architecture) ·
 [How a call flows](#how-a-call-flows) · [Decision logic](#decision-logic) · [Data contract](#data-contract) ·
@@ -28,9 +28,10 @@ transcript retention switchable **per market**.
 
 ## Screens
 
-Captured from the running app (synthetic data, every service on its mock adapter) by
-[`tools/capture_screenshots.py`](tools/capture_screenshots.py), which starts a throwaway instance, seeds it through the
-public API and drives headless Chrome, so they can be regenerated after any UI change.
+Captured from the running app (synthetic data, every service on its mock adapter, so anyone can reproduce them without an Azure
+account) by [`tools/capture_screenshots.py`](tools/capture_screenshots.py), which starts a throwaway instance, seeds it through the
+public API and drives headless Chrome, so they can be regenerated after any UI change. The images in the
+[walkthrough](docs/walkthrough.md) are the live ones: Azure Speech, Azure AI Language and a Foundry model.
 
 ### Triage: one inbox for every channel
 
@@ -146,7 +147,8 @@ the CRM with zero clicks, 9 waiting for a seller to pick a product. Every call a
 removed in one click from the Inbox, the vault, the state store and the CRM simulator.
 
 **B: a Teams meeting.** The page checks the tenant setup with the same probes as `scripts\teams_check.bat`, shows the live ingestion
-card, and rehearses the flow with a clearly labelled *simulated* Teams call until the tenant is ready.
+card, lists the meetings the organisers held in the last 30 days (up to 90) so you can import one without holding a new meeting,
+and rehearses the flow with a clearly labelled *simulated* Teams call until the tenant is ready.
 
 ### Governance as configuration
 
@@ -357,11 +359,12 @@ FastAPI under `/api/v1`, with OpenAPI at `/docs`. Full reference: [docs/api-cont
 
 | Area | Endpoints |
 |---|---|
-| Ingest | `POST /ingest/upload` (audio, VTT or JSON), `POST /ingest/simulate` (a scripted call rendered as the channel's native payload), `POST /webhooks/{teams,zoom,genesys}` |
+| Ingest | `POST /ingest/upload` (audio, VTT or JSON), `POST /ingest/simulate` (a scripted call rendered as the channel's native payload), `POST /webhooks/{teams,zoom,genesys}`; live Teams: `GET /sources/teams` (status), `POST /sources/teams/poll`, `GET /sources/teams/history?days=` and `POST /sources/teams/import` (list and import earlier meetings) |
 | Review | `GET /conversations`, `GET /conversations/{id}`, `GET /conversations/{id}/transcript` (redacted; 404 with the policy explanation when the market discards it), `POST /conversations/{id}/{approve,reject,reprocess}` |
 | Policy and reference data | `GET/PUT /policies...`, `GET /templates`, `GET /taxonomy`, `GET /catalogue/stats`, `GET /catalogue/search`, `GET/DELETE /aliases` |
 | CRM, vault, retention | `GET /crm/records?entity=`, `GET /crm/health`, `GET /vault/items`, `POST /retention/sweep` |
 | Metrics | `GET /metrics/summary`, `POST /eval/run`, `GET /eval/runs`, `GET /eval/runs/{id}` |
+| Demo housekeeping | `GET /demo/data` (what a reset would remove), `POST /demo/reset` (`{"confirm": true}`: clears calls, CRM rows, vault copies, learned aliases, scoreboard runs and policy edits; local CRM simulator only), plus `GET/POST/DELETE /live/load...` for the Live demo page's load test |
 | Meta | `GET /health`, `GET /config` (which services are live and which are mock) |
 
 Statuses: `received`, `processing`, `needs_review`, `approved`, `written`, or `rejected` / `failed`. The happy path, end to end:
@@ -454,13 +457,15 @@ scripts\seed_demo.bat            rem optional: fill the inbox with 6 scripted ca
 - Use `127.0.0.1` for the API, not `localhost`: on some Windows machines `localhost` resolves to `::1` first, where
   Docker or WSL may be listening. If 8010 is busy, `python -m voicecrm.cli serve --port 8011` and set
   `VITE_API_PROXY=http://127.0.0.1:8011` for the dev UI.
-- State (SQLite, vault, CRM simulator, policy overrides) lives in `.state\`; delete it for a clean slate, or set
-  `VOICECRM_STATE_DIR` to put it elsewhere.
+- State (SQLite, vault, CRM simulator, policy overrides) lives in `.state\`. For a clean slate between demos use **Live demo ->
+  Start clean -> Reset demo data** (it removes the calls, the CRM rows the pipeline wrote, vault copies, learned product names,
+  scoreboard runs and policy edits, and keeps the catalogue, the CRM accounts and contacts and your recordings); or stop the
+  backend and delete the folder. Set `VOICECRM_STATE_DIR` to put it elsewhere.
 
 A five-minute tour: open the inbox and pick the call whose share class is undecided, choose a class and approve; open the CRM
 page to see what was written; run `pb-teams-legacy-blue-chip` from Sources, teach it on the review screen, then run it again;
 flip a market's transcript switch on Policies and run the same call; press *Run evaluation* on the Scoreboard. The scene-by-scene
-script is [docs/demo-script.md](docs/demo-script.md).
+script is [docs/demo-script.md](docs/demo-script.md); to run every scenario yourself, with a screenshot at each step, follow [docs/walkthrough.md](docs/walkthrough.md).
 
 CLI, without the UI (run from `backend\`):
 
@@ -475,10 +480,11 @@ CLI, without the UI (run from `backend\`):
 Checks and screenshots:
 
 ```bat
-scripts\test_all.bat                                   rem pytest (1,496 tests) + frontend typecheck and build
+scripts\test_all.bat                                   rem pytest (1,564 tests) + frontend typecheck and build
 .venv\Scripts\python.exe -m ruff check backend tools --config backend\pyproject.toml
 .venv\Scripts\python.exe -m pip install playwright     rem tooling only: uses the installed Chrome or Edge
 .venv\Scripts\python.exe tools\capture_screenshots.py  rem regenerate docs\screenshots (needs frontend\dist)
+.venv\Scripts\python.exe tools\capture_walkthrough.py  rem the walkthrough's images, all live: real Azure, about 10 minutes, under $0.60 (--only picks parts)
 .venv\Scripts\python.exe tools\capture_live_demo.py --base-url http://127.0.0.1:8010   rem the two live-demo captures: real Azure, spends a few cents
 scripts\check_public.bat                               rem before every push: fails on a customer name, tenant id, internal host or secret (see below)
 ```
@@ -491,7 +497,7 @@ a real Azure account:
 | | Scenario | Tooling | Verified |
 |---|---|---|---|
 | A | play a call -> Azure Speech -> Azure Language -> a Foundry model | **Live demo page**; `scripts\make_audio.bat`, `scripts\rehearse_audio.bat` | live: WER 1-1.5%, topics and tasks 100%, 0 leaks |
-| B | a Teams meeting ends and lands in the review queue by itself (Microsoft Graph, poll or webhook) | **Live demo page** (check, status, simulated rehearsal); `scripts\teams_check.bat`, `scripts\crm_add.bat`, `scripts\make_meeting_audio.bat` (eight scenario calls to play into the meeting), `scripts\rehearse_audio.bat --meeting` | live on a demo tenant: a real scheduled meeting was listed by Graph (within 8 min), downloaded and turned into a CRM-matched proposal (2026-11-06); the eight recordings scored live through Speech, Language and the model (topics and tasks 100%, 0 leaks, WER 1.8%); webhook mode and multi-speaker transcripts not run live |
+| B | a Teams meeting ends and lands in the review queue by itself (Microsoft Graph, poll or webhook) | **Live demo page** (check, status, import of earlier meetings, simulated rehearsal); `scripts\teams_check.bat`, `scripts\crm_add.bat`, `scripts\make_meeting_audio.bat` (eight scenario calls to play into the meeting), `scripts\rehearse_audio.bat --meeting` | live on a demo tenant: a real scheduled meeting was listed by Graph (within 8 min), downloaded and turned into a CRM-matched proposal (2026-11-06); the eight recordings scored live through Speech, Language and the model (topics and tasks 100%, 0 leaks, WER 1.8%); webhook mode and multi-speaker transcripts not run live |
 | C | 800 calls at once | **Live demo page**; `scripts\run_bulk_backend.bat`, `scripts\bulk_load.bat` | live: 800 calls in ~3 min, $5.91, 0 failures (800K-TPM `gpt-5.4-mini`) |
 
 ```bat
@@ -500,7 +506,9 @@ scripts\preflight.bat --burst 16     rem validates .env and probes every live se
 
 The same check runs from the browser: **Live demo -> Check services now**. A run started there (`/api/v1/live/load`) goes through the
 same pipeline in the API process, so it needs no second terminal; `scripts\run_bulk_backend.bat` is still the way to give it a
-clean state folder and 64 parallel calls.
+clean state folder and 64 parallel calls. The last section of the page, **Start clean -> Reset demo data**, clears what earlier
+runs left behind (calls, CRM rows, vault copies, learned product names, scoreboard runs, policy edits) so the next demo starts from
+an empty Inbox; it works only against the local CRM simulator.
 
 What the live work added to the product: a **preflight** that names the fix for each failure (and never prints a secret), a
 text-to-speech call generator, a rehearsal scorer, a load generator, live **pipeline statistics** (`GET /api/v1/metrics/pipeline`),
@@ -550,16 +558,16 @@ authentication in front). Resources, RBAC, parameters, cost drivers and the secu
 
 ```
 backend/voicecrm/   domain -> ports -> engines -> adapters -> pipeline -> api, plus container.py, cli.py, eval/, store/
-backend/tests/      engines, adapters, api, pipeline, eval, domain (1,496 tests)
+backend/tests/      engines, adapters, api, pipeline, eval, domain (1,564 tests)
 data/               synthetic catalogue, taxonomy, templates, policies, pricing, CRM seed, scripted calls
 frontend/           React + TypeScript UI (inbox, live demo, review, sources, capture, policies, catalogue, CRM, scoreboard)
 infra/              Bicep modules + azd (Dockerfile and azure.yaml are at the root)
 scripts/            Windows helpers: setup, run, seed, test, deploy, plus preflight, make_audio, make_meeting_audio, rehearse_audio, run_bulk_backend, bulk_load, teams_check, crm_add
-tools/              generators (catalogue, diagram, screenshots, call audio, meeting audio) and dev helpers (bulk_load, live_check, capture_live_demo, env_set, eval_diff, dataverse_bootstrap, ...)
-docs/               architecture, API contract, demo script, live demo guide, runbook, infrastructure, diagrams, screenshots
+tools/              generators (catalogue, diagram, screenshots, walkthrough captures, call audio, meeting audio) and dev helpers (bulk_load, live_check, capture_live_demo, check_public, env_set, eval_diff, dataverse_bootstrap, ...)
+docs/               walkthrough, architecture, API contract, demo script, live demo guide, runbook, infrastructure, diagrams, screenshots
 ```
 
-Documents: [architecture](docs/architecture.md) ·
+Documents: [walkthrough](docs/walkthrough.md) · [architecture](docs/architecture.md) ·
 [API contract](docs/api-contract.md) · [demo script](docs/demo-script.md) · [live demo guide](docs/live-demo.md) ·
 [runbook (live mode)](docs/runbook.md) · [infrastructure](docs/infrastructure.md) · [demo data](data/README.md)
 

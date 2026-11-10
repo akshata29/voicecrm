@@ -1,6 +1,6 @@
 /**
  * Axios client for /api/v1 with one namespace per domain (configApi, ingestApi, conversationsApi, policiesApi,
- * catalogueApi, crmApi, evalApi, metricsApi, vaultApi, liveApi). With VITE_USE_MOCK=1 an in-browser adapter serves
+ * catalogueApi, crmApi, evalApi, metricsApi, vaultApi, liveApi, demoApi). With VITE_USE_MOCK=1 an in-browser adapter serves
  * canned data from ./mock instead of the network (npm run dev:mock).
  */
 import axios, { type AxiosInstance, type AxiosProgressEvent, type AxiosRequestConfig } from 'axios';
@@ -16,6 +16,8 @@ import type {
   CrmHealth,
   CrmRow,
   DeletedCount,
+  DemoCounts,
+  DemoData,
   EvalRun,
   EvalRunRequest,
   FixtureInfo,
@@ -41,6 +43,9 @@ import type {
   SummaryTemplate,
   SweepResponse,
   Taxonomy,
+  TeamsHistory,
+  TeamsImportItem,
+  TeamsImportResult,
   TeamsPollResult,
   TeamsStatus,
   TranscriptResponse,
@@ -200,6 +205,10 @@ export const teamsApi = {
   status: () => get<TeamsStatus>('/sources/teams'),
   /** Look for new transcripts now instead of waiting for the next scheduled poll. */
   poll: () => post<TeamsPollResult>('/sources/teams/poll'),
+  /** The transcripts the organisers still have from the last `days` days (nothing is ingested). */
+  history: (days: number) => get<TeamsHistory>('/sources/teams/history', { params: { days } }),
+  /** Run the pipeline on transcripts picked from `history`, without waiting for a live meeting. */
+  importTranscripts: (items: TeamsImportItem[]) => post<TeamsImportResult>('/sources/teams/import', { items }),
 };
 
 export const vaultApi = {
@@ -217,4 +226,11 @@ export const liveApi = {
   /** Removes every call a load test created (inbox, vault, state store and the local CRM simulator). */
   clear: () => del<DeletedCount>('/live/load/calls'),
   preflight: (only?: PreflightProbe[]) => post<PreflightResponse>('/live/preflight', only ? { only } : {}),
+};
+
+/** Demo housekeeping on the Live demo page: what a reset would remove, and the reset itself. */
+export const demoApi = {
+  data: () => get<DemoData>('/demo/data'),
+  /** Removes every call, CRM row the pipeline wrote, vault copy, learned alias, evaluation run and saved policy change. */
+  reset: () => post<DemoCounts>('/demo/reset', { confirm: true }),
 };

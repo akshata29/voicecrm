@@ -18,7 +18,7 @@ from .. import __version__
 from ..config import REPO_ROOT, get_settings
 from ..container import Container, build_container
 from ..pipeline.service import PipelineError
-from .routes import conversations, crm, ingest, live, meta, metrics, policies, teams
+from .routes import conversations, crm, demo, ingest, live, meta, metrics, policies, teams
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ def create_app(container: Container | None = None) -> FastAPI:
         return JSONResponse(status_code=exc.status, content={"detail": str(exc)})
 
     for router in (meta.router, ingest.router, conversations.router, policies.router, crm.router, metrics.router,
-                   teams.router, live.router):
+                   teams.router, live.router, demo.router):
         app.include_router(router, prefix="/api/v1")
 
     spa = _spa_dir(container.settings.spa_dir)
