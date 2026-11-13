@@ -1,0 +1,16 @@
+{
+  "scenario": "phone-call",
+  "title": "Harborview Pension Fund: expense ratio follow-up (a call to the phone line)",
+  "shows": "A short inbound call used to capture the phone-line screenshots (tools/capture_phone.py).",
+  "call_type": "follow_up",
+  "seller": {"name": "Aisha West", "voice": "en-US-AriaNeural"},
+  "customer": {"name": "Dana Whitfield", "voice": "en-US-JennyNeural"},
+  "turns": [
+    {"speaker": "customer", "text": "Hi Aisha, it's Dana Whitfield at Harborview Pension Fund. I'm calling about the Contoso Equity Income Fund."},
+    {"speaker": "seller", "text": "Hi Dana, thanks for calling. What would you like to know about the fund?"},
+    {"speaker": "customer", "text": "Could you send me the expense ratio comparison by Monday? Our committee meets next week."},
+    {"speaker": "seller", "text": "Of course. I'll email the expense ratio comparison to you by Monday, and I'll set up a review call for next week."},
+    {"speaker": "customer", "text": "That works for me. Thank you, Aisha."},
+    {"speaker": "seller", "text": "My pleasure, Dana. Have a good afternoon."}
+  ]
+}

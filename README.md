@@ -9,17 +9,18 @@ transcript retention switchable **per market**.
 > **All data is synthetic**: the product catalogue, calls, CRM seed, policies and prices are illustrative, not any real firm's.
 > Everything runs on mock or local adapters by default (see the *Mock* chips in the screenshots). Azure Speech, Azure AI
 > Language and a Foundry model **have been run live** (speech to text, privacy filter and extraction, up to 800 calls in one
-> burst: [docs/live-demo.md](docs/live-demo.md)), and live Microsoft Teams ingestion has processed a real scheduled meeting from
-> Microsoft Graph into a CRM-matched proposal; Dataverse, Blob, AI Search, Zoom and Genesys are implemented and unit-tested
-> against mocked HTTP only.
+> burst: [docs/live-demo.md](docs/live-demo.md)), live Microsoft Teams ingestion has processed a real scheduled meeting from
+> Microsoft Graph into a CRM-matched proposal, and a **phone line** on Azure Communication Services has answered, recorded and
+> ingested real browser-placed calls ([docs/phone-line.md](docs/phone-line.md)); Dataverse, Blob, AI Search, Zoom and Genesys are
+> implemented and unit-tested against mocked HTTP only.
 
 | At a glance | |
 |---|---|
 | **Stack** | Python 3.11, FastAPI, Pydantic v2 - React 18, TypeScript, Vite, Tailwind, TanStack Query - SQLite for demo state |
-| **Behind ports** (a mock and a live adapter each) | Azure Speech, AI Foundry model, AI Search, AI Language (PII), Blob storage, Dynamics 365 / Dataverse |
+| **Behind ports** (a mock and a live adapter each) | Azure Speech, AI Foundry model, AI Search, AI Language (PII), Blob storage, Dynamics 365 / Dataverse; Azure Communication Services (phone calls: a fake and a live adapter) |
 | **Runs with** | no Azure account: a mock transcriber that replays scripted calls, a rules engine, local PII rules, a SQLite CRM simulator, a local vault |
 | **Demo data** | 18 scripted calls with gold labels (EN/ES; Teams, Zoom, Genesys, mobile), 1,395 synthetic products in 326 fund families and 8 share classes, 20 topics, 2 summary templates, 3 market policies |
-| **Checks** | 1,564 backend tests, frontend typecheck and build, lint |
+| **Checks** | 1,826 backend tests, frontend typecheck and build, lint |
 
 [Screens](#screens) · [What it demonstrates](#what-it-demonstrates) · [Architecture](#architecture) ·
 [How a call flows](#how-a-call-flows) · [Decision logic](#decision-logic) · [Data contract](#data-contract) ·
@@ -125,7 +126,7 @@ instrumentation, not Azure's speed). On real services 800 calls took 172 s (abou
 ### Run the live scenarios from the browser
 
 The **Live demo** page (second item in the sidebar) runs scenarios A and C against the real services with no command line, and
-checks B. Both captures below are from live Azure Speech, Azure AI Language and a Foundry model (`chat54mini`, a
+checks B and D. Both captures below are from live Azure Speech, Azure AI Language and a Foundry model (`chat54mini`, a
 `gpt-5.4-mini` deployment, on a demo tenant with Entra auth), taken by [`tools/capture_live_demo.py`](tools/capture_live_demo.py).
 See [docs/live-demo.md](docs/live-demo.md), section 1.
 
@@ -149,6 +150,15 @@ removed in one click from the Inbox, the vault, the state store and the CRM simu
 **B: a Teams meeting.** The page checks the tenant setup with the same probes as `scripts\teams_check.bat`, shows the live ingestion
 card, lists the meetings the organisers held in the last 30 days (up to 90) so you can import one without holding a new meeting,
 and rehearses the flow with a clearly labelled *simulated* Teams call until the tenant is ready.
+
+**D: a phone call.** A dial pad in the browser calls the VoiceCRM line over Azure Communication Services. The line answers, plays
+the recording notice, rings the seller (a console in a second tab, or Teams), records both sides on **separate channels**, and a
+few seconds after the call ends the recording is in the Inbox with every word attributed to the caller or the seller by channel,
+matched to the CRM and ready for review. The page checks the setup, shows each call's state with a timeline, and takes voicemail
+when nobody answers; a call in which nobody speaks is shown as missed and is not sent on. A real 1-800 number plugs into the
+same code once the tenant can order one. Setup, security and the runbook: [docs/phone-line.md](docs/phone-line.md); a guided run
+with a screenshot at every step:
+[walkthrough part 7](docs/walkthrough.md#7-scenario-d-a-phone-call-to-the-voicecrm-line).
 
 ### Governance as configuration
 
@@ -480,7 +490,7 @@ CLI, without the UI (run from `backend\`):
 Checks and screenshots:
 
 ```bat
-scripts\test_all.bat                                   rem pytest (1,564 tests) + frontend typecheck and build
+scripts\test_all.bat                                   rem pytest (1,826 tests) + frontend typecheck and build
 .venv\Scripts\python.exe -m ruff check backend tools --config backend\pyproject.toml
 .venv\Scripts\python.exe -m pip install playwright     rem tooling only: uses the installed Chrome or Edge
 .venv\Scripts\python.exe tools\capture_screenshots.py  rem regenerate docs\screenshots (needs frontend\dist)
@@ -491,7 +501,7 @@ scripts\check_public.bat                               rem before every push: fa
 
 ## Live demo
 
-[docs/live-demo.md](docs/live-demo.md) is the step-by-step guide for three real scenarios, with the numbers measured against
+[docs/live-demo.md](docs/live-demo.md) is the step-by-step guide for the real scenarios, with the numbers measured against
 a real Azure account:
 
 | | Scenario | Tooling | Verified |
@@ -499,9 +509,10 @@ a real Azure account:
 | A | play a call -> Azure Speech -> Azure Language -> a Foundry model | **Live demo page**; `scripts\make_audio.bat`, `scripts\rehearse_audio.bat` | live: WER 1-1.5%, topics and tasks 100%, 0 leaks |
 | B | a Teams meeting ends and lands in the review queue by itself (Microsoft Graph, poll or webhook) | **Live demo page** (check, status, import of earlier meetings, simulated rehearsal); `scripts\teams_check.bat`, `scripts\crm_add.bat`, `scripts\make_meeting_audio.bat` (eight scenario calls to play into the meeting), `scripts\rehearse_audio.bat --meeting` | live on a demo tenant: a real scheduled meeting was listed by Graph (within 8 min), downloaded and turned into a CRM-matched proposal (2026-11-06); the eight recordings scored live through Speech, Language and the model (topics and tasks 100%, 0 leaks, WER 1.8%); webhook mode and multi-speaker transcripts not run live |
 | C | 800 calls at once | **Live demo page**; `scripts\run_bulk_backend.bat`, `scripts\bulk_load.bat` | live: 800 calls in ~3 min, $5.91, 0 failures (800K-TPM `gpt-5.4-mini`) |
+| D | a phone call to the VoiceCRM line, recorded on separate channels (Azure Communication Services) | **Live demo page** (readiness check, dial pad, seller console, call timeline); `scripts\run_phone_tunnel.bat`, `scripts\phone_check.bat` ([docs/phone-line.md](docs/phone-line.md)) | live on a demo tenant: answered, recorded and ingested with caller and seller labelled by channel, voicemail, and a dropped caller; a person answering in Teams and a real phone number not run |
 
 ```bat
-scripts\preflight.bat --burst 16     rem validates .env and probes every live service for real; marks A, B, C READY or not
+scripts\preflight.bat --burst 16     rem validates .env and probes every live service for real; marks A, B, C, D READY or not
 ```
 
 The same check runs from the browser: **Live demo -> Check services now**. A run started there (`/api/v1/live/load`) goes through the
@@ -538,7 +549,8 @@ check what is actually live in the top bar, `GET /api/v1/config`, or `voicecrm.c
 the app refuses to start when a requested live service is incomplete.
 
 Channels: **Teams** has live ingestion through Microsoft Graph (poll or webhook; see [docs/live-demo.md](docs/live-demo.md),
-scenario B). The **Zoom** and **Genesys** webhook endpoints and parsers exist, but their credentials and downloads are not wired in
+scenario B), and the **phone** channel has live ingestion through Azure Communication Services ([docs/phone-line.md](docs/phone-line.md)).
+The **Zoom** and **Genesys** webhook endpoints and parsers exist, but their credentials and downloads are not wired in
 this MVP. Each channel can still be driven with a file upload or the simulator through exactly the same pipeline. What each
 needs to go live is in the runbook.
 
@@ -558,18 +570,19 @@ authentication in front). Resources, RBAC, parameters, cost drivers and the secu
 
 ```
 backend/voicecrm/   domain -> ports -> engines -> adapters -> pipeline -> api, plus container.py, cli.py, eval/, store/
-backend/tests/      engines, adapters, api, pipeline, eval, domain (1,564 tests)
+backend/tests/      engines, adapters, api, pipeline, eval, domain (1,826 tests)
 data/               synthetic catalogue, taxonomy, templates, policies, pricing, CRM seed, scripted calls
 frontend/           React + TypeScript UI (inbox, live demo, review, sources, capture, policies, catalogue, CRM, scoreboard)
 infra/              Bicep modules + azd (Dockerfile and azure.yaml are at the root)
-scripts/            Windows helpers: setup, run, seed, test, deploy, plus preflight, make_audio, make_meeting_audio, rehearse_audio, run_bulk_backend, bulk_load, teams_check, crm_add
+scripts/            Windows helpers: setup, run, seed, test, deploy, plus preflight, make_audio, make_meeting_audio, rehearse_audio, run_bulk_backend, bulk_load, teams_check, phone_check, run_phone_tunnel, crm_add
 tools/              generators (catalogue, diagram, screenshots, walkthrough captures, call audio, meeting audio) and dev helpers (bulk_load, live_check, capture_live_demo, check_public, env_set, eval_diff, dataverse_bootstrap, ...)
 docs/               walkthrough, architecture, API contract, demo script, live demo guide, runbook, infrastructure, diagrams, screenshots
 ```
 
 Documents: [walkthrough](docs/walkthrough.md) · [architecture](docs/architecture.md) ·
 [API contract](docs/api-contract.md) · [demo script](docs/demo-script.md) · [live demo guide](docs/live-demo.md) ·
-[runbook (live mode)](docs/runbook.md) · [infrastructure](docs/infrastructure.md) · [demo data](data/README.md)
+[phone line](docs/phone-line.md) · [runbook (live mode)](docs/runbook.md) · [infrastructure](docs/infrastructure.md) ·
+[demo data](data/README.md)
 
 ## Guardrails
 
@@ -594,6 +607,11 @@ Documents: [walkthrough](docs/walkthrough.md) · [architecture](docs/architectur
   app registration with admin consent and an application access policy; Graph publishes a transcript some minutes after the
   meeting ends (within 8 minutes in our run): it is not a live stream, and it covers scheduled meetings, not "Meet now". Live
   use of the rest needs accounts, admin consent and a first supervised write.
+- **The phone line has run live on browser-placed calls only.** A call from the dial pad was answered, recorded on separate
+  channels and ingested on a demo tenant, as were a voicemail and a caller whose browser died mid-call; ACS accepted the invitation
+  to a Teams seller, but a person answering in a Teams client was not exercised. There is **no real phone number**: the demo
+  tenant could not order one (identity verification and a wallet are missing), so "dial 1-800" is a dial pad until a Teams Phone
+  service number is connected ([docs/phone-line.md](docs/phone-line.md), section 7). ACS usage is not metered in the cost view.
 - **Model quality is measured on a development set.** With a real model (hybrid engine, gpt-4.1 family) the 18-call set scores
   topics P 88-100% / R 100% and tasks 94%, and gpt-5.4-mini topics F1 94.2% and tasks P 94.6% / R 100%, but
   the engines and prompts were tuned while looking at it; real accuracy has to be measured on customer calls. The rules engine

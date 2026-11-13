@@ -43,6 +43,7 @@ processing:
     teams: [platform, azure_speech]
     zoom: [azure_speech, platform]
     genesys: [platform, azure_speech]
+    phone: [azure_speech]                  # the phone line records both sides; Azure Speech transcribes each channel
     mobile: [azure_speech]
     upload: [platform, azure_speech]
   default_template_by_business_line:

@@ -16,6 +16,7 @@ import {
   ingestApi,
   liveApi,
   metricsApi,
+  phoneApi,
   policiesApi,
   teamsApi,
   vaultApi,
@@ -30,6 +31,7 @@ import type {
   LoadRequest,
   MarketPolicy,
   NotesPolicy,
+  PhoneStatus,
   PoliciesResponse,
   PreflightProbe,
   ProcessingPolicy,
@@ -64,6 +66,7 @@ export const qk = {
   metrics: ['metrics'] as const,
   pipelineStats: ['pipeline', 'stats'] as const,
   teams: ['sources', 'teams'] as const,
+  phone: ['sources', 'phone'] as const,
   load: ['live', 'load'] as const,
   loadEstimate: (body: LoadRequest | null) => ['live', 'load-estimate', body] as const,
   demoData: ['demo', 'data'] as const,
@@ -229,6 +232,24 @@ export function useImportTeams() {
   return useMutation({
     mutationFn: (items: TeamsImportItem[]) => teamsApi.importTranscripts(items),
     onSuccess: () => refreshAfterConversationChange(client),
+  });
+}
+
+/**
+ * The phone line, every 2 s: a call moves through its states within seconds and the operator watches it happen. When the
+ * count of ingested calls grows, a recording has become a conversation, so everything that lists conversations refreshes.
+ */
+export function usePhoneStatus() {
+  const client = useQueryClient();
+  return useQuery({
+    queryKey: qk.phone,
+    queryFn: async () => {
+      const next = await phoneApi.status();
+      const previous = client.getQueryData<PhoneStatus>(qk.phone);
+      if (previous && next.ingested > previous.ingested) refreshAfterConversationChange(client);
+      return next;
+    },
+    refetchInterval: 2000,
   });
 }
 

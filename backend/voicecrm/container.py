@@ -87,6 +87,8 @@ class Container:
     index: CatalogueIndex
     llm: LlmPort | None = None
     teams: Any | None = None                          # TeamsIngestor when VOICECRM_TEAMS_MODE is poll | webhook
+    phone: Any | None = None                          # PhoneLine when VOICECRM_PHONE_MODE is acs
+    _ingress: Any | None = None                       # the phone ingress listener (webhooks only), started with the phone line
     _data: DataBundle | None = None
     _temp_dir: Path | None = None
     _crm_owned: bool = True
@@ -117,12 +119,24 @@ class Container:
             logger.warning("catalogue search index could not be initialised", exc_info=True)
         if self.teams is not None:
             self.teams.start()
+        if self.phone is not None:
+            await self.phone.start()
+            if self.phone.tel is not None and self.settings.phone_ingress_port > 0:
+                from .api.phone_ingress import IngressServer, create_ingress_app
+
+                self._ingress = IngressServer(create_ingress_app(self), host=self.settings.phone_ingress_host,
+                                              port=self.settings.phone_ingress_port)
+                self.phone.ingress_listening = await self._ingress.start()
 
     async def shutdown(self) -> None:
         if self._load is not None:
             await self._load.aclose()
         if self.teams is not None:
             await self.teams.stop()
+        if self._ingress is not None:
+            await self._ingress.stop()
+        if self.phone is not None:
+            await self.phone.aclose()
         await self.service.drain()
         for adapter in (self.deps.transcription, self.deps.pii, self.deps.crm, self.deps.vault, self.search, self.llm):
             closer = getattr(adapter, "aclose", None)
@@ -278,6 +292,36 @@ def build_container(settings: Settings | None = None) -> Container:
         from .pipeline.teams_live import TeamsIngestor
 
         teams = TeamsIngestor.from_settings(service, settings)
+    phone = _build_phone(settings, service, teams, credential) if settings.phone_mode != "off" else None
     return Container(settings=settings, modes=modes, deps=deps, service=service, policy_store=policies,
                      scripted_calls=data.scripted_calls, search=search, index=data.index, llm=llm, _data=data,
-                     teams=teams, _closers=[credential] if credential is not None else [])
+                     teams=teams, phone=phone, _closers=[credential] if credential is not None else [])
+
+
+def _build_phone(settings: Settings, service: PipelineService, teams: Any | None, credential: Any | None) -> Any:
+    """The phone line: ACS call control, the Teams directory for the seller's name, and the shared Entra credential."""
+    from .pipeline.phone_live import DirectoryUser, PhoneLine
+
+    missing = settings.phone_missing()
+    state_file = settings.state_dir / "phone_state.json"
+    if missing:
+        problem = "missing settings: " + ", ".join("VOICECRM_" + name.upper() for name in missing)
+        return PhoneLine(service, None, settings=settings, state_file=state_file, problem=problem)
+    from .adapters.telephony.acs import AcsTelephony
+
+    owns = False
+    if not settings.phone_acs_connection_string and credential is None:
+        from .adapters.credentials import build_credential
+
+        credential, owns = build_credential(settings.azure_tenant_id or None), True
+    telephony = AcsTelephony(endpoint=settings.phone_acs_endpoint or None,
+                             connection_string=settings.phone_acs_connection_string or None,
+                             credential=None if settings.phone_acs_connection_string else credential, owns_credential=owns)
+
+    async def directory(ident: str) -> DirectoryUser | None:
+        if teams is None:
+            return None
+        user_id, name, email = await teams.lookup_user(ident)
+        return DirectoryUser(user_id, name, email)
+
+    return PhoneLine(service, telephony, settings=settings, state_file=state_file, directory=directory)

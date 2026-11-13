@@ -44,7 +44,8 @@ class Check:
 # ---------------------------------------------------------------------------------------------------- helpers
 def secrets_of(settings: Settings) -> list[str]:
     values = [settings.speech_key, settings.foundry_key, settings.language_key, settings.search_key, settings.zoom_webhook_secret]
-    values += [getattr(settings, name, "") for name in ("teams_client_secret", "teams_client_state")]
+    values += [getattr(settings, name, "") for name in ("teams_client_secret", "teams_client_state", "phone_webhook_secret",
+                                                        "phone_acs_connection_string")]
     return [v for v in values if v and len(v) >= 8]
 
 
@@ -139,6 +140,8 @@ def check_config(settings: Settings) -> list[Check]:
                                           not settings.teams_client_state)) if bad]
             checks.append(Check("config: teams webhook", "fail" if problems else "pass", base or "no public URL",
                                 "; ".join(problems)))
+    if settings.phone_mode != "off":
+        checks.extend(_phone_config(settings))
     if azure_live:
         keys = {"transcription": settings.speech_key, "llm": settings.foundry_key, "pii": settings.language_key,
                 "search": settings.search_key}
@@ -178,6 +181,39 @@ def check_config(settings: Settings) -> list[Check]:
             else "warn" if problems else "pass"
         checks.append(Check(f"config: {service} endpoint", status, host or url, "; ".join(problems)))
     return checks
+
+
+_PHONE_SETTING = {"phone_acs_endpoint": "VOICECRM_PHONE_ACS_ENDPOINT (or VOICECRM_PHONE_ACS_CONNECTION_STRING)",
+                  "phone_public_base_url": "VOICECRM_PHONE_PUBLIC_BASE_URL", "phone_webhook_secret": "VOICECRM_PHONE_WEBHOOK_SECRET"}
+
+
+def _phone_config(settings: Settings) -> list[Check]:
+    """The phone line's settings, judged without calling anything."""
+    missing = settings.phone_missing()
+    out = [Check("config: phone line", "fail" if missing else "pass",
+                 f"VOICECRM_PHONE_MODE={settings.phone_mode}" + (f"; missing {', '.join(_PHONE_SETTING[m] for m in missing)}" if missing else ""),
+                 "set them in .env (docs/phone-line.md, setup)" if missing else "")]
+    endpoint = settings.phone_acs_endpoint.strip()
+    if endpoint:
+        host = _host(endpoint)
+        if _PLACEHOLDER.search(endpoint) or not host.endswith(".communication.azure.com"):
+            out.append(Check("config: phone endpoint", "fail", host or endpoint,
+                             "expected https://<resource>.<geo>.communication.azure.com (Communication Services > Overview)"))
+    base = settings.phone_public_base_url.strip()
+    if base and not base.lower().startswith("https://"):
+        out.append(Check("config: phone public URL", "fail", base,
+                         "Event Grid and Call Automation only call https URLs: use the dev tunnel's https address"))
+    if settings.phone_webhook_secret and len(settings.phone_webhook_secret) < 16:
+        out.append(Check("config: phone webhook secret", "warn", f"{len(settings.phone_webhook_secret)} characters",
+                         "the secret is part of the Event Grid URL: use at least 24 random characters"))
+    if settings.phone_ingress_port == 0:
+        out.append(Check("config: phone ingress", "warn", "VOICECRM_PHONE_INGRESS_PORT=0: the ingress listener is off",
+                         "the webhooks are then only on the API port, which must never be put on the internet"))
+    if settings.phone_require_notice and not settings.phone_cognitive_endpoint.strip():
+        out.append(Check("config: phone notice", "fail", "the recording notice is required but cannot be spoken",
+                         "set VOICECRM_PHONE_COGNITIVE_ENDPOINT to the Foundry endpoint (and give the Communication Services "
+                         "identity the Cognitive Services User role on it), or set VOICECRM_PHONE_REQUIRE_NOTICE=false"))
+    return out
 
 
 # ---------------------------------------------------------------------------------------------------- live probes
@@ -398,6 +434,30 @@ async def probe_teams(settings: Settings) -> list[Check]:
     return checks
 
 
+# ---------------------------------------------------------------------------------------------------- phone
+async def probe_phone(c: Container) -> list[Check]:
+    """The phone line's own self-check: Communication Services access, the public URL, the seller and the recording notice."""
+    line = c.phone
+    if line is None:
+        return [Check("phone: line", "fail", "the phone line is not running",
+                      "set VOICECRM_PHONE_MODE=acs and the VOICECRM_PHONE_* settings in .env, then restart the app")]
+    started = time.perf_counter()
+    try:
+        results = await asyncio.wait_for(line.checks(), 90)
+    except Exception as exc:
+        message = redact(f"{type(exc).__name__}: {exc}".replace("\n", " "), c.settings)[:300]
+        return [Check("phone: line", "fail", message, hint_for(message, c.settings), time.perf_counter() - started)]
+    checks = [Check(name, status, redact(detail, c.settings)[:300], hint) for name, status, detail, hint in results]
+    worst: Status = "fail" if any(ch.status == "fail" for ch in checks) else "warn" if any(ch.status == "warn" for ch in checks) else "pass"
+    summary = ("Communication Services access, public URL, seller and recording notice" if worst == "pass"
+               else "see the steps above")
+    seller = next((ch for ch in checks if ch.name == "phone: seller"), None)
+    if worst == "pass" and seller is not None:
+        summary += f"; {seller.detail}"
+    checks.append(Check("phone: line", worst, summary, "", time.perf_counter() - started))
+    return checks
+
+
 # ---------------------------------------------------------------------------------------------------- burst
 async def _burst(name: str, n: int, call: Callable[[], Awaitable[object]], settings: Settings) -> Check:
     """N concurrent calls: how many succeed and how long they take (a quick look at throttling before a bulk run)."""
@@ -447,15 +507,16 @@ async def burst_checks(c: Container, n: int, wav: bytes | None) -> list[Check]:
 
 
 # ---------------------------------------------------------------------------------------------------- driver
-ALL_PROBES = ("speech", "language", "model", "search", "vault", "crm", "teams")
+ALL_PROBES = ("speech", "language", "model", "search", "vault", "crm", "teams", "phone")
 
 
 async def run_preflight(settings: Settings, *, burst: int = 0, only: set[str] | None = None,
                         container: Container | None = None) -> list[Check]:
     """Probes the live services. With `container` (the API's own) it checks what is actually running and leaves it open."""
     checks = check_config(settings)
-    # a broken Teams setup must not stop the Azure probes, so its config failures are handled by the teams probe itself
-    if any(ch.status == "fail" for ch in checks if ch.name.startswith("config") and not ch.name.startswith("config: teams")):
+    # a broken Teams or phone setup must not stop the Azure probes, so their config failures are handled by their own probes
+    if any(ch.status == "fail" for ch in checks
+           if ch.name.startswith("config") and not ch.name.startswith(("config: teams", "config: phone"))):
         checks.append(Check("live probes", "skip", "fix the configuration first"))
         return checks
     owned = container is None
@@ -488,6 +549,11 @@ async def run_preflight(settings: Settings, *, burst: int = 0, only: set[str] | 
                                     "fix the 'config: teams' lines above"))
             else:
                 checks.extend(await probe_teams(settings))
+        if "phone" in wanted and settings.phone_mode != "off":
+            if any(ch.status == "fail" for ch in checks if ch.name.startswith("config: phone")):
+                checks.append(Check("phone: line", "fail", "the phone settings are incomplete", "fix the 'config: phone' lines above"))
+            else:
+                checks.extend(await probe_phone(probed))
         if burst > 0:
             checks.extend(await burst_checks(probed, burst, wav))
     finally:
@@ -497,7 +563,7 @@ async def run_preflight(settings: Settings, *, burst: int = 0, only: set[str] | 
 
 
 def readiness(checks: list[Check], settings: Settings) -> list[tuple[str, str, str]]:
-    """(scenario, verdict, why) for the three live demo scenarios, derived from the checks."""
+    """(scenario, verdict, why) for the four live demo scenarios, derived from the checks."""
     by = {ch.name: ch for ch in checks}
 
     def state(*names: str) -> tuple[str, str]:
@@ -516,8 +582,14 @@ def readiness(checks: list[Check], settings: Settings) -> list[tuple[str, str, s
         teams = state("teams: Graph access") if "teams: Graph access" in by else ("NOT READY", "teams not probed")
         if teams[0] == "READY":
             teams = "READY", by["teams: Graph access"].detail      # says what was proven, e.g. that the download is untested
+    phone = "NOT CONFIGURED", "set VOICECRM_PHONE_* (see docs/phone-line.md)"
+    if getattr(settings, "phone_mode", "off") != "off":
+        needed = ["phone: line"] + (["speech: transcription"] if "speech: transcription" in by else [])
+        phone = state(*needed) if "phone: line" in by else ("NOT READY", "phone not probed")
+        if phone[0] == "READY":
+            phone = "READY", by["phone: line"].detail
     return [("A  audio -> Speech -> Language -> model", *a), ("B  Teams call -> VoiceCRM", *teams),
-            ("C  bulk run (hundreds of calls)", *c_state)]
+            ("C  bulk run (hundreds of calls)", *c_state), ("D  phone call -> VoiceCRM", *phone)]
 
 
 def format_checks(checks: list[Check]) -> str:

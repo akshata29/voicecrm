@@ -96,7 +96,7 @@ def test_the_service_check_probes_what_is_running_and_scores_each_scenario(clien
     body = client.post(f"{API}/live/preflight", json={"only": ["crm"]}).json()
     names = {check["name"]: check for check in body["checks"]}
     assert names["crm: health"]["status"] == "pass" and "simulator" in names["crm: health"]["detail"]
-    assert [item["scenario"][:1] for item in body["readiness"]] == ["A", "B", "C"]
+    assert [item["scenario"][:1] for item in body["readiness"]] == ["A", "B", "C", "D"]
     assert all(item["verdict"] in ("READY", "NOT READY", "NOT CONFIGURED") for item in body["readiness"])
     assert body["seconds"] >= 0
     assert client.post(f"{API}/live/preflight", json={}).status_code == 200
@@ -106,6 +106,13 @@ def test_the_teams_check_says_how_to_turn_teams_on_when_it_is_off(client: TestCl
     body = client.post(f"{API}/live/preflight", json={"only": ["teams"]}).json()
     assert [(c["name"], c["status"]) for c in body["checks"]] == [("teams: Graph access", "skip")]
     assert "VOICECRM_TEAMS_MODE=poll" in body["checks"][0]["hint"]
+
+
+def test_the_phone_check_says_how_to_turn_the_line_on_when_it_is_off(client: TestClient):
+    body = client.post(f"{API}/live/preflight", json={"only": ["phone"]}).json()
+    assert [(c["name"], c["status"]) for c in body["checks"]] == [("phone: line", "skip")]
+    assert "VOICECRM_PHONE_MODE=acs" in body["checks"][0]["hint"]
+    assert body["readiness"][3]["verdict"] == "NOT CONFIGURED" and "docs/phone-line.md" in body["readiness"][3]["why"]
 
 
 def test_unknown_probes_are_rejected(client: TestClient):

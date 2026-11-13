@@ -3,11 +3,11 @@
 Removed: every conversation (with its stage events, usage and review feedback), every vault copy, what the pipeline wrote to
 the local CRM simulator (phone calls, tasks, insights), learned aliases, evaluation runs, and the policy changes saved from the
 Policies page. The in-memory figures that describe those calls (pipeline throughput, the last load-test report, the Teams
-status card) are cleared with them.
+status card, the phone line's finished calls) are cleared with them.
 
 Kept: the catalogue, taxonomy and templates; the CRM seed (accounts, contacts and opportunities, including contacts added with
-`crm-add`); the recordings under data/audio; .env; and which Teams meetings were already ingested, so a reset does not bring
-them back.
+`crm-add`); the recordings under data/audio; .env; and which Teams meetings and phone events were already handled, so a reset
+does not bring them back.
 
 Safeguards: it only runs against the local CRM simulator (a real Dataverse is never touched), never while calls are being
 processed or a load test is running, and the API needs an explicit `confirm`.
@@ -102,6 +102,8 @@ async def reset(c: Container) -> DemoCounts:
     c.load.forget()
     if c.teams is not None:
         c.teams.forget()
+    if c.phone is not None:
+        c.phone.forget()
 
     removed = DemoCounts(
         conversations=stored["conversations"], crm_phone_calls=crm.get("phonecalls", 0), crm_tasks=crm.get("tasks", 0),

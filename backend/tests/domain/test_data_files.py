@@ -25,7 +25,7 @@ from voicecrm.domain.taxonomy import Taxonomy
 from voicecrm.domain.templates import SummaryTemplate
 from voicecrm.eval.data_checks import BUSINESS_LINES, check_all
 
-CHANNELS = {"teams", "zoom", "genesys", "mobile", "upload"}
+CHANNELS = {"teams", "zoom", "genesys", "mobile", "phone", "upload"}
 
 
 @pytest.fixture(scope="module")

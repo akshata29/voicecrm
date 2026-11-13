@@ -44,6 +44,7 @@ const ORIGIN_BY_CHANNEL: Record<Channel, TranscriptOrigin> = {
   teams: 'teams_platform',
   zoom: 'zoom_platform',
   genesys: 'genesys_platform',
+  phone: 'azure_speech',
   mobile: 'fixture',
   upload: 'fixture',
 };

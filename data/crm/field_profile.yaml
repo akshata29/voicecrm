@@ -111,7 +111,7 @@ custom:
       type: string
       max_length: 20
       display_name: Source system
-      description: teams, zoom, genesys, mobile or upload.
+      description: teams, zoom, genesys, mobile, phone or upload.
     - key: source_interaction_id
       schema_name: vcrm_SourceInteractionId
       type: string

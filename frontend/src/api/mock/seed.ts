@@ -153,6 +153,7 @@ export function defaultPolicies(): PoliciesResponse {
         teams: ['platform', 'azure_speech'],
         zoom: ['azure_speech', 'platform'],
         genesys: ['platform', 'azure_speech'],
+        phone: ['azure_speech'],
         mobile: ['azure_speech'],
         upload: ['platform', 'azure_speech'],
       },

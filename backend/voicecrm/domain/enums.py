@@ -13,6 +13,7 @@ class Channel(str, Enum):
     zoom = "zoom"
     genesys = "genesys"
     mobile = "mobile"
+    phone = "phone"                # the VoiceCRM phone line: Azure Communication Services answers and records the call
     upload = "upload"
 
 

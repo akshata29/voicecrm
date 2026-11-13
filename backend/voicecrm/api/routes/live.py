@@ -18,10 +18,12 @@ router = APIRouter()
 
 TEAMS_OFF = ("set VOICECRM_TEAMS_MODE=poll and the VOICECRM_TEAMS_* app settings in .env, then restart "
              "(see docs/live-demo.md, scenario B)")
+PHONE_OFF = ("set VOICECRM_PHONE_MODE=acs and the VOICECRM_PHONE_* settings in .env, then restart "
+             "(see docs/phone-line.md)")
 
 
 class PreflightRequest(BaseModel):
-    only: list[Literal["speech", "language", "model", "search", "vault", "crm", "teams"]] | None = None
+    only: list[Literal["speech", "language", "model", "search", "vault", "crm", "teams", "phone"]] | None = None
 
 
 class PreflightCheck(BaseModel):
@@ -81,6 +83,8 @@ async def load_clear(c: Container = Depends(get_container)) -> DeletedLoadCalls:
 def _relevant(name: str, wanted: set[str]) -> bool:
     if wanted == {"teams"}:
         return name.startswith(("teams", "config: teams", "live probes"))
+    if wanted == {"phone"}:
+        return name.startswith(("phone", "config: phone", "live probes"))
     return True
 
 
@@ -99,6 +103,8 @@ async def preflight(body: PreflightRequest, request: Request, c: Container = Dep
         state.preflight_running = False
     if "teams" in wanted and c.settings.teams_mode == "off" and body.only:
         checks.append(Check("teams: Graph access", "skip", "Teams live ingestion is off (VOICECRM_TEAMS_MODE=off)", TEAMS_OFF))
+    if "phone" in wanted and c.settings.phone_mode == "off" and body.only:
+        checks.append(Check("phone: line", "skip", "the phone line is off (VOICECRM_PHONE_MODE=off)", PHONE_OFF))
     shown: list[Check] = [ch for ch in checks if _relevant(ch.name, wanted)]
     return PreflightResponse(
         checks=[PreflightCheck(name=ch.name, status=ch.status, detail=ch.detail, hint=ch.hint, seconds=ch.seconds)

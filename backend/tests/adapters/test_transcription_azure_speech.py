@@ -19,7 +19,13 @@ from voicecrm.adapters.transcription.azure_speech import (
     AzureSpeechTranscriber,
 )
 from voicecrm.domain.enums import TranscriptOrigin
-from voicecrm.ports.transcription import AudioInput, TranscriptionPort, TranscriptionRequest
+from voicecrm.ports.transcription import (
+    NO_SPEECH_MESSAGE,
+    AudioInput,
+    NoSpeechError,
+    TranscriptionPort,
+    TranscriptionRequest,
+)
 
 ENDPOINT = "https://voicecrm-speech.cognitiveservices.azure.com"
 URL = f"{ENDPOINT}/speechtotext/transcriptions:transcribe"
@@ -268,14 +274,23 @@ async def test_retry_after_longer_than_the_cap_fails_fast(api, audio):
     assert route.call_count == 1
 
 
-async def test_language_identification_error_is_actionable(api, audio):
+async def test_language_identification_finding_nothing_means_there_was_no_speech(api, audio):
     error = {"code": "InvalidRequest", "message": "bad request",
              "innerError": {"code": "NoLanguageIdentified",
                             "message": "Language Identification did not recognize any language."}}
-    api.post(URL).mock(return_value=httpx.Response(400, json=error))
-    with pytest.raises(AzureSpeechError, match="NoLanguageIdentified.*multilingual") as info:
+    route = api.post(URL).mock(return_value=httpx.Response(422, json=error))
+    with pytest.raises(NoSpeechError) as info:
         await (await _transcriber()).transcribe(_request(audio))
-    assert info.value.status_code == 400 and not info.value.retryable
+    assert str(info.value) == NO_SPEECH_MESSAGE and "422" not in str(info.value)       # plain language, not the raw response
+    assert isinstance(info.value.__cause__, AzureSpeechError) and info.value.__cause__.status_code == 422
+    assert route.call_count == 1                                                        # never retried with a forced locale
+
+
+async def test_other_bad_requests_are_still_service_errors(api, audio):
+    api.post(URL).mock(return_value=httpx.Response(400, json={"error": {"code": "InvalidAudioFormat", "message": "no"}}))
+    with pytest.raises(AzureSpeechError, match="InvalidAudioFormat") as info:
+        await (await _transcriber()).transcribe(_request(audio))
+    assert not isinstance(info.value, NoSpeechError)
 
 
 @pytest.mark.parametrize("status,needle", [(401, "Cognitive Services Speech User"), (403, "access denied"),
@@ -309,6 +324,24 @@ async def test_stereo_separate_mode_labels_speakers_by_channel(api, tmp_path):
     assert [(s.speaker_id, s.text) for s in result.segments] == [
         ("S1", "Agent greeting."), ("S2", "Customer reply."), ("S1", "Overlap.")]
     assert result.raw["mode"] == "channels" and result.raw["stereo_merged_to_mono"] is False
+
+
+async def test_a_caller_that_knows_who_is_on_each_channel_gets_its_own_labels(api, tmp_path):
+    stereo = _wav(tmp_path / "stereo.wav", channels=2)
+    body = {"durationMilliseconds": 5000, "phrases": [
+        _phrase(None, 100, 900, "Thanks for calling.", channel=1),
+        _phrase(None, 1200, 900, "Hello, it is Dana.", channel=0),
+        _phrase(None, 2400, 500, "Could you send the factsheet?", channel=0),
+    ]}
+    route = api.post(URL).mock(return_value=httpx.Response(200, json=body))
+    request = _request(stereo, separate_channels=True, channel_speakers=["cust1", "seller"])
+    result = await (await _transcriber()).transcribe(request)
+    assert _definition(route.calls.last.request)["channels"] == [0, 1]
+    assert [(s.speaker_id, s.text) for s in result.segments] == [
+        ("seller", "Thanks for calling."), ("cust1", "Hello, it is Dana. Could you send the factsheet?")]    # same-speaker turns merge
+    partial = _request(stereo, separate_channels=True, channel_speakers=["cust1"])          # only channel 0 is named
+    labels = [s.speaker_id for s in (await (await _transcriber()).transcribe(partial)).segments]
+    assert labels == ["S2", "cust1"]                                                         # the other channel keeps a generic label
 
 
 async def test_mono_with_stereo_separate_still_uses_diarization(api, audio):

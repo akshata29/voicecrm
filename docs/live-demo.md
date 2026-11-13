@@ -1,6 +1,6 @@
-# Live demo guide: three real scenarios
+# Live demo guide: four real scenarios
 
-How to run the three live scenarios from the demo brief against real Azure services. Everything here is Windows, run from the
+How to run the live scenarios from the demo brief against real Azure services. Everything here is Windows, run from the
 repo root. It is set up on the **demo tenant** (section 1) and the numbers were measured there on
 2026-11-05; earlier measurements from the first Azure account are marked as such.
 
@@ -12,6 +12,7 @@ repo root. It is set up on the **demo tenant** (section 1) and the numbers were 
 | **A** | Play a call -> speech-to-text -> language service -> model -> review | Azure Speech, Azure AI Language, a Foundry model | **Verified live** on the demo tenant, ready |
 | **B** | A Teams call lands in VoiceCRM after it ends | Microsoft Graph, Teams transcription | **Verified live** end to end on 2026-11-06: a real scheduled meeting was listed by Graph, downloaded, and became a CRM-matched proposal (section 3.4) |
 | **C** | Hundreds of calls at once (800) | the same real services, in parallel | **Verified live** up to 300 calls on the demo tenant (800 is the same code at the model's quota, about 4-5 minutes), ready |
+| **D** | A phone call to the VoiceCRM line, recorded on separate channels | Azure Communication Services (Call Automation, recording, Event Grid), a dev tunnel, plus A's services for the transcript | **Verified live** on 2026-11-10 with browser-placed calls; no real phone number yet ([phone-line.md](phone-line.md)) |
 
 > **B is not literally real-time.** Microsoft Graph publishes a Teams transcript some minutes after the meeting ends, later than
 > the Teams chat shows it (listed within 8 minutes in the one run we measured; a Microsoft Q&A report says about 20; there is no guaranteed time), not as a stream. The
@@ -21,15 +22,17 @@ repo root. It is set up on the **demo tenant** (section 1) and the numbers were 
 
 ## Run it from the browser: the Live demo page
 
-Open **http://127.0.0.1:8010/live** (sidebar: *Live demo*, under the Inbox). A and C need no second terminal and no script; B
-gets its checks, its status card and a rehearsal. Restart the backend and run `npm run build` in `frontend` after pulling.
+Open **http://localhost:8010/live** (sidebar: *Live demo*, under the Inbox; use `localhost`, not `127.0.0.1`, so the browser calls in
+scenario D work). A and C need no second terminal and no script; B and D get their checks, their status cards and, for B, a
+rehearsal. Restart the backend and run `npm run build` in `frontend` after pulling.
 
 | Section | You do | You get |
 |---|---|---|
-| **Services behind these runs** | **Check services now** | which services are live or mock, then the probes of `scripts\preflight.bat` (a few tiny requests, under a cent) and READY / NOT READY for A, B and C with the fix for anything that fails |
+| **Services behind these runs** | **Check services now** | which services are live or mock, then the probes of `scripts\preflight.bat` (a few tiny requests, under a cent) and READY / NOT READY for A, B, C and D with the fix for anything that fails |
 | **A: play a recorded call** | pick a recording, play it, **Process with Azure** | the pipeline step by step, each with the service behind it and its duration; products, topics, tasks; the cost; one click to write it to the CRM; the redacted transcript |
 | **B: a Teams call** | **Check Teams setup**; watch the ingestion card; **Find meetings** and import an earlier one; **Simulate a Teams call** | the tenant checks with the fix for each failure; the live ingestion card; the meetings of the last 7 to 90 days listed and imported through the real pipeline on request; a rehearsal labelled *Simulated* |
 | **C: hundreds of calls** | calls (50 / 200 / 800 / your number), input, arrival, parallelism, auto-approve, **Start** | an estimate (tokens, list-price cost, time), a confirmation when billed services are live, a live board with the throughput card, then a report; **Remove load-test calls** |
+| **D: a phone call** | **Check phone setup**; switch on **Answer calls in this browser** (seller console); press **Call** on the dial pad | the readiness checks; each call's state with a timeline (answered, notice, recording, ringing, in call, ended, processing); the call in the Inbox a few seconds after it ends, with caller and seller labelled by channel; a call nobody spoke in is shown as *Missed* and is not sent on |
 | **Start clean** | **Reset demo data** (after a confirmation that lists what goes) | the calls, CRM rows, vault copies, learned product names, scoreboard runs and policy edits that earlier runs left behind are removed, so the next demo starts from an empty Inbox |
 
 ![Live demo, scenario A](screenshots/live-demo-audio.png)
@@ -54,11 +57,12 @@ What the page guards, so a click cannot surprise you:
 * **Parallelism** defaults to 32 when a live service is involved (or `VOICECRM_MAX_CONCURRENCY` if that is higher) and 16 on
   mocks; the run raises the privacy-filter client's concurrency to match and restores both afterwards.
 * **Reset demo data** (the last section, **Start clean**) clears everything earlier runs left in the app, not only load-test
-  calls: every conversation with its review history and cost, the vault copies, the phone calls, tasks and insights the pipeline
-  wrote to the CRM simulator, learned product names, scoreboard runs and the policy edits saved from the Policies page, plus the
-  in-memory throughput and load-test figures. It keeps the catalogue, topics and templates, the CRM accounts, contacts and
-  opportunities (including contacts you added with `crm-add`), your recordings in `data\audio`, and the list of Teams meetings
-  already ingested, so a reset does not bring them back (**Import earlier meetings** can, on request). A confirmation lists what will go, with counts. It never runs against
+  calls: every conversation with its review history and cost, the vault copies, the phone-call activities, tasks and insights the
+  pipeline wrote to the CRM simulator, learned product names, scoreboard runs and the policy edits saved from the Policies page,
+  plus the in-memory throughput and load-test figures and the Phone line card's finished calls. It keeps the catalogue, topics and
+  templates, the CRM accounts, contacts and opportunities (including contacts you added with `crm-add`), your recordings in
+  `data\audio`, and the lists of Teams meetings and phone events already handled, so a reset does not bring them back
+  (**Import earlier meetings** can, on request). A confirmation lists what will go, with counts. It never runs against
   a real Dataverse CRM, and it waits while calls are being processed or a load test is running (the card says so and
   re-checks every few seconds). The API is `GET /api/v1/demo/data` (the preview) and `POST /api/v1/demo/reset` with
   `{"confirm": true}`.
@@ -193,7 +197,7 @@ WebM/Opus; verified live that WebM, Ogg/Opus and MP3 all transcribe correctly (a
 upload any wav/mp3/m4a/ogg/webm on **Sources -> Upload**. Two people can read the whole hero call aloud (about 3 minutes) too:
 verified live through the real Record button (1.7% word error, every segment on the right speaker, review-ready 22 s after the
 upload). Fill in **Client organisation**, **Client name** and **Your name** first, or the CRM match fails. Step by step, with
-screenshots: [walkthrough.md](walkthrough.md), part 7.
+screenshots: [walkthrough.md](walkthrough.md), part 8.
 
 **Cost of one call, audio path (list prices):** speech $0.018 (3 minutes at $0.36/hour) + privacy filter $0.002 + model
 about $0.005 on `chat54mini` = **$0.026 measured** for the hero call (section 5).
@@ -571,6 +575,52 @@ What the numbers mean:
 
 ![A recorded call with its player](screenshots/live-audio.png)
 
+## Scenario D: a phone call to the VoiceCRM line
+
+A caller dials the line from a dial pad in the browser (a VoIP call over Azure Communication Services). The line answers, plays a
+recording notice, rings the seller, records **each party on its own channel**, and a few seconds after the call ends the
+recording is a conversation in the Inbox: every word is attributed to the caller or the seller by channel, matched to the CRM
+and waiting for review. Setup, architecture, security and troubleshooting are in [phone-line.md](phone-line.md); this is the
+demo run.
+
+**Before the demo** (once the line is set up):
+
+```bat
+scripts\run_phone_tunnel.bat                 rem the tunnel to the phone ingress (port 8011), in its own window
+scripts\run_backend.bat                      rem the app; it also starts the ingress
+scripts\phone_check.bat                      rem every step PASS, or the fix for the one that is not
+```
+
+Open **http://localhost:8010/live**, scenario D, and press **Check phone setup** (READY / NOT READY with the fix). Use
+`localhost`: the Calling SDK refuses `127.0.0.1`.
+
+**Run it** (two browser tabs, or two people):
+
+1. Tab 1, **Seller console**: switch on *Answer calls in this browser*. It shows *Online* and the Phone line card shows the seller.
+   Do this **before** dialling: with no console online the line takes a message instead of ringing anyone.
+2. Tab 2, **Call the VoiceCRM line**: set *Who is calling* (name, organisation, e-mail, phone; the defaults are the seed contact
+   Dana Whitfield, so the CRM match is by e-mail) and press **Call**.
+3. Watch the Phone line card: *Call received, Answered, Playing the recording notice, Recording started, Ringing, joined*. The
+   caller hears the notice first; nothing is recorded before it.
+4. Tab 1 rings. **Accept**, talk (headphones, or two computers), then **Hang up** on either side. Both tabs share one computer's
+   microphone, so mute the side that is not speaking (**Mute** on each), or answer in Teams on a second device.
+5. About 10 seconds later the call becomes a **Phone** conversation in the Inbox (*Processing*), and the Phone line card moves
+   to *ingested* once the pipeline has finished, about 15 seconds after that: speakers labelled by channel, the CRM account and
+   contact matched by e-mail, tasks and topics extracted, consent recorded.
+
+**Also worth showing:** switch the console off and call again (the line takes a message: only the caller's channel is
+transcribed, with a call-back number spoken in the message redacted; **speak after the prompt**, because a call in which nobody
+says anything is shown as *Missed* ("No speech in the recording") and is not sent on); or set `VOICECRM_PHONE_SELLER=teams:<user>`
+to ring a Teams user instead of the console.
+
+**What was measured (2026-11-10, demo tenant):** the call reached the line 3 to 9 seconds after pressing *Call* (the first call
+in a page also downloads the Calling SDK), the notice took about 9 seconds, the seller's console rang about 6 seconds after it
+was invited, the recording event arrived 3 to 6 seconds after hang-up, and the conversation was in the Inbox about 2 seconds
+after that. A caller whose browser was killed was noticed by ACS after about 70 seconds.
+
+**Honest limits:** there is no real 1-800 number (the demo tenant could not order one); a person answering in a Teams client was
+not exercised; ACS usage is not in the app's cost view. See [phone-line.md](phone-line.md), sections 6 and 7.
+
 ## 5. Cost and capacity cheat sheet
 
 List prices read from prices.azure.com on 2026-11-03 (gpt-5.4-mini on 2026-11-05; East US 2, USD). They exclude discounts,
@@ -656,7 +706,7 @@ Live, against the demo tenant (`<foundry-resource>`, East US 2, Entra auth, `cha
   model stage 3-4 s a call, about $0.026 a call. Product top-3 89%: the one miss is the former fund name (#3), unresolved by
   design until a reviewer teaches it. The same scripts run as one-microphone Teams transcripts through the rules engine in the
   test suite (`tests\eval\test_meeting_scenarios.py`), including the teach-once flow for #3.
-* **Test suite:** 1,564 backend tests, ruff clean.
+* **Test suite:** 1,826 backend tests, ruff clean.
 
 Earlier, against the first account (East US 2), keys, 2026-11-03:
 

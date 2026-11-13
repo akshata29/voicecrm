@@ -72,6 +72,8 @@ Notes
 
 **Teams** has live ingestion through Microsoft Graph (poll or webhook; `VOICECRM_TEAMS_*`, see [live-demo.md](live-demo.md)
 scenario B for the tenant setup and `scripts\teams_check.bat` to test it); it is tested against a mocked Graph, not yet a live tenant.
+The **phone** channel has live ingestion through Azure Communication Services (`VOICECRM_PHONE_*`, [phone-line.md](phone-line.md),
+`scripts\phone_check.bat` to test it).
 The **Zoom** and **Genesys** webhook endpoints and parsers exist, but live credentials and subscriptions are **not** wired in this
 MVP. Every channel can be driven with a file upload (Sources page / `POST /api/v1/ingest/upload`) or the simulator, through
 exactly the same pipeline.
@@ -79,6 +81,7 @@ exactly the same pipeline.
 | Channel | To go live | Endpoint |
 |---|---|---|
 | Teams | **Built.** Entra app with *application* permissions `OnlineMeetingTranscript.Read.All` and `OnlineMeetings.Read.All` (+ `User.Read.All` for UPNs), admin consent, Teams admin centre -> Transcript API access (Graph access and speaker attribution On), an application access policy per organiser, then `VOICECRM_TEAMS_MODE=poll` (no public URL) or `webhook` (`scripts\teams_check.bat subscribe`, subscribe before the meeting starts). Scheduled meetings only; the transcript arrives after the meeting ends | `POST /api/v1/webhooks/teams` (validation handshake, `clientState` check, background ingest), `POST /api/v1/webhooks/teams/lifecycle`, `GET /api/v1/sources/teams`, `POST /api/v1/sources/teams/poll` |
+| Phone (ACS) | **Built and run live** with browser-placed calls. An Azure Communication Services resource, its identity given *Cognitive Services User* on the Foundry resource (for the spoken recording notice), a dev tunnel to the phone ingress port (8011), Event Grid subscriptions (`scripts\phone_check.bat subscribe`), then `VOICECRM_PHONE_MODE=acs`. A real number needs a Teams Phone service number on a resource account connected to the ACS resource (phone-line.md, section 7) | `POST /api/v1/webhooks/phone/events?key=` and `POST /api/v1/webhooks/phone/calls/{id}?t=` (on the ingress port only), `GET /api/v1/sources/phone`, `POST /api/v1/phone/token`, `POST` / `DELETE /api/v1/phone/seller` |
 | Zoom | Server-to-Server OAuth app (recording scopes) + event subscription for recording / transcript completed; set `VOICECRM_ZOOM_WEBHOOK_SECRET` | `POST /api/v1/webhooks/zoom` (URL validation + signature check implemented) |
 | Genesys Cloud | OAuth client (client credentials) with recording / speech-and-text analytics access and a notification subscription; the transcript URL is short-lived. **Not yet implemented:** extracting the caller's number (ANI) from a live notification - uploaded / simulated payloads carry it and drive the phone match | `POST /api/v1/webhooks/genesys` |
 | Mobile | serve the UI over HTTPS (microphone access needs a secure context; `localhost` is fine) and open `/capture` | `POST /api/v1/ingest/upload` |
@@ -128,7 +131,7 @@ vault and the CRM simulator. `VOICECRM_LOAD_MAX_CALLS` (default 2000) caps a run
 | Product always "needs pick" | the share class was never said (by design) - or ASR dropped it; check the transcript and the learned aliases |
 | Conversation vanished after a redeploy | state is SQLite on the replica (ephemeral); see the production path in architecture.md |
 | `PipelineError: nothing to approve` (409) | the item is already written / rejected, or still processing |
-| Browser cannot reach the API on `localhost:8010` | on some machines `localhost` resolves to `::1` first, where a WSL/Docker relay may be listening; use `http://127.0.0.1:8010` (the Vite proxy already does) or bind uvicorn to `::` |
+| Browser cannot reach the API on `localhost:8010` | on some machines `localhost` resolves to `::1` first, where a WSL/Docker relay may be listening; use `http://127.0.0.1:8010` (the Vite proxy already does) or bind uvicorn to `::`. The phone line's dial pad and seller console need the host name `localhost` (the Calling SDK refuses `127.0.0.1`): if `localhost:8010` does not reach the API, open the dev UI at `http://localhost:5173`, whose proxy forwards to `127.0.0.1:8010` |
 | Port 8010 is already in use | pick another: `python -m voicecrm.cli serve --port 8011` (from `backend\`), then point the dev UI at it with `set VITE_API_PROXY=http://127.0.0.1:8011` before `npm run dev`. The built UI served by the API needs no change |
 | Frontend shows canned data | it was started with the mock switch (`run_frontend.bat mock` / `npm run dev:mock`); run `npm run dev` (or open the API-served build) for the real backend |
 

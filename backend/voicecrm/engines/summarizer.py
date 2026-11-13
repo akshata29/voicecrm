@@ -45,7 +45,7 @@ _PRONOUNS: list[tuple[re.Pattern[str], str]] = [
 _FILLER = re.compile(r"^\s*(?:so|well|yeah|yes|okay|ok|right|actually|honestly|basically|um|uh|and|but|also|just|"
                      r"thanks(?: for [^,.]*)?|got it|good to know|that's helpful|perfect)[,.\s]+", re.I)
 _CHANNEL_TEXT = {Channel.teams: "Teams meeting", Channel.zoom: "Zoom meeting", Channel.genesys: "phone call",
-                 Channel.mobile: "in-person meeting", Channel.upload: "recorded conversation"}
+                 Channel.phone: "phone call", Channel.mobile: "in-person meeting", Channel.upload: "recorded conversation"}
 
 
 def third_person(sentence: str) -> str:

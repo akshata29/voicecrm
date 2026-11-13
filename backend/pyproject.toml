@@ -18,6 +18,8 @@ dependencies = [
   "rapidfuzz>=3.9",
   "azure-identity>=1.17",
   "azure-storage-blob>=12.20",
+  "azure-communication-callautomation>=1.5.0",
+  "azure-communication-identity>=1.5.0",
   "openai>=1.40",
   "aiohttp>=3.9",
 ]

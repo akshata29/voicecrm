@@ -3,6 +3,7 @@
   doctor                       show which services are live vs mock and what data is loaded
   preflight [--burst N]        validate the config and probe every live service (see docs/live-demo.md)
   teams check|subscribe|...    live Microsoft Teams ingestion: test Graph access, manage change-notification subscriptions
+  phone check|line|subscribe   the phone line: self-check, the line identity, and the Event Grid subscriptions (docs/phone-line.md)
   crm-add --email .. --name .. --account ..   add a contact to the local CRM simulator (so a live caller resolves to an account)
   fixtures                     list the scripted demo calls
   simulate <fixture_id> [...]  run one scripted call through the real pipeline (optionally approve it)
@@ -187,6 +188,111 @@ def _teams(args: argparse.Namespace) -> int:
     return asyncio.run(run())
 
 
+def _phone(args: argparse.Namespace) -> int:
+    import httpx
+
+    from .adapters.credentials import build_credential
+    from .adapters.telephony.arm import ArmError, EventGridSubscriptions, mask_key
+    from .preflight import Check, check_config, format_checks, probe_phone, redact
+
+    settings = get_settings()
+    if settings.phone_mode == "off":
+        print("VOICECRM_PHONE_MODE is off: set it to acs and the VOICECRM_PHONE_* settings first (docs/phone-line.md).")
+        return 2
+    config = [c for c in check_config(settings) if c.name.startswith("config: phone")]
+    blocked = any(c.status == "fail" for c in config)
+
+    async def with_container(work) -> int:
+        container = build_container(settings)
+        try:
+            return await work(container)
+        finally:
+            await container.shutdown()
+
+    async def check() -> int:
+        checks = list(config)
+        if blocked:
+            checks.append(Check("phone: line", "fail", "the phone settings are incomplete", "fix the lines above"))
+        else:
+            async def probe(container: Container) -> int:
+                checks.extend(await probe_phone(container))
+                return 0
+
+            await with_container(probe)
+        print(format_checks(checks))
+        return 1 if any(c.status == "fail" for c in checks) else 0
+
+    async def line() -> int:
+        if blocked:
+            print(format_checks(config))
+            return 1
+
+        async def show(container: Container) -> int:
+            identity = await container.phone.ensure_line()
+            status = container.phone.status()
+            print(f"line identity   {identity}\n"
+                  f"dial pad shows  {status.number or 'VoiceCRM line (no number set)'}\n"
+                  f"seller          {status.seller.mode}{' - ' + status.seller.name if status.seller.name else ''}\n"
+                  f"state file      {settings.state_dir / 'phone_state.json'}")
+            return 0
+
+        return await with_container(show)
+
+    async def subscriptions() -> int:
+        if not settings.phone_acs_resource_id.strip():
+            print("set VOICECRM_PHONE_ACS_RESOURCE_ID to the ARM id of the Communication Services resource "
+                  "(/subscriptions/<id>/resourceGroups/<group>/providers/Microsoft.Communication/communicationServices/<name>).")
+            return 2
+        credential = build_credential(settings.azure_tenant_id or None)
+        try:
+            events = EventGridSubscriptions(settings.phone_acs_resource_id, credential)
+        except ValueError as exc:
+            print(exc)
+            await credential.close()
+            return 2
+        try:
+            if args.phone_cmd == "subscriptions":
+                found = await events.list()
+                for s in found:
+                    print(f"{s.name:<28} {s.state:<11} {', '.join(t.rsplit('.', 1)[-1] for t in s.event_types)}  -> {s.endpoint}")
+                if not found:
+                    print("no VoiceCRM phone subscriptions (run `phone subscribe`)")
+                return 0
+            if args.phone_cmd == "unsubscribe":
+                removed = await events.delete()
+                print("deleted " + ", ".join(removed) if removed else "nothing to delete")
+                return 0
+            base = settings.phone_public_base_url.strip().rstrip("/")
+            if blocked or not base.lower().startswith("https://"):
+                print(format_checks(config) or "set VOICECRM_PHONE_PUBLIC_BASE_URL to the tunnel's https address")
+                return 2
+            async with httpx.AsyncClient(timeout=10) as http:                       # Event Grid will call this: prove it answers
+                try:
+                    health = await http.get(f"{base}/api/v1/webhooks/phone/health")
+                    ok = health.status_code == 200 and health.json().get("service") == "voicecrm-phone"
+                except (httpx.HTTPError, ValueError):
+                    ok = False
+            if not ok:
+                print(f"{base} does not reach the phone ingress. Start the app (VOICECRM_PHONE_INGRESS_PORT, default 8011) and the "
+                      "tunnel (scripts\\run_phone_tunnel.bat), then run this again: Event Grid validates the URL when it is created.")
+                return 1
+            url = f"{base}/api/v1/webhooks/phone/events?key={settings.phone_webhook_secret}"
+            created = await events.ensure(url)
+            for s in created:
+                print(f"subscribed {s.name:<28} {s.state}  {', '.join(t.rsplit('.', 1)[-1] for t in s.event_types)}")
+            print(f"webhook {mask_key(url)}")
+            return 0
+        except ArmError as exc:
+            print(f"failed: {redact(str(exc), settings)}" + (f"\n  -> {exc.hint}" if exc.hint else ""))
+            return 1
+        finally:
+            await events.aclose()
+            await credential.close()
+
+    commands = {"check": check, "line": line}
+    return asyncio.run(commands.get(args.phone_cmd, subscriptions)())
+
+
 def _crm_add(args: argparse.Namespace) -> int:
     """Adds a contact (and its account, if new) to the local CRM simulator so a live participant resolves to an account."""
     import re
@@ -238,7 +344,7 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("sweep")
     pre = sub.add_parser("preflight", help="validate the configuration and probe every live service (synthetic data only)")
     pre.add_argument("--burst", type=int, default=0, metavar="N", help="also fire N concurrent calls at each live service")
-    pre.add_argument("--only", default="", help="comma-separated subset of: speech, language, model, search, vault, crm, teams")
+    pre.add_argument("--only", default="", help="comma-separated subset of: speech, language, model, search, vault, crm, teams, phone")
     pre.add_argument("--json", action="store_true")
     tm = sub.add_parser("teams", help="live Teams ingestion: check Graph access, manage change-notification subscriptions")
     tsub = tm.add_subparsers(dest="teams_cmd", required=True)
@@ -249,6 +355,13 @@ def main(argv: list[str] | None = None) -> int:
     tsb.add_argument("--minutes", type=int, default=55, help="subscription lifetime (over 60 also needs the lifecycle endpoint)")
     tun = tsub.add_parser("unsubscribe", help="delete a Graph subscription")
     tun.add_argument("subscription_id")
+    ph = sub.add_parser("phone", help="the phone line: self-check, the line identity, and the Event Grid subscriptions")
+    psub = ph.add_subparsers(dest="phone_cmd", required=True)
+    psub.add_parser("check", help="test Communication Services access, the public URL, the seller and the recording notice")
+    psub.add_parser("line", help="show (and create, once) the identity the browser dialer calls")
+    psub.add_parser("subscribe", help="create the Event Grid subscriptions (the app and the tunnel must be running)")
+    psub.add_parser("subscriptions", help="list this app's Event Grid subscriptions")
+    psub.add_parser("unsubscribe", help="delete this app's Event Grid subscriptions")
     ca = sub.add_parser("crm-add", help="add a contact to the local CRM simulator so a live participant resolves to an account")
     ca.add_argument("--email", required=True)
     ca.add_argument("--name", required=True)
@@ -270,6 +383,8 @@ def main(argv: list[str] | None = None) -> int:
         return _preflight(args)
     if args.cmd == "teams":
         return _teams(args)
+    if args.cmd == "phone":
+        return _phone(args)
     if args.cmd == "crm-add":
         return _crm_add(args)
 

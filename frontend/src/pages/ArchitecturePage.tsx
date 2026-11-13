@@ -23,7 +23,7 @@ interface ComponentRow {
 const ROWS: ComponentRow[] = [
   {
     name: 'Channel adapters',
-    does: 'Teams, Zoom, Genesys and mobile payloads normalised into one ingest contract',
+    does: 'Teams, Zoom, Genesys, phone-line and mobile payloads normalised into one ingest contract',
     azure: 'APIM + Functions (production path)',
     service: null,
     fixed: { label: 'Simulated payloads', note: 'Format-faithful adapters; live connectors need accounts and admin consent' },

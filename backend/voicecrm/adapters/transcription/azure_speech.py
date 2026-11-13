@@ -34,7 +34,7 @@ import httpx
 
 from ...domain.conversation import Segment
 from ...domain.enums import TranscriptOrigin
-from ...ports.transcription import TranscriptionPort, TranscriptionRequest, TranscriptionResult
+from ...ports.transcription import NoSpeechError, TranscriptionPort, TranscriptionRequest, TranscriptionResult
 from ._azure_common import (
     RETRYABLE_STATUS,
     AzureAuth,
@@ -185,7 +185,14 @@ class AzureSpeechTranscriber(TranscriptionPort):
             backoff_base=self._backoff_base, backoff_cap=self._backoff_cap, sleep=self._sleep, jitter=self._jitter)
         latency_ms = round((time.perf_counter() - started) * 1000)
         if response.status_code != 200:
-            raise self._error(response)
+            error = self._error(response)
+            if error.code == "NoLanguageIdentified":
+                # Silence, a hang-up or noise. Do not retry with a forced locale: that makes the service invent words
+                # ("Yes.", "A.") out of noise, which would become a note about a call nobody spoke in.
+                logger.info("azure speech identified no language in %.1f s of audio: the recording has no speech",
+                            wav.duration_seconds if wav else 0.0)
+                raise NoSpeechError() from error
+            raise error
         try:
             body = response.json()
         except ValueError as exc:
@@ -283,6 +290,11 @@ class AzureSpeechTranscriber(TranscriptionPort):
     ) -> TranscriptionResult:
         phrases = _parse_phrases(body.get("phrases") or [], by_channel=(mode == "channels"))
         labels: dict[Any, str] = {}
+        if mode == "channels":                   # the caller knows who is on which channel: use their ids, not "S1"/"S2"
+            for p in phrases:
+                key = p.speaker_key
+                if isinstance(key, int) and 0 <= key < len(request.channel_speakers) and request.channel_speakers[key]:
+                    labels.setdefault(key, request.channel_speakers[key])
         for p in phrases:
             labels.setdefault(p.speaker_key, f"S{len(labels) + 1}")
         segments = self._merge(phrases, labels)

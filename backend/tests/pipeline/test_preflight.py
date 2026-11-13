@@ -155,8 +155,8 @@ def test_readiness_and_the_report(tmp_path):
     settings = make(tmp_path, **LIVE)
     checks = [Check("speech: transcription", "pass", "ok", seconds=2.0), Check("language: PII detection", "pass", "ok", seconds=0.8),
               Check("model: structured output", "pass", "ok", seconds=3.0)]
-    (a, b, c) = readiness(checks, settings)
-    assert a[1] == "READY" and b[1] == "NOT CONFIGURED" and c[1] == "READY"
+    (a, b, c, d) = readiness(checks, settings)
+    assert a[1] == "READY" and b[1] == "NOT CONFIGURED" and c[1] == "READY" and d[1] == "NOT CONFIGURED"
     broken = [*checks[:2], Check("model: structured output", "fail", "boom", "fix it", 1.0)]
     assert readiness(broken, settings)[0][1] == "NOT READY" and readiness(broken, settings)[2][1] == "NOT READY"
     assert readiness(checks[:2], settings)[0][1] == "NOT READY"                      # a probe that never ran is not ready

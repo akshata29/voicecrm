@@ -13,7 +13,7 @@ All endpoints return JSON unless stated. Errors: `{"detail": "..."}` with the us
 ## Ingestion (all channels converge on the same pipeline)
 | Method | Path | Body | Returns |
 |---|---|---|---|
-| POST | `/ingest/upload` | multipart: `file` (audio `.wav/.mp3/.m4a/.ogg/.webm`, or transcript `.vtt` / `.json`), plus form fields `channel` (teams\|zoom\|genesys\|mobile\|upload), `market`, `business_line`, `call_type?`, `seller_name`, `seller_email`, `customer_name?`, `customer_org?`, `customer_email?`, `language_hint?`, `title?`, `started_at?`, `source_interaction_id?`, `fixture_id?` | `IngestResponse` |
+| POST | `/ingest/upload` | multipart: `file` (audio `.wav/.mp3/.m4a/.ogg/.webm`, or transcript `.vtt` / `.json`), plus form fields `channel` (teams\|zoom\|genesys\|phone\|mobile\|upload), `market`, `business_line`, `call_type?`, `seller_name`, `seller_email`, `customer_name?`, `customer_org?`, `customer_email?`, `language_hint?`, `title?`, `started_at?`, `source_interaction_id?`, `fixture_id?` | `IngestResponse` |
 | GET | `/fixtures` | - | `FixtureInfo[]` (scripted demo calls; `recording_seconds` is set when a real speech recording exists in `data/audio/live`) |
 | GET | `/fixtures/{fixture_id}/audio` | - | the real recording (`audio/wav`) so the UI can play it; `404` when there is none (`scripts\make_audio.bat` creates them) |
 | POST | `/ingest/simulate` | `SimulateRequest` | `IngestResponse` - renders the scripted call as the channel's native payload (Teams VTT, Zoom VTT/JSON, Genesys transcript JSON, or the real recording / an audio sidecar) and ingests it through the real adapter path |
@@ -25,6 +25,34 @@ All endpoints return JSON unless stated. Errors: `{"detail": "..."}` with the us
 | POST | `/sources/teams/poll` | - | `{"ingested": n, "status": TeamsStatus}` - look for new transcripts now; `409` when off or misconfigured, `502` with the fix when Graph refuses |
 | GET | `/sources/teams/history?days=30` | - | `TeamsHistory` (`days` 1-90, default 30): the transcripts the configured organisers still have from the last `days` days, newest first, at most 60 (`truncated` says there were more), each with `organizer`, `meeting_id`, `transcript_id`, `title`, `started_at`, `duration_seconds`, `attendees` and a `state` of `new`, `in_inbox` (with `conversation_id` and `conversation_status`) or `unfinished` (still being written); `errors` lists organisers that could not be searched. Nothing is ingested. `409` when off or misconfigured, `502` with the fix when Graph refuses |
 | POST | `/sources/teams/import` | `{"items": [{"organizer", "meeting_id", "transcript_id"}]}` (1-25, as listed by `history`) | `TeamsImportResult` `{"ingested", "duplicates", "failed", "outcomes": [{"transcript_id", "outcome", "conversation_id", "title", "detail"}]}` - downloads each transcript and runs it through the pipeline like a meeting that just ended, whether or not the poller has seen it; idempotent on the transcript id (`duplicate`), one failure is an outcome and does not stop the rest, and the live counters in `TeamsStatus` do not change. `422` for an organiser that is not in `VOICECRM_TEAMS_ORGANIZERS` or a bad item list, `409` / `502` as above |
+
+## Phone line (Azure Communication Services; see [phone-line.md](phone-line.md))
+Operator routes (the API port, never tunnelled):
+
+| Method | Path | Body | Returns |
+|---|---|---|---|
+| GET | `/sources/phone` | - | `PhoneStatus`: `mode` (`off\|acs`), `configured`, `problem`, `number` (the display number), `line_identity` (the ACS identity the dial pad calls), `public_url`, `ingress_listening`, `seller` (`mode` `teams\|console\|none`, `name`, `online`), `notice_enabled`, `active[]` and `recent[]` (at most 10, newest first) of `PhoneCall`, the counters `calls`, `ingested`, `failed`, `missed`, `last_event_at`, `last_error`. With the line off: `mode: "off"` and a `problem` that says how to enable it |
+| POST | `/phone/token` | `{"role": "caller\|seller", "display_name"?, "identity"?, "profile"?: {"name", "org", "email", "phone"}}` | `PhoneToken` `{identity, token, expires_on, display_name, line_identity, number}` - a VoIP access token for the browser; send the previous `identity` back to reuse it. A caller's `profile` is remembered for that identity and becomes the conversation's customer. `409` when off or misconfigured, `422` for the line's own identity or a non-ACS identity, `502` when ACS refuses |
+| POST | `/phone/seller` | `{"identity", "name"?, "email"?}` | `{"registered": true, "ttl_seconds": 45}` - registers (and heartbeats; call again within the TTL) this browser as the seller console; new calls ring it while it is online. `409` when off |
+| DELETE | `/phone/seller?identity=` | - | `{"registered": false, "ttl_seconds": 0}` |
+
+`PhoneCall`: `call_id`, `state` (`ringing\|connecting\|notice\|calling_seller\|in_call\|leaving_message\|ended\|processing\|ingested\|failed\|missed`),
+`caller` (E.164 for a phone caller, the display name for a browser caller), `caller_kind` (`phone\|voip`), `caller_name`, `seller`,
+`started_at`, `connected_at`, `ended_at`, `duration_seconds`, `notice` (`pending\|played\|skipped\|failed`), `recording`
+(`none\|active\|ready\|failed`), `conversation_id` (set once the recording is handed to the pipeline), `error`, `timeline[]`
+(`{at, label}`, oldest first). `processing` lasts from the recording being ready until the pipeline has finished with it, and
+then the call is `ingested` or, with the pipeline's own reason in `error`, `failed`. `missed` covers a caller who hung up before
+the recording started and a recording with no speech (below `VOICECRM_PHONE_MIN_SPEECH_SECONDS`, or none that Azure Speech could
+recognise): it has no `error`, and the last `timeline` label says why.
+
+Webhooks (the **ingress** port, 8011, the only thing a tunnel exposes; the same routes also exist on the API app for tests):
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/webhooks/phone/health` | `{"service": "voicecrm-phone", "ok": true, "line": bool}`; no secret, no data; the self-check uses it to prove the tunnel reaches the ingress |
+| POST | `/webhooks/phone/events?key=` | Event Grid (`IncomingCall`, `RecordingFileStatusUpdated`). The subscription handshake is answered with `{"validationResponse"}`; a wrong or missing key is `401` (even for the handshake), a body over 1 MB `413`, bad JSON `400`, the line off `503` |
+| OPTIONS | `/webhooks/phone/events?key=` | the CloudEvents delivery permission check (`WebHook-Allowed-Origin`) |
+| POST | `/webhooks/phone/calls/{call_id}?t=` | Call Automation callbacks for one call; `t` is an HMAC of the call id (`401` otherwise). Accepted at once and processed in order in the background |
 
 ## Conversations and review
 | Method | Path | Body | Returns |
@@ -83,8 +111,8 @@ in-process, one at a time, and every call it creates carries a batch tag (`Conve
 | POST | `/live/load/stop` | - | `LoadStatus` - stops sending; calls already in the pipeline finish, unsent ones are dropped (`state: stopping`, then `stopped`) |
 | DELETE | `/live/load/calls` | - | `{"deleted": n}` - removes every load-test call from the state store, the vault and (local only) the CRM simulator; `409` while a run is active |
 | GET | `/demo/data` | - | `DemoData` - what a reset would remove right now: `conversations`, `crm_phone_calls`, `crm_tasks`, `crm_insights`, `vault_items`, `learned_aliases`, `evaluation_runs`, `policy_changes`; plus `can_reset`, `reason` (why not), `in_flight` and `crm` (the adapter). Removes nothing |
-| POST | `/demo/reset` | `{"confirm": true}` | `DemoCounts` - what was removed. Clears every conversation (with events, usage and feedback), every vault copy, what the pipeline wrote to the CRM simulator, learned aliases, evaluation runs, saved policy changes and the in-memory run figures. Keeps the catalogue, taxonomy, templates, the CRM accounts, contacts and opportunities, the recordings and the list of Teams meetings already ingested. `409` without `confirm: true`, while calls are being processed or a load test runs, and against a real Dataverse CRM (local simulator only) |
-| POST | `/live/preflight` | `{"only": ["speech","language","model","search","vault","crm","teams"]?}` | `{"checks": [{name, status: pass\|warn\|fail\|skip, detail, hint, seconds}], "readiness": [{scenario, verdict, why}], "seconds"}` - the preflight CLI's probes against the services this API is running on (synthetic data only; a few cents at most). `409` while another check runs |
+| POST | `/demo/reset` | `{"confirm": true}` | `DemoCounts` - what was removed. Clears every conversation (with events, usage and feedback), every vault copy, what the pipeline wrote to the CRM simulator, learned aliases, evaluation runs, saved policy changes and the in-memory run figures (including the Phone line card's finished calls). Keeps the catalogue, taxonomy, templates, the CRM accounts, contacts and opportunities, the recordings and the lists of Teams meetings and phone events already handled. `409` without `confirm: true`, while calls are being processed or a load test runs, and against a real Dataverse CRM (local simulator only) |
+| POST | `/live/preflight` | `{"only": ["speech","language","model","search","vault","crm","teams","phone"]?}` | `{"checks": [{name, status: pass\|warn\|fail\|skip, detail, hint, seconds}], "readiness": [{scenario, verdict, why}], "seconds"}` - the preflight CLI's probes against the services this API is running on (synthetic data only; a few cents at most); `readiness` holds scenarios A to D. `409` while another check runs |
 
 `LoadRequest`: `count` (1..`max_calls`), `via` (`transcript\|audio`), `rate` (calls per second, 0 = burst), `auto_approve`
 (approves the calls with no review reason, as the policy would, with zero clicks; local CRM only), `engine?`, `fixtures[]`,

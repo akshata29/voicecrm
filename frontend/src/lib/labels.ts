@@ -6,6 +6,7 @@ export const CHANNEL_LABELS: Record<Channel, string> = {
   teams: 'Microsoft Teams',
   zoom: 'Zoom',
   genesys: 'Genesys Cloud',
+  phone: 'Phone line',
   mobile: 'Mobile / in person',
   upload: 'Upload',
 };
@@ -14,6 +15,7 @@ export const CHANNEL_SHORT: Record<Channel, string> = {
   teams: 'Teams',
   zoom: 'Zoom',
   genesys: 'Genesys',
+  phone: 'Phone',
   mobile: 'Mobile',
   upload: 'Upload',
 };

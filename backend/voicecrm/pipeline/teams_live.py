@@ -301,6 +301,11 @@ class TeamsIngestor:
         self._users[ident] = user
         return user
 
+    async def lookup_user(self, ident: str) -> tuple[str, str | None, str | None]:
+        """(object id, display name, address) of a user. The name and address are None without directory access."""
+        user = await self._user(ident)
+        return user.id, user.name, user.mail
+
     @staticmethod
     def _transcripts_path(user: _User, since: datetime) -> str:
         """`getAllTranscripts` for one organiser, from ``since`` on (the poller and the history search both use it)."""

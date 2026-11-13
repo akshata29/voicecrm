@@ -41,19 +41,27 @@ export function preflight(only?: PreflightProbe[]): PreflightResponse {
     name: 'teams: Graph access', status: 'skip', detail: 'Teams live ingestion is off (VOICECRM_TEAMS_MODE=off)', seconds: null,
     hint: 'Set VOICECRM_TEAMS_MODE=poll and the VOICECRM_TEAMS_* settings; see docs/live-demo.md, scenario B.',
   };
+  const phone: PreflightCheck = {
+    name: 'phone: line', status: 'warn', detail: 'Simulated line: the offline demo places calls in this browser, so no Azure Communication Services resource is used', seconds: null,
+    hint: 'Run against the real backend with the phone line configured to place a real call.',
+  };
+  const single = only?.length === 1 ? only[0] : undefined;
   const checks: PreflightCheck[] =
-    only?.length === 1 && only[0] === 'teams'
+    single === 'teams'
       ? [teams]
-      : [
-          { name: 'config: modes', status: 'warn', detail: 'live: none | mock/local: transcription, llm, search, pii, crm, vault', hint: 'Every service is a mock in the offline demo.', seconds: null },
-          { name: 'crm: health', status: 'pass', detail: 'local CRM simulator (SQLite) - no Dataverse configured', hint: '', seconds: 0.01 },
-        ];
+      : single === 'phone'
+        ? [phone]
+        : [
+            { name: 'config: modes', status: 'warn', detail: 'live: none | mock/local: transcription, llm, search, pii, crm, vault', hint: 'Every service is a mock in the offline demo.', seconds: null },
+            { name: 'crm: health', status: 'pass', detail: 'local CRM simulator (SQLite) - no Dataverse configured', hint: '', seconds: 0.01 },
+          ];
   return {
     checks,
     readiness: [
       { scenario: 'A  audio -> Speech -> Language -> model', verdict: 'NOT READY', why: 'speech: transcription is mock/skipped' },
       { scenario: 'B  Teams call -> VoiceCRM', verdict: 'NOT CONFIGURED', why: 'set VOICECRM_TEAMS_* (see docs/live-demo.md, scenario B)' },
       { scenario: 'C  bulk run (hundreds of calls)', verdict: 'NOT READY', why: 'language: PII detection is mock/skipped' },
+      { scenario: 'D  phone call -> VoiceCRM line', verdict: 'NOT READY', why: 'phone: the offline demo simulates the line in the browser' },
     ],
     seconds: 0.1,
   };

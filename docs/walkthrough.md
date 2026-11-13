@@ -2,13 +2,14 @@
 
 A guided tour for a demo on real Azure services: what to click, what you should see, what to say to the business people and
 what to call out for the technical ones. It follows the five stages of the [architecture](#2-the-picture-five-stages), and
-covers the three live-demo scenarios (**A** a recorded call through Azure Speech, Azure AI Language and a Foundry model; **B** a
-Teams meeting; **C** hundreds of calls at once), speaking a call into the **Record button**, the **policies**, and the
-questions to expect. About 90 minutes for all of it; each part stands alone, and parts 1 to 4 plus 6 make a one-hour technical
-session.
+covers the four live-demo scenarios (**A** a recorded call through Azure Speech, Azure AI Language and a Foundry model; **B** a
+Teams meeting; **C** hundreds of calls at once; **D** a phone call to the VoiceCRM line), speaking a call into the **Record
+button**, the **policies**, and the questions to expect. About 100 minutes for all of it; each part stands alone, and parts 1 to
+4 plus 6 make a one-hour technical session.
 
 Every image is a live capture (Azure Speech, Azure AI Language and a Foundry model, with synthetic data) made by
-`tools\capture_walkthrough.py` ([part 11.2](#112-regenerate-the-screenshots)). Those three services are live. The CRM, the
+`tools\capture_walkthrough.py` ([part 12.2](#122-regenerate-the-screenshots)); the phone images in part 7 come from
+`tools\capture_phone.py`. Those three services are live, and so is Azure Communication Services in part 7. The CRM, the
 vault and the catalogue search are the local implementations the project ships with, so their chips read **Mock / local**;
 [part 2](#2-the-picture-five-stages) says what changes in production.
 
@@ -32,11 +33,12 @@ The talk track for a 15-minute version is [demo-script.md](demo-script.md); the 
 | [4](#4-the-policies-governance-as-data) | The policies: governance as data | 15 min |
 | [5](#5-scenario-b-a-teams-meeting) | Scenario B: a Teams meeting | 10 min |
 | [6](#6-scenario-c-hundreds-of-calls) | Scenario C: hundreds of calls | 10 min |
-| [7](#7-scenario-a-spoken-live-the-record-button) | Scenario A, spoken live: the Record button | 10 min |
-| [8](#8-the-rest-of-the-product) | The rest of the product | 10 min |
-| [9](#9-questions-you-will-be-asked) | Questions you will be asked | |
-| [10](#10-when-something-does-not-match-what-you-see) | When something does not match what you see | |
-| [11](#11-reset-the-demo-and-regenerate-the-screenshots) | Reset the demo data, and regenerate the screenshots | 3 min |
+| [7](#7-scenario-d-a-phone-call-to-the-voicecrm-line) | Scenario D: a phone call to the VoiceCRM line | 15 min |
+| [8](#8-scenario-a-spoken-live-the-record-button) | Scenario A, spoken live: the Record button | 10 min |
+| [9](#9-the-rest-of-the-product) | The rest of the product | 10 min |
+| [10](#10-questions-you-will-be-asked) | Questions you will be asked | |
+| [11](#11-when-something-does-not-match-what-you-see) | When something does not match what you see | |
+| [12](#12-reset-the-demo-and-regenerate-the-screenshots) | Reset the demo data, and regenerate the screenshots | 3 min |
 | [A](#appendix-no-azure-account) | Appendix: no Azure account | |
 
 ## 1. Start it live
@@ -49,6 +51,7 @@ The talk track for a 15-minute version is [demo-script.md](demo-script.md); the 
 | Privacy filter | **Azure AI Language** PII detection, plus local card and credential rules | `VOICECRM_PII_MODE=azure_language` | live |
 | Note, topics, tasks | a **Microsoft Foundry** model deployment (ours is `chat54mini`, a gpt-5.4-mini) in the `hybrid` engine | `VOICECRM_LLM_MODE=hybrid`, `VOICECRM_FOUNDRY_ENDPOINT`, `VOICECRM_FOUNDRY_DEPLOYMENT` | live |
 | Teams | **Microsoft Graph**, polled every 20 seconds | `VOICECRM_TEAMS_MODE=poll` and `VOICECRM_TEAMS_*` | live on the demo tenant; off in the images (see part 5) |
+| Phone line | **Azure Communication Services** (Call Automation, recording), **Event Grid** and a dev tunnel | `VOICECRM_PHONE_MODE=acs` and `VOICECRM_PHONE_*` | live on the demo tenant (part 7); off until set up |
 | Product search | an in-process catalogue index, no service | `VOICECRM_SEARCH_MODE=local` | local |
 | CRM | a SQLite stand-in for Dataverse; a real Dataverse writer exists | `VOICECRM_CRM_MODE=local` (or `dataverse`) | local |
 | Vault | local files; an Azure Blob adapter exists | `VOICECRM_VAULT_MODE=local` (or `blob`) | local |
@@ -72,8 +75,10 @@ scripts\make_audio.bat           rem the eight call recordings for scenario A: a
 scripts\run_backend.bat          rem API and UI on http://127.0.0.1:8010
 ```
 
-Open **http://127.0.0.1:8010**. Use `127.0.0.1` rather than `localhost` (the [README](../README.md#run-it) says why). Starting a
-demo with calls, CRM rows or policy edits left over from earlier runs? Clear them from the UI first ([11.1](#111-reset-the-demo-data)).
+Open **http://127.0.0.1:8010**. Use `127.0.0.1` rather than `localhost` (the [README](../README.md#run-it) says why); the one
+exception is the phone scenario, whose calling SDK needs `localhost` ([part 7](#7-scenario-d-a-phone-call-to-the-voicecrm-line)).
+Starting a demo with calls, CRM rows or policy edits left over from earlier runs? Clear them from the UI first
+([12.1](#121-reset-the-demo-data)).
 
 **You see** six chips in the top bar. **Live: Azure Speech**, **Live: Azure AI Language** and **Live: Foundry (hybrid)** are the
 three that do the work; **Mock: Search**, **Mock: CRM** and **Mock: Vault** are the local parts. Say out loud which is which: it
@@ -106,7 +111,8 @@ the call recording."
 | model: structured output | a JSON-only prompt with a strict schema, 200 output tokens at most | the deployment supports structured output |
 | crm: health | the CRM adapter's health call | the simulator, or Dataverse, is reachable |
 
-Scenario A needs Speech, Language and the model; C needs Language and the model; B needs the Teams settings.
+Scenario A needs Speech, Language and the model; C needs Language and the model; B needs the Teams settings; D needs the phone
+settings and has its own check, **Check phone setup** ([part 7](#7-scenario-d-a-phone-call-to-the-voicecrm-line)).
 
 ## 2. The picture: five stages
 
@@ -116,7 +122,7 @@ Read it left to right. The five columns are the five stages used in the rest of 
 
 | Stage | The business point | Under the hood | You see it in | Setting |
 |---|---|---|---|---|
-| **1 Capture** | every channel the business uses lands in one pipeline; the seller does nothing | one adapter per channel: Graph (Teams), webhook with HMAC (Zoom), notification API (Genesys), browser recorder and file upload (mobile, other tools) | Sources page, Capture page | `VOICECRM_TEAMS_*`, `VOICECRM_ZOOM_WEBHOOK_SECRET` |
+| **1 Capture** | every channel the business uses lands in one pipeline; the seller does nothing | one adapter per channel: Graph (Teams), webhook with HMAC (Zoom), notification API (Genesys), Azure Communication Services (a phone line), browser recorder and file upload (mobile, other tools) | Sources page, Capture page, Live demo section D | `VOICECRM_TEAMS_*`, `VOICECRM_ZOOM_WEBHOOK_SECRET`, `VOICECRM_PHONE_*` |
 | **2 Ingest and transcribe** | one provider, no double paying: the platform's transcript when it exists, Azure Speech when it does not | de-dupe on the source id, the transcript-source policy, Azure Speech fast transcription, the vault, one canonical conversation | Pipeline card: Ingest, Transcribe, Normalize | `transcription_source_preference`, `VOICECRM_TRANSCRIPTION_MODE` |
 | **3 Understand** | the exact product and share class, topics from a controlled list, the seller's tasks, and nothing sensitive | notes policy (Azure AI Language), extraction engine (rules, hybrid or model), product and topic resolver, validator | Pipeline: Privacy policy, Extract, Resolve, Validate; the Products, Topics and Tasks cards | notes policy, `VOICECRM_PII_MODE`, `VOICECRM_LLM_MODE`, `processing.engine` |
 | **4 Review and write** | one click, and a person only where the system is unsure; retention decided per market | review reasons and a confidence gate, the retention engine, an idempotent CRM writer | Ready to send; Retention decision; Pipeline: Review, Retention, CRM write | `auto_approve_*`, `product_review_threshold`, market retention |
@@ -133,7 +139,7 @@ Sidebar -> **Architecture** shows the same picture with the live state of every 
 
 | Live end to end | Built and unit-tested, not run live | Not built |
 |---|---|---|
-| Azure Speech, Azure AI Language and the Foundry model; Teams ingestion by polling Graph (one real scheduled meeting on the demo tenant); the Record button | the Dataverse writer, the Azure Blob vault, the AI Search adapter, the Zoom and Genesys webhook handlers and parsers (native-format payloads), Teams change-notification (webhook) mode | the live Zoom OAuth download and Genesys API fetch; the Genesys caller number (ANI) from live notifications; the follow-up email draft; the Snowflake hand-off; a scheduled retention sweep; enforcement of the summary-retention setting |
+| Azure Speech, Azure AI Language and the Foundry model; Teams ingestion by polling Graph (one real scheduled meeting on the demo tenant); the Record button; the phone line with a browser caller (Azure Communication Services) | the Dataverse writer, the Azure Blob vault, the AI Search adapter, the Zoom and Genesys webhook handlers and parsers (native-format payloads), Teams change-notification (webhook) mode; a call from a real phone number to the phone line (the code path is built, the demo tenant has no number yet) and a person answering it in a Teams client | the live Zoom OAuth download and Genesys API fetch; the Genesys caller number (ANI) from live notifications; the follow-up email draft; the Snowflake hand-off; a scheduled retention sweep; enforcement of the summary-retention setting |
 
 ## 3. One call, end to end (scenario A)
 
@@ -196,7 +202,7 @@ straight after, because the US policy keeps nothing."
   with `scripts\rehearse_audio.bat`.
 
 **Prove it:** Sources -> **Upload a recording or transcript**, send the same file twice with the same *Source interaction id*:
-the second answer is "Already ingested" ([part 8](#8-the-rest-of-the-product)). Tests: `test_service.py`
+the second answer is "Already ingested" ([part 9](#9-the-rest-of-the-product)). Tests: `test_service.py`
 (`test_duplicate_delivery_is_idempotent_and_reprocess_after_failure_bumps_the_version`) and `test_transcription_azure_speech.py`
 (diarization, stereo, phrase list, throttling).
 
@@ -335,7 +341,7 @@ correction wins. When the class is never said, the system asks instead of guessi
   such day after the call, "next Thursday" is that day next week, and "next week" alone is deliberately undated. The card shows
   both the date and what was said (*Date stated*, said "by Friday").
 
-**Prove it:** open an Evidence line; run `pb-ambiguous-equity-fund` for the top-three pick ([part 8](#8-the-rest-of-the-product)).
+**Prove it:** open an Evidence line; run `pb-ambiguous-equity-fund` for the top-three pick ([part 9](#9-the-rest-of-the-product)).
 Tests: `test_product_resolver.py`, `test_catalogue_index.py`, `test_topics.py`, `test_tasks.py`.
 
 #### 3.3.4 CRM match and validate
@@ -357,7 +363,7 @@ Tests: `test_product_resolver.py`, `test_catalogue_index.py`, `test_topics.py`, 
 - **Review reasons** come from the resolver and the validator: `product_needs_pick`, `crm_match_ambiguous`,
   `crm_match_missing` and `validation_failed`.
 
-**Prove it:** test `test_validator.py`; run the Record button with a blank form ([part 7](#7-scenario-a-spoken-live-the-record-button))
+**Prove it:** test `test_validator.py`; run the Record button with a blank form ([part 8](#8-scenario-a-spoken-live-the-record-button))
 to see `crm_match_missing`.
 
 ### 3.4 Stage 4: review and write
@@ -376,7 +382,7 @@ to see `crm_match_missing`.
   **re-validated for leaks** before it is accepted, and a sensitive edit is refused with a 422. *Clicks to approve* is the
   number of edits plus the approve click; the Inbox shows the mean.
 - **Teaching.** When a reviewer picks a product for a name the catalogue did not know **and the class was stated**, the pick is
-  stored as a learned alias (spoken name to product) and applied first next time ([part 8](#8-the-rest-of-the-product)). A pick on
+  stored as a learned alias (spoken name to product) and applied first next time ([part 9](#9-the-rest-of-the-product)). A pick on
   a call where the class was never said is not taught.
 - **Auto-approve** is a policy dial ([4.4](#44-review-policy)): off by default. When on, a proposal with no review reasons, an
   overall confidence of 0.9 or more and a CRM match is written with zero clicks. Overall confidence is 0.5 x products + 0.2 x
@@ -482,11 +488,11 @@ From **Sources -> Simulate a call** (every call), or from section A when it has 
 
 | Call | What it shows | Where to look |
 |---|---|---|
-| `pb-ambiguous-equity-fund` | the share class is never said, so it offers a top-three pick instead of guessing | the Inbox row says **Product needs a pick**; the Products card ([part 8](#8-the-rest-of-the-product)) |
+| `pb-ambiguous-equity-fund` | the share class is never said, so it offers a top-three pick instead of guessing | the Inbox row says **Product needs a pick**; the Products card ([part 9](#9-the-rest-of-the-product)) |
 | `retail-teams-relationship-privacy` | a spoken card number and a medical aside are removed; "Seahawks fan" is kept | **What the privacy policy did** ([4.2](#42-notes-policy)) |
 | `pb-teams-spanish-clase-c` | Spanish in, English CRM note out; "clase C" resolves to Class C | the note and the task titles |
 | `pb-genesys-inbound-service` | an inbound service call known only by the caller's phone number; two CRM contacts are named Alex Kim | **CRM match**: the *Phone* method picks the right Alex Kim. The number comes from the call's metadata: live Genesys number extraction is not built |
-| `pb-teams-legacy-blue-chip` | a former fund name the catalogue has never seen: it asks once, then learns | **Teach it once** ([part 8](#8-the-rest-of-the-product)) |
+| `pb-teams-legacy-blue-chip` | a former fund name the catalogue has never seen: it asks once, then learns | **Teach it once** ([part 9](#9-the-rest-of-the-product)) |
 
 ## 4. The policies: governance as data
 
@@ -757,7 +763,163 @@ to guess."
 **C4. Clean up.** Press **Remove load-test calls** in the report (or on the Inbox banner) and confirm. Only calls a load test
 created are removed.
 
-## 7. Scenario A, spoken live: the Record button
+## 7. Scenario D: a phone call to the VoiceCRM line
+
+Sidebar -> **Live demo** -> section **D**. A customer dials the VoiceCRM line from a dial pad in the browser (a VoIP call over
+Azure Communication Services, ACS). The line answers, plays a recording notice, rings the seller, records **each side on its own
+channel**, and a few seconds after the hang-up the call is in the Inbox like any other: no upload, nothing for the seller to
+type. **This needs the phone line set up** (an ACS resource, a dev tunnel and two Event Grid subscriptions:
+[phone-line.md](phone-line.md#3-set-it-up)), and the page must be opened at **http://localhost:8010**, not `127.0.0.1`: the
+calling SDK refuses that address.
+
+> **Verified.** On the demo tenant, with two real Chrome windows (each one's microphone fed by a recording): the call reached the
+> line 3 to 9 seconds after **Call**, the notice took about 9 seconds, the recording event arrived 3 to 6 seconds after the
+> hang-up and the conversation was in the Inbox about 2 seconds after that. Voicemail, a caller whose browser was killed and a
+> Teams seller who did not answer were exercised too. **Not verified:** a person answering in a Teams client, and a call from a
+> real phone: the demo tenant could not order a number ([phone-line.md](phone-line.md#7-a-real-phone-number)).
+
+**D0. Before the demo.** Start the tunnel (it forwards the phone ingress port only), the app, and check the line:
+
+```bat
+scripts\run_phone_tunnel.bat     rem the tunnel to the phone ingress (port 8011), in its own window
+scripts\run_backend.bat          rem the app; it also starts the ingress
+scripts\phone_check.bat          rem every step PASS, or the fix for the one that is not
+```
+
+**D1. Is the line ready?** Press **Check phone setup**. Each row is a real test, and a failure says how to fix it.
+
+![Is the phone line ready?](screenshots/phone-ready.png)
+
+| Check | What it does | A pass proves |
+|---|---|---|
+| config: phone line | reads `VOICECRM_PHONE_MODE` and the settings the line needs | nothing required is missing |
+| phone: ACS access | signs in to the ACS resource with Entra and makes sure the line's identity exists | the app can create identities, issue tokens and control calls |
+| phone: public URL | calls `<public url>/api/v1/webhooks/phone/health` through the tunnel | Azure can reach the phone ingress (and not the API) |
+| phone: seller | finds an online browser console, or resolves the Teams user in `VOICECRM_PHONE_SELLER` | someone will be rung |
+| phone: recording notice | checks that the notice text and the Foundry (AI Services) endpoint are set | the notice can be spoken (the check places no call) |
+
+**D2. Open the seller console (window 1).** In **Seller console**, switch on **Answer calls in this browser**: it shows *Online*,
+and the Phone line card names the seller. Do this **before** dialling: with no console online the line takes a message instead
+of ringing anyone (the dial pad warns you). (To ring a Teams client instead, set `VOICECRM_PHONE_SELLER=teams:<user>`.)
+
+**D3. Dial (window 2).** In **Call the VoiceCRM line**, set **Who is calling** (the defaults are the seed contact, Dana Whitfield
+of Harborview Pension Fund, so the CRM match is by email) and press **Call**. The **Phone line** card writes the call's timeline as
+it happens: call received, answered, notice played, recording started, seller rung.
+
+![The Phone line card in the middle of a call](screenshots/phone-in-call.png)
+
+The seller console rings with the caller's name; **Accept**. The caller's pad shows the connected call and its clock.
+
+![The seller console rings](screenshots/phone-ringing.png)
+
+![The caller's side of the call](screenshots/phone-dialer.png)
+
+**D4. Talk, then hang up.** Use headphones if both windows are on one computer. Two people can read this (the caller is Dana, the
+seller Aisha); leave a short pause between turns. **Both windows on one computer share its microphone**, so whoever speaks is
+heard on both channels: mute the side that is not speaking (**Mute** on the dial pad and on the console), or have the second
+person answer in Teams on their own device. The script:
+
+| Who | Says |
+|---|---|
+| Dana (caller) | "Hi Aisha, it's Dana Whitfield at Harborview Pension Fund. I'm calling about the Contoso Equity Income Fund." |
+| Aisha (seller) | "Hi Dana, thanks for calling. What would you like to know about the fund?" |
+| Dana | "Could you send me the expense ratio comparison by Monday? Our committee meets next week." |
+| Aisha | "Of course. I'll email the expense ratio comparison to you by Monday, and I'll set up a review call for next week." |
+| Dana | "That works for me. Thank you, Aisha." |
+| Aisha | "My pleasure, Dana. Have a good afternoon." |
+
+Leave the share class out, as the script does, to show the call asking for a pick; say it aloud, as the hero call does in
+[part 3](#3-one-call-end-to-end-scenario-a), and the product resolves without one. Either side can hang up. The Inbox gets the call
+as *Processing* a few seconds after the hang-up, and the Phone line card moves it to *ingested* when the pipeline is done. A call in
+which nobody said anything (a hang-up, an empty voicemail) is shown as *Missed* with the reason and never reaches the Inbox.
+
+**D5. Read the result.** The Inbox has a **Phone** call from Dana Whitfield about 15 seconds after the hang-up (ready for review
+about 15 seconds after that).
+
+![The Inbox row for the phone call](screenshots/phone-inbox.png)
+
+Open it. The note names Dana Whitfield and Harborview Pension Fund; the fund is named but not its share class, so the Products
+card asks for a pick instead of guessing; the two seller commitments become tasks, dated from the call (the capture read both as
+Monday; a reviewer can edit a date); **CRM match** says *Email, 99%*. The header reads "Aisha West -> Dana Whitfield", and the
+transcript labels every line by who spoke it, because the two voices came on separate channels.
+
+![Review of the phone call](screenshots/phone-review.png)
+
+*The images are a live capture: `tools\capture_phone.py` speaks this script with Azure text to speech into two real browsers and
+places the call ([part 12.2](#122-regenerate-the-screenshots)). The Pipeline card is scenario A's, with the channel `phone`.*
+
+**Say it:** "A customer phones the line. They hear that the call is recorded, the seller picks up, and when they hang up the
+seller has nothing to type: the note, the product, the follow-up tasks and the CRM match are waiting for one click. Each person was
+recorded on their own channel, so who said what is a fact, not a guess, and a call nobody answers still becomes a message."
+
+**Call out**
+
+- **The dial pad is a real ACS call.** The page asks `POST /api/v1/phone/token` for a short-lived VoIP token for a fresh ACS
+  identity (the line's own identity is refused), and the Calling SDK dials the line's identity. The number on the pad is a
+  placeholder (`VOICECRM_PHONE_DISPLAY_NUMBER`) until a real one exists. The SDK runs only on https, `file:` or `localhost`,
+  which is why this scenario needs `localhost`; the pad and the console say so when the address is wrong.
+- **How the app hears about the call.** ACS publishes `IncomingCall` to Event Grid, which posts it through a dev tunnel to
+  `POST /api/v1/webhooks/phone/events`. The webhooks live on a second, tiny listener (`VOICECRM_PHONE_INGRESS_PORT`, default
+  8011) that serves nothing else, and the tunnel forwards that port only: the API on 8010 has no sign-in and is never exposed. The
+  Event Grid URL carries a secret (`VOICECRM_PHONE_WEBHOOK_SECRET`, compared in constant time) and each call's callback URL
+  carries an HMAC of the call id. ACS gives 30 seconds to answer and a ringing call is useless after a minute, so that subscription
+  makes two delivery attempts; the recording subscription retries for 24 hours.
+- **Answer, notice, then record.** The line answers with Call Automation, plays the notice with text to speech
+  (`VOICECRM_PHONE_NOTICE`, voice `en-US-JennyNeural`) through the Foundry (AI Services) connection, and only then starts
+  recording: the notice is not in the recording, and the conversation says the caller heard it (`consent: recorded_with_consent`).
+  With `VOICECRM_PHONE_REQUIRE_NOTICE=true` (the default) a call whose notice cannot be played is ended, not recorded.
+- **One channel per person.** The recording is unmixed WAV, the caller on channel 0 and the seller on channel 1, and its metadata
+  names the participant on each channel. Azure Speech transcribes each channel on its own (`channels: [0, 1]`; the caller is
+  `cust1`, the seller `seller`), so every segment is attributed by channel, overlapping speech is kept and there is no diarization
+  to get wrong. The line's own identity gets a channel too (its prompts land there) and is ignored. If the participants cannot be
+  matched, the audio is mixed to mono and diarization decides; the call's timeline says so.
+- **Nobody answers.** If no seller is online, the invitation fails, or the seller does not pick up within
+  `VOICECRM_PHONE_RING_SECONDS` (25 s, plus 5 s), the caller is told to leave a message and the line keeps recording for up to
+  `VOICECRM_PHONE_VOICEMAIL_SECONDS` (180 s). A voicemail takes the same path as a call, with a silent seller channel, and a
+  call-back number spoken in it is redacted like any other. To show it, switch the console off and call again, and speak after the
+  prompt.
+- **Nothing said is not a message.** A caller who hangs up, or a voicemail with no message, leaves a recording with nothing in
+  it, and the line does not send it on. It measures the speech-level audio on the channels that carry the conversation (never the
+  line's own prompts: 100 ms stretches louder than an RMS of 100 on the 16-bit scale, where room noise sits near 10 to 20), and
+  below `VOICECRM_PHONE_MIN_SPEECH_SECONDS` (1.5 s; `0` sends everything on) the call is **Missed** with the reason on the Phone
+  line card: no Inbox row, no Speech charge. If a recording passes but Azure Speech finds no language in it (HTTP 422
+  `NoLanguageIdentified`), the adapter raises a plain `NoSpeechError`, the conversation fails with "No speech could be recognised in
+  the recording", and the call is **Missed**. The service is deliberately not retried with a forced locale: on noise it invents
+  words ("Yes.", "A."), which would become a note about a call nobody spoke in. *Measured:* two real hang-ups on the demo tenant
+  had 0.0 s and 0.9 s of speech-level audio, and Azure Speech found no words in either, even with the language forced.
+- **Hanging up.** Either side hanging up ends the call for both. The longest call is 30 minutes (`VOICECRM_PHONE_MAX_CALL_MINUTES`).
+  A caller whose browser is killed is noticed by ACS after about a minute (measured: 73 seconds).
+- **From recording to Inbox.** When the recording is ready, ACS publishes `RecordingFileStatusUpdated` (3 to 6 seconds after the
+  hang-up). The line downloads the WAV and its metadata (only from the recording service's own hosts), renders the stereo file
+  and submits it as `channel=phone`, with the call's own start, end and duration (the recording starts at the first sound). If
+  nothing arrives within 15 minutes the call shows as failed, and a late recording is still ingested. The card then reads
+  *Processing* until the pipeline is done, and *Ingested* (or *Failed*, with the pipeline's own reason) after that. In the capture it
+  was 14 seconds from ingest to review-ready: Speech 4.5 s, privacy filter 3.3 s, model 6.0 s, and $0.0079 for the three (ACS usage
+  is billed separately and is not in the app's cost view).
+- **The pipeline did not change.** The phone channel adds `phone` to the channel list, one transcription-policy entry
+  (`phone: [azure_speech]`) and the channel-to-speaker map on the Speech request. From Normalize on it is scenario A
+  ([part 3](#3-one-call-end-to-end-scenario-a)): the same privacy policy, extraction and product resolution, review and retention
+  ([part 4](#4-the-policies-governance-as-data)).
+- **Idempotent and tidy.** The conversation key derives from the recording's document id (`acs-<id>`), so an Event Grid
+  redelivery never makes a second call. ACS keeps a recording for 24 hours, so the line deletes its copy once the pipeline has
+  the audio; the retention policy then decides what is kept.
+- **The caller is identified, not guessed.** The dial pad's *Who is calling* fields travel with the token. The CRM match tries the
+  email first and then the phone number (digits compared); a caller from a real phone is identified by the number the carrier
+  presents.
+- **A real number later.** Nothing above changes: a caller from a phone arrives in the same event (`caller_kind: phone`), and
+  `VOICECRM_PHONE_ACCEPT_TO` lets the line answer for a Teams Phone resource account. What is missing is the number, an admin step
+  in the tenant (the demo tenant's number orders were refused for identity verification and a missing wallet:
+  [phone-line.md](phone-line.md#7-a-real-phone-number)).
+
+**Prove it:** **Check phone setup** (D1), or `scripts\phone_check.bat`. The Phone line card shows every call's timeline, and
+`GET /api/v1/sources/phone` returns the same with the notice and recording state. Switch the console off and call to see the
+voicemail path. Tests: `backend\tests\pipeline\test_phone_live.py` (every call state, with a scripted ACS and a virtual clock, and
+the silent-recording and pipeline-outcome cases), `backend\tests\pipeline\test_no_speech.py` (the plain "no speech" failure),
+`backend\tests\adapters\test_phone_source.py` (events, recording metadata, channel planning, WAV handling, speech measurement),
+`test_telephony_acs.py` and `test_telephony_arm.py` in the same folder, and `backend\tests\api\test_phone_routes.py` (the webhooks
+and the ingress).
+
+## 8. Scenario A, spoken live: the Record button
 
 Instead of playing a recording, you and a colleague read the call aloud into the laptop microphone, and the same pipeline
 processes it. Sidebar -> **Capture** (or **Record in person** at the top of the Inbox). **This needs live Azure Speech.**
@@ -768,14 +930,14 @@ processes it. Sidebar -> **Capture** (or **Record in person** at the top of the 
 > Harborview by name and organisation, review-ready 22 seconds after the upload for $0.026. Human voices were not tested, so
 > rehearse once.
 
-**7.1 Open Capture and fill in "Who is it with?".** Allow the microphone when the browser asks. Type **Client organisation**
+**8.1 Open Capture and fill in "Who is it with?".** Allow the microphone when the browser asks. Type **Client organisation**
 `Harborview Pension Fund` and **Client name** `Dana Whitfield`; open **Your details** and set **Your name** `Sam Rivera` (the
 seller in the script). Leave Market on *United States* and Business line on *Professional Buyer*. These fields link the call to the
 CRM account.
 
 ![Capture: the form filled in](screenshots/walkthrough-capture-form.png)
 
-**7.2 Put the script where you can both read it.** Open the hero call's review in another window or on a phone and use its
+**8.2 Put the script where you can both read it.** Open the hero call's review in another window or on a phone and use its
 **Transcript (redacted)** card ([3.2](#32-normalize-who-said-what)). Do it before you approve that call: the US policy keeps no
 transcript, so an approved call no longer shows one (run the hero call again from Sources and leave it unapproved). Sam Rivera is
 the seller; Dana Whitfield and Alex Kim are the customers, so one of you reads Sam and the other reads both customers. **The
@@ -784,22 +946,22 @@ seller speaks first.** Leave a short pause between turns and do not talk over ea
 Want it shorter? Ad-lib 30 seconds, saying "class C" explicitly: *"Hi Dana, it's Sam from Contoso Woodgrove. Following up on the
 Contoso Equity Fund, class C. I'll send the fee comparison by Friday and set up a session with your committee."*
 
-**7.3 Record.** Press the red microphone. The clock runs, the bars move, and **Pause** and **Stop** appear.
+**8.3 Record.** Press the red microphone. The clock runs, the bars move, and **Pause** and **Stop** appear.
 
 ![Capture: recording](screenshots/walkthrough-capture-recording.png)
 
-**7.4 Stop, listen, save.** **Stop** gives you a playback and the size; press **Save & upload**.
+**8.4 Stop, listen, save.** **Stop** gives you a playback and the size; press **Save & upload**.
 
 ![Capture: recorded, ready to save](screenshots/walkthrough-capture-recorded.png)
 
-**7.5 Open the review.** The upload queue shows **Uploaded**; press **Open the review** (or watch the Inbox, where the call appears
+**8.5 Open the review.** The upload queue shows **Uploaded**; press **Open the review** (or watch the Inbox, where the call appears
 with the in-person icon).
 
 ![Capture: uploaded](screenshots/walkthrough-capture-uploaded.png)
 
 ![The Inbox row for the recording](screenshots/walkthrough-record-inbox.png)
 
-**7.6 Read the result.** About 20 seconds after the upload the review is ready. The note names "Sam Rivera with Dana Whitfield
+**8.6 Read the result.** About 20 seconds after the upload the review is ready. The note names "Sam Rivera with Dana Whitfield
 (Harborview Pension Fund)", the product is Class C, there are four topics and two tasks, and **CRM match** says *Name org, 90%*.
 Due dates are counted from the moment you recorded, so "tomorrow" means the day after you record.
 
@@ -832,7 +994,7 @@ fails: the Inbox row reads "Unknown customer", "Demo Seller" and a **No CRM matc
 | Avoid "today", "tonight" and "tomorrow" if you record in the evening | dates are worked out from the recording's UTC start time, which is already the next day in the US evening |
 | The same page works on a phone | install it as an app; **Simulate offline (demo)** shows the offline queue |
 
-## 8. The rest of the product
+## 9. The rest of the product
 
 **Inbox.** Every call lands here. *Ready: one click to approve* means nothing needs a person; *Needs review* with a reason chip
 means one thing does. The tiles are measured: needs review, written to the CRM, median time to review-ready and the mean clicks
@@ -894,7 +1056,7 @@ the privacy filter still uses the live Azure AI Language service, so a run costs
 set, tuned while looking at it: treat the numbers as a regression gate and a demonstration, and measure real accuracy on customer
 calls. The targets shown are straw-man, not agreed.
 
-## 9. Questions you will be asked
+## 10. Questions you will be asked
 
 | Question | Answer |
 |---|---|
@@ -908,12 +1070,15 @@ calls. The targets shown are straw-man, not agreed.
 | Which languages? | English and Spanish: candidate locales `en-US` and `es-US`. The model writes English CRM notes from Spanish calls; the rules engine avoids free-text translation. |
 | How does it improve? | A reviewer's product pick becomes a learned alias, applied first next time. The scoreboard measures before and after. |
 | How is this different from the Sales agent in Microsoft 365 Copilot? | The Sales agent is the native, no-build path for Teams meetings: preparation, recap, tasks and follow-up drafts. VoiceCRM covers every channel, with your own policies, exact share-class precision, per-market retention and a way to measure accuracy. They can coexist. |
-| What is not production-ready? | Part 2 lists it: the live Zoom and Genesys hops, Genesys number extraction, the email draft, the data-hub hand-off, a scheduled sweep and summary-retention enforcement. Also one replica, SQLite state and no sign-in of its own. |
+| What is not production-ready? | Part 2 lists it: the live Zoom and Genesys hops, Genesys number extraction, a real phone number for the phone line, the email draft, the data-hub hand-off, a scheduled sweep and summary-retention enforcement. Also one replica, SQLite state and no sign-in of its own. |
+| Can a customer dial a real phone number? | Today the caller dials from a dial pad in the browser, a VoIP call over Azure Communication Services. A real number needs a Teams Phone service number connected to the ACS resource, an admin step in the tenant; the app does not change ([part 7](#7-scenario-d-a-phone-call-to-the-voicecrm-line), [phone-line.md](phone-line.md#7-a-real-phone-number)). |
+| Do callers know they are recorded? | Yes: the phone line plays a recording notice before recording starts, the notice is not in the recording, and the conversation records that it was played. If it cannot be played the call is ended, not recorded (`VOICECRM_PHONE_REQUIRE_NOTICE`, on by default). |
+| What happens to a call nobody speaks in? | It is shown as *Missed* on the Phone line card, with the reason, and is not sent to the pipeline: no Inbox row and no Speech charge. The threshold is `VOICECRM_PHONE_MIN_SPEECH_SECONDS` (1.5 s of speech-level audio). If Azure Speech finds no speech in a recording that passes, the conversation fails with a plain message rather than a service error. |
 | Can a retry write twice? | No. The CRM key is `source:source_interaction_id:vN`; a reprocess is a new version, and a failed write deletes what it created. |
 | What does a person do? | One click, or none with auto-approve. They step in for `product_needs_pick`, `crm_match_ambiguous`, `crm_match_missing` or `validation_failed`. |
 | Can we audit it? | Every stage records status, duration and detail; usage is metered per call; policy actions name categories and counts; review feedback records clicks and seconds. Logs carry counts and timings, never transcript text. |
 
-## 10. When something does not match what you see
+## 11. When something does not match what you see
 
 | You see | Because | Do this |
 |---|---|---|
@@ -921,22 +1086,26 @@ calls. The targets shown are straw-man, not agreed.
 | **Check services now** shows NOT READY | a service answered with an error | read the failed row: it names the fix (a missing role, a wrong endpoint, a missing deployment) |
 | Section A says "No recordings yet" | the audio is generated, not stored in the repository | `scripts\make_audio.bat` (needs Azure Speech), or use Sources -> Simulate a call |
 | **Not configured** in section B | Teams ingestion is off | set `VOICECRM_TEAMS_MODE=poll` and `VOICECRM_TEAMS_*` ([live-demo.md](live-demo.md), section 3) |
+| Section D is **Not configured**, or **Check phone setup** shows a failed row | the phone line is off, or a step is missing: the tunnel, the Event Grid subscriptions, a role on the Foundry resource | set `VOICECRM_PHONE_MODE=acs` and the `VOICECRM_PHONE_*` settings, then read the failed row; symptoms and fixes are in [phone-line.md](phone-line.md#9-when-it-does-not-work) |
+| The dial pad or the seller console says the calling SDK needs https or `localhost` | the page is open at `127.0.0.1`, which the Azure Communication Services calling SDK refuses | open `http://localhost:8010` ([part 7](#7-scenario-d-a-phone-call-to-the-voicecrm-line)) |
+| A phone call ends but never reaches the Inbox | no recording event arrived, the recording could not be processed, or nobody spoke | the call's timeline on the Phone line card says which; a *Missed* call with "No speech in the recording" had nothing to transcribe (speak after the voicemail prompt, or switch the seller console on before dialling); `scripts\phone_check.bat subscriptions` should list both Event Grid subscriptions as Succeeded |
+| The Inbox shows a phone call as failed: "No speech could be recognised in the recording" | the recording had too little speech for Azure Speech to identify a language, and passed the line's own check | expected for a hang-up that left some noise; nothing to fix. **Reset demo data** clears it |
 | **Import earlier meetings** is missing, or lists nothing | the card shows only when Teams ingestion is on; only scheduled meetings with transcription started have a transcript, for the organisers in `VOICECRM_TEAMS_ORGANIZERS` | pick a longer period (up to 90 days); a Graph refusal is shown on the card with the fix; restart the backend if the page says it could not search (an older backend has no `/sources/teams/history` route) |
 | The Record button is greyed out, or the page says it needs a secure connection | the browser only allows the microphone on https, `localhost` or `127.0.0.1` | open `http://127.0.0.1:8010`, allow the microphone, or use **Choose an audio file instead** |
 | The recording says **No match** | the client organisation and name were empty | fill them in before **Save & upload** |
 | The seller and customer lines look swapped | the customer spoke first and the names gave no hint | let the seller open and set **Your name** |
 | A template or engine switch answers 410 | the working copy expired after 24 hours | ingest the call again |
 | Due dates differ from the images | recordings are dated by the moment you record; scripted calls have a fixed date | expected |
-| The Inbox has more rows than the images, or CRM rows and learned names are left over | you ran extra calls, a load test, or earlier rehearsals | **Reset demo data** ([part 11](#11-reset-the-demo-and-regenerate-the-screenshots)); **Remove load-test calls** removes only a load test's calls |
+| The Inbox has more rows than the images, or CRM rows and learned names are left over | you ran extra calls, a load test, or earlier rehearsals | **Reset demo data** ([part 12](#12-reset-the-demo-and-regenerate-the-screenshots)); **Remove load-test calls** removes only a load test's calls |
 | A policy change did not stick, or an old one will not go away | edits are saved in `.state\policies.override.yaml` | change it on the Policies page, or **Reset demo data** (it returns the policies to the shipped defaults) |
 | **Reset demo data** is greyed out | a call is still being processed or a load test is running (the card says which), or the CRM is a real Dataverse environment | wait: the card re-checks every few seconds; a real CRM is never reset |
 | The page says it could not read what is stored | the running backend is older than the UI and has no `/demo/data` route | restart the backend (`scripts\run_backend.bat`) |
 | `frontend\dist` is missing, or the page is blank | the UI was not built | `npm run build` in `frontend`, then reload |
 | Port 8010 is busy | another process is using it | the [README](../README.md#run-it) shows how to use another port |
 
-## 11. Reset the demo and regenerate the screenshots
+## 12. Reset the demo and regenerate the screenshots
 
-### 11.1 Reset the demo data
+### 12.1 Reset the demo data
 
 Earlier runs leave calls in the Inbox, CRM rows, vault copies, learned product names, scoreboard runs and policy edits behind.
 Before a demo, and after a rehearsal, clear them: sidebar -> **Live demo** -> the last section, **Start clean** (the **Reset** link
@@ -961,12 +1130,14 @@ customer session begins from an empty Inbox."
 **Call out**
 
 - **What goes:** every conversation with its stage events, usage and review feedback; every vault copy (audio, working copies,
-  retained transcripts); the phone calls, tasks and insights the pipeline wrote to the CRM simulator; learned aliases;
+  retained transcripts); the phone-call activities, tasks and insights the pipeline wrote to the CRM simulator; learned aliases;
   scoreboard runs; the policy edits saved from the Policies page (`<state folder>\policies.override.yaml`); and the in-memory
-  figures that describe those calls (the Inbox throughput card, the last load-test report, the Teams status card).
+  figures that describe those calls (the Inbox throughput card, the last load-test report, the Teams status card, and the
+  finished calls on the Phone line card; a phone call still in progress carries on).
 - **What stays:** the catalogue, topics and templates; the CRM accounts, contacts and opportunities (including contacts you added
-  with `crm-add`); your recordings in `data\audio`; `.env`; and the list of Teams meetings already ingested, so a reset does not
-  bring old meetings back into an empty Inbox. To bring a past meeting back, use **Import earlier meetings** ([part 5](#5-scenario-b-a-teams-meeting), B3).
+  with `crm-add`); your recordings in `data\audio`; `.env`; and the lists of Teams meetings and phone events already handled, so
+  a reset does not bring an old meeting or call back into an empty Inbox. To bring a past meeting back, use **Import earlier
+  meetings** ([part 5](#5-scenario-b-a-teams-meeting), B3).
 - **Guards.** It only runs against the local CRM simulator: with `VOICECRM_CRM_MODE=dataverse` the API answers 409 and the button
   is off, so a real CRM is never touched. It waits while a call is being processed or a load test is running (the card says
   which and re-checks every 3 seconds), and the API needs `{"confirm": true}`.
@@ -976,10 +1147,10 @@ customer session begins from an empty Inbox."
 - **By hand:** stop the backend and delete the `.state\` folder. Do not delete it while the backend runs: Windows keeps the
   SQLite files open.
 
-**Prove it:** teach `pb-teams-legacy-blue-chip` ([part 8](#8-the-rest-of-the-product)), reset, and run the call again: it needs a
+**Prove it:** teach `pb-teams-legacy-blue-chip` ([part 9](#9-the-rest-of-the-product)), reset, and run the call again: it needs a
 pick again, because the learned name is gone.
 
-### 11.2 Regenerate the screenshots
+### 12.2 Regenerate the screenshots
 
 The tool starts a throwaway server with an empty state and Teams ingestion forced off, so your own `.state` and your tenant are
 never touched. It needs `npm run build` first, the recordings from `scripts\make_audio.bat`, and Playwright with an installed
@@ -990,16 +1161,23 @@ Chrome or Edge (`.venv\Scripts\python.exe -m pip install playwright`).
 .venv\Scripts\python.exe tools\capture_walkthrough.py --only a,policies  rem a subset: services, architecture, a, engines, policies, b, product, record, inbox, crm, sources, scoreboard, c, reset
 .venv\Scripts\python.exe tools\capture_walkthrough.py --seconds 20       rem a short recording for the Record button part
 .venv\Scripts\python.exe tools\capture_screenshots.py                    rem the README gallery: local services, free
+.venv\Scripts\python.exe tools\capture_phone.py --base-url http://localhost:8010   rem the six phone images (part 7): one real call, about 90 seconds
 ```
 
 Before it saves an image the tool scans the visible text for a profile path, a tenant or resource host name and any term in your
 git-ignored `.deny-terms.local`, and stops if one appears. The Record button part drives the real button: a headless Chrome whose
 microphone is the hero recording. Run `scripts\check_public.bat` before you publish.
 
+The phone images are the exception: `capture_phone.py` does not start a server. It needs the phone line running
+([phone-line.md](phone-line.md#3-set-it-up)) with `VOICECRM_PHONE_SELLER` empty, a built frontend and Azure text to speech for the
+two voices, and it places a real call between two browsers, each playing its own voice as the microphone. That call is recorded,
+transcribed and billed like any other and stays in the Inbox, so run it against a throwaway state folder
+(`VOICECRM_STATE_DIR`) or reset the demo afterwards. Tunnel addresses on screen are replaced before each screenshot.
+
 ## Appendix: no Azure account
 
 Without Azure the same product runs on its local services (`VOICECRM_DEMO_MODE=true`, the default in `.env.example`): scripted
 transcripts, a local pattern detector, the rules engine, the CRM simulator. The chips read **Mock: ...** and the A button reads
-**Process (mock speech)**. Parts 1.2, 2, 3 (run the calls from **Sources -> Simulate a call -> Run via transcript**), 4, 6 and 8
+**Process (mock speech)**. Parts 1.2, 2, 3 (run the calls from **Sources -> Simulate a call -> Run via transcript**), 4, 6 and 9
 work as described, without the Azure rows; the Record button needs live Speech. The [README](../README.md#run-it) has the
 quick start and a gallery captured on the local services.

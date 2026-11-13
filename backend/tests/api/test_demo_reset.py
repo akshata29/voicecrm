@@ -140,6 +140,18 @@ def test_a_learned_alias_is_forgotten_by_the_resolver_not_only_by_the_table(clie
     assert again["chosen_product_id"] is None and again["needs_review"] is True
 
 
+def test_a_reset_clears_the_phone_lines_finished_calls_too(client: TestClient, api_container: Container, monkeypatch):
+    class Line:
+        forgotten = 0
+
+        def forget(self) -> None:
+            Line.forgotten += 1
+
+    monkeypatch.setattr(api_container, "phone", Line())
+    reset(client)
+    assert Line.forgotten == 1
+
+
 def test_the_figures_that_describe_the_removed_calls_are_cleared_too(client: TestClient):
     assert client.post(f"{API}/live/load", json={"count": 6, "parallel": 3}).status_code == 202
     deadline = time.monotonic() + 60

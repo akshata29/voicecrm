@@ -6,7 +6,7 @@ import type { Tone } from '@/components/ui/types';
 
 const TONE: Record<string, Tone> = { READY: 'success', 'NOT READY': 'danger', 'NOT CONFIGURED': 'neutral' };
 
-/** The A / B / C heading of a scenario, with its readiness verdict once "Check services now" has run. */
+/** The A / B / C / D heading of a scenario, with its readiness verdict once "Check services now" has run. */
 export function ScenarioHeading({ id, letter, title, description, verdict, className }: { id: string; letter: string; title: string; description: ReactNode; verdict?: PreflightReadiness | undefined; className?: string }) {
   return (
     <header className={clsx('mb-3 flex flex-wrap items-start justify-between gap-x-4 gap-y-2', className)}>

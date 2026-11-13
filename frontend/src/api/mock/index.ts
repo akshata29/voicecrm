@@ -11,6 +11,8 @@ import type {
   LoadRequest,
   MarketPolicy,
   NotesPolicy,
+  PhoneSellerRegistration,
+  PhoneTokenRequest,
   PreflightProbe,
   ProcessingPolicy,
   RejectRequest,
@@ -24,6 +26,7 @@ import * as demo from './demo';
 import * as evaluation from './evaluation';
 import { simulate, upload } from './ingest';
 import * as live from './live';
+import * as phone from './phone';
 import * as pipeline from './pipeline';
 import { fixtureInfos } from './scripts';
 import { TAXONOMY, TEMPLATES } from './seed';
@@ -132,6 +135,11 @@ const routes: Route[] = [
   { method: 'GET', pattern: /^\/metrics\/pipeline$/, handler: () => admin.pipelineStats() },
   { method: 'GET', pattern: /^\/sources\/teams$/, handler: () => admin.teamsStatus() },
   { method: 'POST', pattern: /^\/sources\/teams\/poll$/, handler: () => { throw new HttpError(409, admin.teamsStatus().problem ?? 'Live Teams ingestion is off.'); } },
+
+  { method: 'GET', pattern: /^\/sources\/phone$/, handler: () => phone.phoneStatus() },
+  { method: 'POST', pattern: /^\/phone\/token$/, handler: ({ body }) => phone.issueToken(asBody<PhoneTokenRequest>(body)) },
+  { method: 'POST', pattern: /^\/phone\/seller$/, handler: ({ body }) => phone.registerSeller(asBody<PhoneSellerRegistration>(body)) },
+  { method: 'DELETE', pattern: /^\/phone\/seller$/, handler: ({ query }) => phone.unregisterSeller(queryString(query, 'identity')) },
 
   { method: 'GET', pattern: /^\/live\/load$/, handler: () => live.loadStatus() },
   { method: 'POST', pattern: /^\/live\/load\/estimate$/, handler: ({ body }) => live.loadEstimate(asBody<LoadRequest>(body)) },

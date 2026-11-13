@@ -354,7 +354,7 @@ def scenario_c(env: cs.Env) -> None:
     save_boxes(env, "c-inbox", [cs.card("load-title")])
 
 
-# ---- part 7: the Record button --------------------------------------------------------------------------------------
+# ---- part 8: the Record button --------------------------------------------------------------------------------------
 # Remembers what the page uploads, so the same recording can be sent again with other form values.
 CAPTURE_UPLOADS = r"""
 (() => {
@@ -466,7 +466,7 @@ def record_part(pw: Playwright, base: str, out: Path, seconds: int) -> None:
         browser.close()
 
 
-# ---- part 8: the rest of the product --------------------------------------------------------------------------------
+# ---- part 9: the rest of the product --------------------------------------------------------------------------------
 @part("product")
 def product(env: cs.Env) -> None:
     """The top-3 pick list, a former fund name (no candidate, then taught, then resolved) and the learned-alias table."""

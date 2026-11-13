@@ -8,8 +8,8 @@ export type IsoDateTime = string;
 export type IsoDate = string;
 
 // ---- enums (domain/enums.py) -----------------------------------------------------------------------
-export type Channel = 'teams' | 'zoom' | 'genesys' | 'mobile' | 'upload';
-export const CHANNELS: readonly Channel[] = ['teams', 'zoom', 'genesys', 'mobile', 'upload'];
+export type Channel = 'teams' | 'zoom' | 'genesys' | 'phone' | 'mobile' | 'upload';
+export const CHANNELS: readonly Channel[] = ['teams', 'zoom', 'genesys', 'phone', 'mobile', 'upload'];
 
 export type Direction = 'inbound' | 'outbound' | 'meeting' | 'in_person';
 export type SpeakerRole = 'seller' | 'customer' | 'internal' | 'unknown';
@@ -850,6 +850,107 @@ export interface TeamsImportResult {
   outcomes: TeamsImportOutcome[];
 }
 
+/** GET /sources/phone - the VoiceCRM phone line: Azure Communication Services answers and records, Event Grid reports back. */
+export type PhoneMode = 'off' | 'acs';
+export type PhoneCallState =
+  | 'ringing'
+  | 'connecting'
+  | 'notice'
+  | 'calling_seller'
+  | 'in_call'
+  | 'leaving_message'
+  | 'ended'
+  | 'processing'
+  | 'ingested'
+  | 'failed'
+  | 'missed';
+
+export interface PhoneCallEvent {
+  at: IsoDateTime;
+  label: string;
+}
+
+export interface PhoneCall {
+  call_id: string;
+  state: PhoneCallState;
+  caller: string; // E.164 number for phone callers, display name for browser (voip) callers
+  caller_kind: 'phone' | 'voip';
+  caller_name: string | null;
+  seller: string | null; // who was rung / answered (display name)
+  started_at: IsoDateTime;
+  connected_at: IsoDateTime | null;
+  ended_at: IsoDateTime | null;
+  duration_seconds: number | null;
+  notice: 'pending' | 'played' | 'skipped' | 'failed';
+  recording: 'none' | 'active' | 'ready' | 'failed';
+  conversation_id: string | null; // set once ingested
+  error: string | null;
+  timeline: PhoneCallEvent[]; // oldest first
+}
+
+export interface PhoneSeller {
+  mode: 'teams' | 'console' | 'none';
+  name: string | null;
+  online: boolean;
+}
+
+export interface PhoneStatus {
+  mode: PhoneMode; // 'off' = feature disabled; `problem` then explains how to enable it
+  configured: boolean;
+  problem: string | null;
+  number: string | null; // display number of the line, e.g. "+1 800 555 0100"
+  line_identity: string | null; // ACS identity the browser dialer calls; null until the line is set up
+  public_url: string | null; // base URL Event Grid and ACS call back (a dev tunnel)
+  ingress_listening: boolean;
+  seller: PhoneSeller;
+  notice_enabled: boolean;
+  active: PhoneCall[];
+  recent: PhoneCall[]; // newest first, at most 10
+  calls: number;
+  ingested: number;
+  failed: number;
+  missed: number;
+  last_event_at: IsoDateTime | null;
+  last_error: string | null;
+}
+
+/** What a browser caller tells the line about itself; only sent with role 'caller'. */
+export interface PhoneCallerProfile {
+  name?: string;
+  org?: string;
+  email?: string;
+  phone?: string;
+}
+
+/** POST /phone/token - an ACS identity and a short-lived calling token for this browser (409 when the line is not configured). */
+export interface PhoneTokenRequest {
+  role: 'caller' | 'seller';
+  display_name?: string;
+  identity?: string; // send back the identity the previous call returned, so identities are reused
+  profile?: PhoneCallerProfile;
+}
+
+export interface PhoneToken {
+  identity: string;
+  token: string;
+  expires_on: IsoDateTime;
+  display_name: string;
+  line_identity: string;
+  number: string | null;
+}
+
+/** POST /phone/seller registers this browser as the seller console (and every 20 s keeps it registered); DELETE removes it. */
+export interface PhoneSellerRegistration {
+  identity: string;
+  name?: string;
+  email?: string;
+}
+
+export interface PhoneSellerRegistered {
+  registered: boolean;
+  ttl_seconds: number;
+}
+
 /** /live/* - the Live demo page: a load test run from the UI, and the in-app service check (pipeline/load.py). */
 export type LoadVia = 'transcript' | 'audio';
 export type LoadState = 'idle' | 'preparing' | 'running' | 'stopping' | 'finished' | 'stopped' | 'failed';
@@ -940,7 +1041,7 @@ export interface LoadStatus {
   pipeline: PipelineStats;
 }
 
-export type PreflightProbe = 'speech' | 'language' | 'model' | 'search' | 'vault' | 'crm' | 'teams';
+export type PreflightProbe = 'speech' | 'language' | 'model' | 'search' | 'vault' | 'crm' | 'teams' | 'phone';
 export type PreflightStatus = 'pass' | 'warn' | 'fail' | 'skip';
 
 export interface PreflightCheck {

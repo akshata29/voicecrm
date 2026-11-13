@@ -36,6 +36,7 @@ class IngestInput(VModel):
     audio_bytes: bytes | None = None
     audio_filename: str | None = None
     audio_content_type: str | None = None
+    channel_speakers: list[str] = []           # dual-channel audio: the participant id on each channel (index = channel)
     fixture_id: str | None = None
     batch_id: str | None = None                # tags the calls of one load test
     asr_noise: bool = False

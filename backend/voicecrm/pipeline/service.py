@@ -33,7 +33,7 @@ from ..domain.policy import PolicyBundle
 from ..domain.templates import SummaryTemplate
 from ..engines.contracts import REVIEWER_EVIDENCE, ExtractionContext, ExtractionOutput, NotesPolicyResult
 from ..ports.state import FeedbackRecord
-from ..ports.transcription import AudioInput, TranscriptionRequest, TranscriptionResult
+from ..ports.transcription import AudioInput, NoSpeechError, TranscriptionRequest, TranscriptionResult
 from ..ports.vault import VaultItem
 from .crm_package import build_crm_package
 from .models import IngestInput, IngestResult, PipelineDeps
@@ -67,6 +67,8 @@ def _safe_error(exc: Exception) -> str:
     """Error text for logs/UI that can never echo transcript content (pydantic errors embed input values)."""
     if isinstance(exc, ValidationError):
         return f"ValidationError in {sorted({'.'.join(str(p) for p in e['loc']) for e in exc.errors()})[:6]}"
+    if isinstance(exc, NoSpeechError):                  # already plain language: no class name in front of it
+        return str(exc)
     return f"{type(exc).__name__}: {str(exc)[:240]}"
 
 
@@ -135,7 +137,8 @@ class PipelineService:
         return rec
 
     def _fail(self, cid: str, exc: Exception) -> None:
-        logger.warning("pipeline failed for %s: %s", cid, _safe_error(exc))
+        # a recording with no speech is an expected outcome (a hang-up, a silent voicemail), not a fault worth a warning
+        (logger.info if isinstance(exc, NoSpeechError) else logger.warning)("pipeline failed for %s: %s", cid, _safe_error(exc))
         rec = self.deps.store.get_conversation(cid)
         if rec:
             rec.status = ConversationStatus.failed
@@ -272,6 +275,8 @@ class PipelineService:
                             audio_seconds=result.audio_seconds)
                 if market.audio_retention_days == 0:
                     await self.deps.vault.delete(cid, ("audio",))
+                if not segments:                           # transcribed, but nothing was said: nothing to take notes on
+                    raise NoSpeechError()
                 st.detail.update(source="azure_speech" if origin == TranscriptOrigin.azure_speech else origin.value,
                                  provider=result.provider, audio_seconds=round(result.audio_seconds, 1),
                                  segments=len(segments), audio_deleted=market.audio_retention_days == 0)
@@ -300,7 +305,8 @@ class PipelineService:
                 locales=[hint] if hint else ["en-US", "es-US"],
                 phrase_list=self.deps.resolver.phrase_list(500),
                 diarize=True, max_speakers=max(2, 1 + len(rec.meta.participants)),
-                separate_channels=rec.meta.source == Channel.genesys,
+                separate_channels=rec.meta.source in (Channel.genesys, Channel.phone),
+                channel_speakers=list(ing.channel_speakers),
                 fixture_id=ing.fixture_id, asr_noise=ing.asr_noise,
             )
             return await self.deps.transcription.transcribe(request)

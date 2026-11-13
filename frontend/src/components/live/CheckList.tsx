@@ -41,7 +41,7 @@ export function CheckList({ checks, className }: { checks: PreflightCheck[]; cla
 
 const VERDICT_TONE: Record<string, Tone> = { READY: 'success', 'NOT READY': 'danger', 'NOT CONFIGURED': 'neutral' };
 
-/** READY / NOT READY for the three live scenarios, derived from the checks (same verdicts as the preflight CLI). */
+/** READY / NOT READY for the live scenarios, derived from the checks (same verdicts as the preflight CLI). */
 export function ReadinessList({ items, only }: { items: PreflightReadiness[]; only?: string[] }) {
   const shown = only ? items.filter((item) => only.includes(item.scenario.charAt(0))) : items;
   return (

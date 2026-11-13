@@ -5,6 +5,7 @@ import type { PreflightReadiness } from '@/api/types';
 import { AudioScenario } from '@/components/live/AudioScenario';
 import { BulkScenario } from '@/components/live/BulkScenario';
 import { DemoReset } from '@/components/live/DemoReset';
+import { PhoneScenario } from '@/components/live/PhoneScenario';
 import { ServiceReadiness } from '@/components/live/ServiceReadiness';
 import { TeamsScenario } from '@/components/live/TeamsScenario';
 import { PageHeader } from '@/components/ui/Field';
@@ -14,13 +15,14 @@ const JUMPS: Array<{ letter: string; label: string; href: string }> = [
   { letter: 'A', label: 'Audio', href: '#scenario-a' },
   { letter: 'B', label: 'Teams', href: '#scenario-b' },
   { letter: 'C', label: 'Bulk', href: '#scenario-c' },
+  { letter: 'D', label: 'Phone', href: '#scenario-d' },
   { letter: '', label: 'Reset', href: '#demo-data' },
 ];
 
-/** Verdicts are "A  audio -> ...", "B  Teams call -> ...", "C  bulk run ...": the first letter names the scenario. */
+/** Verdicts are "A  audio -> ...", "B  Teams call -> ...", "C  bulk run ...", "D  phone call -> ...": the first letter names the scenario. */
 const verdictFor = (items: PreflightReadiness[] | undefined, letter: string) => items?.find((item) => item.scenario.startsWith(letter));
 
-/** Runs the three demo scenarios against the real services from the browser: no command line needed. */
+/** Runs the four demo scenarios against the real services from the browser: no command line needed. */
 export default function LiveDemoPage() {
   useDocumentTitle('Live demo');
   const check = usePreflight();
@@ -32,9 +34,9 @@ export default function LiveDemoPage() {
       <PageHeader
         title="Live demo"
         icon={BoltIcon}
-        description="Run the real thing from here: play a recorded call through Azure Speech, Language and a model; take in a Teams meeting; or send hundreds of calls at once. Every figure comes from the running pipeline."
+        description="Run the real thing from here: play a recorded call through Azure Speech, Language and a model; take in a Teams meeting; send hundreds of calls at once; or dial the VoiceCRM line from this browser. Every figure comes from the running pipeline."
         actions={
-          <nav aria-label="Scenarios" className="flex items-center gap-1.5">
+          <nav aria-label="Scenarios" className="flex flex-wrap items-center gap-1.5">
             {JUMPS.map((jump) => (
               <a key={jump.href} href={jump.href} className="btn btn-secondary btn-sm">
                 {jump.letter ? <span className="font-bold text-brand-600">{jump.letter}</span> : null} {jump.label}
@@ -48,6 +50,8 @@ export default function LiveDemoPage() {
         <AudioScenario key={`a-${epoch}`} verdict={verdictFor(readiness, 'A')} />
         <TeamsScenario key={`b-${epoch}`} verdict={verdictFor(readiness, 'B')} />
         <BulkScenario key={`c-${epoch}`} verdict={verdictFor(readiness, 'C')} />
+        {/* Not keyed by the epoch: a reset must not hang up a live call or switch the seller console off. */}
+        <PhoneScenario verdict={verdictFor(readiness, 'D')} />
         <DemoReset onReset={() => setEpoch((n) => n + 1)} />
       </div>
     </>

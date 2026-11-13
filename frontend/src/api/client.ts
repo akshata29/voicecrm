@@ -1,7 +1,7 @@
 /**
  * Axios client for /api/v1 with one namespace per domain (configApi, ingestApi, conversationsApi, policiesApi,
- * catalogueApi, crmApi, evalApi, metricsApi, vaultApi, liveApi, demoApi). With VITE_USE_MOCK=1 an in-browser adapter serves
- * canned data from ./mock instead of the network (npm run dev:mock).
+ * catalogueApi, crmApi, evalApi, metricsApi, vaultApi, liveApi, demoApi, phoneApi). With VITE_USE_MOCK=1 an in-browser
+ * adapter serves canned data from ./mock instead of the network (npm run dev:mock).
  */
 import axios, { type AxiosInstance, type AxiosProgressEvent, type AxiosRequestConfig } from 'axios';
 import type {
@@ -30,6 +30,11 @@ import type {
   MarketPolicy,
   MetricsSummary,
   NotesPolicy,
+  PhoneSellerRegistered,
+  PhoneSellerRegistration,
+  PhoneStatus,
+  PhoneToken,
+  PhoneTokenRequest,
   PipelineStats,
   PoliciesResponse,
   PreflightProbe,
@@ -215,6 +220,21 @@ export const vaultApi = {
   items: (conversationId?: string) =>
     get<VaultItem[]>('/vault/items', { params: conversationId ? { conversation_id: conversationId } : undefined }),
   sweep: () => post<SweepResponse>('/retention/sweep'),
+};
+
+/** The VoiceCRM phone line: the service answers and records, this browser can dial it and can answer as the seller. */
+export const phoneApi = {
+  status: () => get<PhoneStatus>('/sources/phone'),
+  /** An ACS identity and calling token for this browser. 409 when the line is not configured, 502 on an Azure error. */
+  token: (body: PhoneTokenRequest) => post<PhoneToken>('/phone/token', body),
+  /** Registers this browser as the seller console; call it again within `ttl_seconds` to keep the registration alive. */
+  registerSeller: (body: PhoneSellerRegistration) => post<PhoneSellerRegistered>('/phone/seller', body),
+  unregisterSeller: (identity: string) => del<Pick<PhoneSellerRegistered, 'registered'>>(`/phone/seller?identity=${seg(identity)}`),
+  /** For `pagehide`: axios cannot outlive the page, a keepalive fetch can. Best effort; the registration also expires on its own. */
+  unregisterSellerOnUnload: (identity: string) => {
+    if (USE_MOCK) return;
+    void fetch(`${http.defaults.baseURL ?? ''}/phone/seller?identity=${seg(identity)}`, { method: 'DELETE', keepalive: true }).catch(() => undefined);
+  },
 };
 
 /** The Live demo page: a load test run from the UI, and the in-app check of the live services. */

@@ -13,7 +13,7 @@ from ..domain.policy import ProcessingPolicy
 from ..domain.templates import SummaryTemplate
 
 _CHANNEL_TEXT = {Channel.teams: "Teams meeting", Channel.zoom: "Zoom meeting", Channel.genesys: "Genesys call",
-                 Channel.mobile: "Mobile recording", Channel.upload: "Uploaded recording"}
+                 Channel.phone: "Phone call", Channel.mobile: "Mobile recording", Channel.upload: "Uploaded recording"}
 
 
 def select_template(templates: dict[str, SummaryTemplate], meta: ConversationMeta, processing: ProcessingPolicy,

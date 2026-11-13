@@ -14,6 +14,7 @@ the names, people, accounts and phone numbers are invented (`.example` domains, 
 | `crm/field_profile.yaml` | how a note maps onto Dataverse columns in the optional "custom" profile | `adapters/crm/field_profile.py` |
 | `calls/*.json` | 18 scripted calls with gold labels: the demo inbox, the offline transcripts and the golden evaluation set | `fixtures.ScriptedCall` |
 | `audio/` | optional real recordings for live Speech tests (git-ignored); the offline path uses synthetic placeholder audio | - |
+| `phone/phone-call.json` | the short two-voice script `tools/capture_phone.py` speaks to place a real call to the phone line (for the phone screenshots) | - |
 
 Load everything through `voicecrm.data_loader` so schema errors surface immediately.
 

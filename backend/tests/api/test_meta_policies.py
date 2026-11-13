@@ -16,7 +16,7 @@ from .helpers import API
 
 EXPECTED_MODES = {"transcription": "mock", "llm": "rules", "search": "local", "pii": "local", "crm": "local",
                   "vault": "local"}
-CHANNELS = {"teams", "zoom", "genesys", "mobile", "upload"}
+CHANNELS = {"teams", "zoom", "genesys", "mobile", "phone", "upload"}
 
 
 @pytest.fixture()

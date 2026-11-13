@@ -4,6 +4,7 @@ import {
   CheckCircleIcon,
   CpuChipIcon,
   DocumentArrowUpIcon,
+  PhoneIcon,
   PlayIcon,
   SignalIcon,
   SpeakerWaveIcon,
@@ -18,6 +19,7 @@ import { BusinessLineChip, ChannelIcon, LanguageChip, MarketChip, StatusBadge } 
 import { PipelineStepper } from '@/components/conversation/PipelineViews';
 import { TeamsHistoryCard } from '@/components/conversation/TeamsHistoryCard';
 import { TeamsLiveCard } from '@/components/conversation/TeamsLiveCard';
+import { PhoneLiveCard } from '@/components/phone/PhoneLiveCard';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
@@ -35,6 +37,8 @@ interface SourceInfo {
   how: string;
   endpoint: string;
   points: string[];
+  /** Takes real calls rather than scripted payloads, so its card does not say "Simulated payloads". */
+  live?: boolean;
 }
 
 const SOURCES: SourceInfo[] = [
@@ -65,6 +69,17 @@ const SOURCES: SourceInfo[] = [
     how: 'App upload from the installable web app',
     endpoint: 'POST /api/v1/ingest/upload',
     points: ['Record in person, even offline; uploads when the phone reconnects', 'Audio goes through the same transcription, policy and review', 'Retries are idempotent (source_interaction_id)'],
+  },
+  {
+    channel: 'phone',
+    how: 'Azure Communication Services Call Automation, with Event Grid',
+    endpoint: 'POST /api/v1/webhooks/phone/events',
+    points: [
+      'Azure Communication Services answers the call and records both sides on separate channels',
+      'Event Grid tells VoiceCRM when the recording is ready; it is then fetched, transcribed and reviewed like any other call',
+      'A Teams user or the in-browser seller console takes the call',
+    ],
+    live: true,
   },
 ];
 
@@ -112,9 +127,15 @@ function SourceCard({ source }: { source: SourceInfo }) {
         <div className="mt-auto space-y-2 border-t border-neutral-100 pt-3">
           <div className="flex flex-wrap items-center gap-1.5 text-xs">
             <span className="font-semibold text-neutral-500">Mode</span>
-            <Badge tone="neutral" icon={BeakerIcon} title="Fixtures are rendered as this channel's native payload and ingested through the real adapter path">
-              Simulated payloads
-            </Badge>
+            {source.live ? (
+              <Badge tone="info" icon={PhoneIcon} title="Real calls to the VoiceCRM line, placed from the browser (Live demo, section D) or from a phone">
+                Live calls
+              </Badge>
+            ) : (
+              <Badge tone="neutral" icon={BeakerIcon} title="Fixtures are rendered as this channel's native payload and ingested through the real adapter path">
+                Simulated payloads
+              </Badge>
+            )}
             {transcription ? (
               <Badge tone={transcription.live ? 'success' : 'neutral'} icon={SpeakerWaveIcon} title={transcription.reason ?? undefined}>
                 {transcription.live ? 'Live: Azure Speech' : 'Mock transcriber'}
@@ -135,6 +156,11 @@ function SourceCard({ source }: { source: SourceInfo }) {
           {source.channel === 'mobile' ? (
             <Link to="/capture" className="btn btn-secondary btn-sm">
               Open Capture
+            </Link>
+          ) : null}
+          {source.channel === 'phone' ? (
+            <Link to="/live" className="btn btn-secondary btn-sm">
+              Open Live demo
             </Link>
           ) : null}
         </div>
@@ -595,13 +621,13 @@ export default function SourcesPage() {
       <PageHeader
         title="Sources"
         icon={SignalIcon}
-        description="Teams, Zoom, Genesys and in-person recordings all converge on one Microsoft-controlled pipeline: the same transcription, privacy policy, extraction and review, whatever the channel."
+        description="Teams, Zoom, Genesys, the phone line and in-person recordings all converge on one Microsoft-controlled pipeline: the same transcription, privacy policy, extraction and review, whatever the channel."
       />
       <section aria-labelledby="channels-title" className="space-y-3">
         <h2 id="channels-title" className="flex items-center gap-2 text-lg font-semibold text-neutral-900">
           <CpuChipIcon aria-hidden="true" className="h-5 w-5 text-neutral-400" /> How each channel connects
         </h2>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {SOURCES.map((source) => (
             <SourceCard key={source.channel} source={source} />
           ))}
@@ -609,6 +635,7 @@ export default function SourcesPage() {
       </section>
       <TeamsLiveCard />
       <TeamsHistoryCard />
+      <PhoneLiveCard />
       <SimulateGallery />
       <UploadForm />
     </div>

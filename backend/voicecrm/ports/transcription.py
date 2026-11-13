@@ -25,6 +25,7 @@ class TranscriptionRequest(VModel):
     diarize: bool = True
     max_speakers: int = 2
     separate_channels: bool = False            # dual-channel recording (one party per channel, e.g. Genesys): label by channel
+    channel_speakers: list[str] = Field(default_factory=list)   # dual-channel only: the speaker id of each channel (index = channel)
     fixture_id: str | None = None              # lets the mock transcriber find the scripted call for a known audio file
     asr_noise: bool = False                    # mock only: inject realistic ASR mistakes (e.g. "class see")
 
@@ -36,6 +37,21 @@ class TranscriptionResult(VModel):
     audio_seconds: float
     provider: str
     raw: dict[str, Any] | None = None
+
+
+NO_SPEECH_MESSAGE = ("No speech could be recognised in the recording. It may be silent, too short, or in a language "
+                     "that was not expected.")
+
+
+class NoSpeechError(Exception):
+    """The audio holds nothing the transcriber could recognise: silence, a call hung up at once, or only noise.
+
+    An adapter raises this instead of a raw service error when the service finds no language or no words. The pipeline fails
+    the conversation with this plain message, which is also how a caller of the pipeline recognises the outcome.
+    """
+
+    def __init__(self, message: str = NO_SPEECH_MESSAGE) -> None:
+        super().__init__(message)
 
 
 @runtime_checkable

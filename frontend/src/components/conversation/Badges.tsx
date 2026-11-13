@@ -9,6 +9,7 @@ import {
   GlobeAltIcon,
   LanguageIcon,
   PhoneArrowDownLeftIcon,
+  PhoneIcon,
   Squares2X2Icon,
   UserGroupIcon,
   VideoCameraIcon,
@@ -58,6 +59,7 @@ const CHANNEL_STYLE: Record<Channel, { icon: IconType; tile: string }> = {
   teams: { icon: UserGroupIcon, tile: 'bg-indigo-100 text-indigo-700' },
   zoom: { icon: VideoCameraIcon, tile: 'bg-blue-100 text-blue-700' },
   genesys: { icon: PhoneArrowDownLeftIcon, tile: 'bg-orange-100 text-orange-700' },
+  phone: { icon: PhoneIcon, tile: 'bg-teal-100 text-teal-700' },
   mobile: { icon: DevicePhoneMobileIcon, tile: 'bg-emerald-100 text-emerald-700' },
   upload: { icon: ArrowUpTrayIcon, tile: 'bg-neutral-200 text-neutral-700' },
 };
